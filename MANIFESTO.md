@@ -39,15 +39,15 @@ We propose five core laws as a foundation for building governed AGI. These are t
 
 ---
 
-### 3. The Sim-One Framework: A Proposed Architecture
+### 3. The SIM-ONE Framework: A Proposed Architecture
 
-To demonstrate the practical application of these laws, we have developed the Sim-One framework, a modular and governed cognitive system. Sim-One is composed of a series of modular agents and protocol layers that work in sync to create a system that is structured, recursive, and aligned with our proposed laws. It is a practical implementation of governed cognition.
+To demonstrate the practical application of these laws, we have developed the SIM-ONE framework, a modular and governed cognitive system. SIM-ONE is composed of a series of modular agents and protocol layers that work in sync to create a system that is structured, recursive, and aligned with our proposed laws. It is a practical implementation of governed cognition.
 
 ---
 
 ### From External Governor to Intrinsic Nature: The Long-Term Vision
 
-The Sim-One framework is a necessary and practical solution for the artificial intelligence of today. It is a governor, designed to bring order to the powerful but chaotic language models that currently exist. It is an external layer of control, a synthetic prefrontal cortex that guides a powerful but untamed linguistic engine.
+The SIM-ONE framework is a necessary and practical solution for the artificial intelligence of today. It is a governor, designed to bring order to the powerful but chaotic language models that currently exist. It is an external layer of control, a synthetic prefrontal cortex that guides a powerful but untamed linguistic engine.
 
 However, the ultimate goal of the Five Laws is not just to govern existing systems, but to serve as the architectural blueprint for the AI of tomorrow.
 

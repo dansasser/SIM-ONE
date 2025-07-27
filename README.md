@@ -48,7 +48,7 @@ The philosophical core of the Sim-One framework is a set of five non-negotiable 
 4.  **The Law of Experiential Memory:** The framework must maintain a persistent, auditable log of its operations to learn from its experience and ensure accountability.
 5.  **The Law of Protocolic Governance:** The framework must be governed by explicit, machine-readable protocols, not by ambiguous, emergent behaviors.
 
-[**Read the full Sim-One Manifesto here**](https://www.google.com/search?q=./MANIFESTO.md)
+[**Read the full Sim-One Manifesto here**](./MANIFESTO.md)
 
 ## **3. The Architecture in Action**
 
@@ -66,7 +66,7 @@ The Five Laws are not just a philosophy; they are implemented in a specific, tra
 
 ## **4. MVLM: A Minimalist Execution Engine for Efficient Cognitive Tasks**
 
-A key innovation of the Sim-One framework is the concept of the MVLM. Instead of relying on a single, massive, all-purpose model, we advocate for a small, highly efficient language model explicitly designed for execution, rather than general reasoning. By offloading the cognitive labor of planning and verification to other agents, the MVLM can remain lean, fast, and predictable.
+A key innovation of the Sim-One framework is the concept of the [MVLM](/docs/MVLM_TECHNICAL_PRIMER.md). Instead of relying on a single, massive, all-purpose model, we advocate for a small, highly efficient language model explicitly designed for execution, rather than general reasoning. By offloading the cognitive labor of planning and verification to other agents, the MVLM can remain lean, fast, and predictable.
 
 ### **Memory & State Management:**
 
@@ -74,14 +74,14 @@ The MVLM is stateless by design. All session context, memory, and recursive oper
 
 ## **5. Project Documentation**
 
-  * [The Sim-One Manifesto](https://www.google.com/search?q=./MANIFESTO.md)
+  * [The Sim-One Manifesto](./MANIFESTO.md)
   * [The "Sustainable Intelligence" White Paper (scheduled Q3 2025)]
   * **Protocol Repositories:**
       * [HIP Protocol Repository](https://www.google.com/search?q=./protocols/HIP)
       * [POCP Protocol Repository](https://www.google.com/search?q=./protocols/POCP)
       * [REP Protocol Repository](https://www.google.com/search?q=./protocols/REP)
   * **Case Studies:**
-      * [Case Study Directory](https://www.google.com/search?q=./case-studies)
+      * [Case Study Directory](./case-studies)
    
  📄 [View MVLM Metadata (JSON)](./docs/meta/mvlm_spec.json)
 
@@ -91,7 +91,7 @@ This project is currently in the documentation and specification phase. The best
 
 ## **7. About the Author**
 
-The principles and architecture of the Sim-One Framework were developed by Daniel T. Sasser II. For more information on his background, philosophy, and work, please see the [AUTHORS.md](https://www.google.com/search?q=./AUTHORS.md) file.
+The principles and architecture of the Sim-One Framework were developed by Daniel T. Sasser II. For more information on his background, philosophy, and work, please see the [AUTHORS.md](./AUTHORS.md) file.
 
 -----
 
@@ -106,4 +106,4 @@ The Sim-One Framework and Five Laws were refined via human-AI collaboration, inc
 
 ## **10. License**
 
-This project is licensed under the MIT License. See the [LICENSE](https://www.google.com/search?q=./LICENSE.md) file for details.
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE.md) file for details.

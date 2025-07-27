@@ -82,6 +82,8 @@ The MVLM is stateless by design. All session context, memory, and recursive oper
       * [REP Protocol Repository](https://www.google.com/search?q=./protocols/REP)
   * **Case Studies:**
       * [Case Study Directory](https://www.google.com/search?q=./case-studies)
+   
+ 📄 [View MVLM Metadata (JSON)](./docs/meta/mvlm_spec.json)
 
 ## **6. Getting Started**
 

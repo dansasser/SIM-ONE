@@ -20,7 +20,7 @@ This repository contains the foundational research, architectural models, and sp
 #### 1. **Beyond Prompting: A Protocol-Driven Architecture for Reliable and Consistent AI Agents**
 
 > A formal white paper that introduces and defends the architectural thesis.
-> ✅ [Read it here → `protocol-framework.md`](./PROTOCOL_DRIVEN_ARCHITECTURE.md)
+> ✅ [Read it here → `protocol-framework.md`](../docs/PROTOCOL_DRIVEN_ARCHITECTURE.md)
 
 This paper outlines:
 
@@ -32,7 +32,7 @@ This paper outlines:
 #### 2. **Synthetic Cognition via Protocol Modularity**
 
 > A paper mapping each protocol to cognitive analogues (perception, tone control, and clarity logic).
-> ✅ [Read it here → `synthetic-mind-layer.md`](./SYNTHETIC_MIND_LAYER.md)
+> ✅ [Read it here → `synthetic-mind-layer.md`](../docs/SYNTHETIC_MIND_LAYER.md)
 
 This paper expands on:
 

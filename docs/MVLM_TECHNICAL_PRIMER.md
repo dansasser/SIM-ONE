@@ -89,5 +89,5 @@ The future of scalable, trustworthy, and sustainable AGI will not be found at th
       * v2.0 – Multi-domain MVLM deployment
   * **Glossary:** (To be developed)
   * **References:**
-      * [The Sim-One Manifesto](./MANIFESTO.md)
+      * [The Sim-One Manifesto](../MANIFESTO.md)
       * (Other relevant research papers)

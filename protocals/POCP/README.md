@@ -96,7 +96,7 @@ This is an open protocol, and contributions are welcome. Please feel free to ope
 
 ### License
 
-This project is licensed under the terms of the **MIT License**. See the [`LICENSE`](https://www.google.com/search?q=./LICENSE) file for full terms.
+This project is licensed under the terms of the **MIT License**. See the [`LICENSE`](../../LICENSE) file for full terms.
 
 ### Author
 

@@ -42,13 +42,13 @@ The philosophical core of the Sim-One framework is a set of five non-negotiable 
 4.  **The Law of Experiential Memory:** The framework must maintain a persistent, auditable log of its operations to learn from its experience and ensure accountability.
 5.  **The Law of Protocolic Governance:** The framework must be governed by explicit, machine-readable protocols, not by ambiguous, emergent behaviors.
 
-[**Read the full Sim-One Manifesto here**](./MANIFESTO.md)
+[**Read the full Sim-One Manifesto here](./MANIFESTO.md)**
 
 ## **3. The Architecture in Action**
 
 The Five Laws are not just a philosophy; they are implemented in a specific, transparent cognitive architecture.
 
-<img width="2048" height="2048" alt="Gemini_Generated_Image_fruns7fruns7frun" src="https://github.com/user-attachments/assets/8e186e14-13c9-499f-bbb1-3884541b8b2c" />
+<img width="2048" height="2048" alt="Gemini_Generated_Image_fruns7fruns7frun" src="https://github.com/user-attachments/assets/31d69adc-5a75-4cac-8842-48a94a0ef58f" />
 
 ### **Key Components:**
 
@@ -85,4 +85,4 @@ We welcome discussion and feedback from the AI community. As this project evolve
 
 ## **9. License**
 
-This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE.md) file for details.

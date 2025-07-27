@@ -70,7 +70,7 @@ Open an issue or submit a PR. A [`CONTRIBUTING.md`](./CONTRIBUTING.md) is coming
 
 ## 📜 License
 
-This repository is licensed under the [MIT License](./LICENSE). Use it freely in your own frameworks and extend as needed.
+This repository is licensed under the [MIT License](../../LICENSE). Use it freely in your own frameworks and extend as needed.
 
 ---
 

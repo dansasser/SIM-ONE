@@ -102,15 +102,6 @@ The Sim-One Framework and Five Laws were refined via human-AI collaboration, inc
   * Concepts and protocols are tracked in their individual markdown repos.
   * Contributions are visible via issues and pull requests in each protocol repo.
 
-## 📘 Related Reading  
-* [Sim‑One Manifesto](./MANIFESTO.md)  
-* Sustainable Intelligence White Paper (forthcoming)
-* [HIP Protocol Repository](./protocols/HIP)
-* [POCP Protocol Repository](./protocols/POCP)
-* [REP Protocol Repository](./protocols/REP)
-* [Case Study Directory (`case-studies/`)](./case-studies)
-
-
 ## **10. License**
 
 This project is licensed under the MIT License. See the [LICENSE](https://www.google.com/search?q=./LICENSE.md) file for details.

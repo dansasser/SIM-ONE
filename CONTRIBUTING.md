@@ -44,8 +44,8 @@ For minor changes, like fixing a typo, correcting a factual error, or improving 
 
 For inquiries about private collaboration, security, or other matters not suitable for a public GitHub issue, you can reach the author directly at:
 
-[contact@dansasser.me](mailto:contact@dansasser.me)
-[contact@gorombo.com](mailto:contact@gorombo.com)
+* [contact@dansasser.me](mailto:contact@dansasser.me)
+* [contact@gorombo.com](mailto:contact@gorombo.com)
 
 ## **Code of Conduct**
 

@@ -1,16 +1,16 @@
-# **Contributing to the Sim-One Framework**
+# **Contributing to the SIM-ONE Framework**
 
-First off, thank you for your interest in the Sim-One Framework. This project is an open, collaborative effort to establish a new standard for governed, trustworthy, and efficient AGI. We welcome contributions from researchers, engineers, philosophers, and anyone passionate about building a better future for artificial intelligence.
+First off, thank you for your interest in the SIM-ONE Framework. This project is an open, collaborative effort to establish a new standard for governed, trustworthy, and efficient AGI. We welcome contributions from researchers, engineers, philosophers, and anyone passionate about building a better future for artificial intelligence.
 
 This document provides a set of guidelines for contributing to the project.
 
 ## **Core Philosophy of Contribution**
 
-The Sim-One Framework is built on a foundation of order, clarity, and architectural integrity. We ask that all contributions adhere to these same principles. We welcome rigorous debate, constructive criticism, and bold new ideas, provided they are presented respectfully and are aimed at strengthening the framework for the entire community.
+The SIM-ONE Framework is built on a foundation of order, clarity, and architectural integrity. We ask that all contributions adhere to these same principles. We welcome rigorous debate, constructive criticism, and bold new ideas, provided they are presented respectfully and are aimed at strengthening the framework for the entire community.
 
 ## **How to Contribute**
 
-There are several ways to contribute to the Sim-One project. Since this is primarily a framework of standards and documents, most contributions will be in the form of discussion and writing.
+There are several ways to contribute to the SIM-ONE project. Since this is primarily a framework of standards and documents, most contributions will be in the form of discussion and writing.
 
 ### **💬 Discussions & Feedback**
 
@@ -22,7 +22,7 @@ The primary way to contribute at this stage is by participating in the intellect
 
 ### **💡 Proposing New Protocols or Enhancements**
 
-The framework is designed to be extensible. If you have an idea for a new protocol that would add value to the Sim-One ecosystem, we have a formal process for proposals:
+The framework is designed to be extensible. If you have an idea for a new protocol that would add value to the SIM-ONE ecosystem, we have a formal process for proposals:
 
 1.  **Open an Issue:** Start by [opening a new issue](https://github.com/dansasser/SIM-ONE/issues/new) with a title like `[Protocol Proposal]: Name of Your Protocol`. In the body, describe the problem your protocol solves and its core concept.
 2.  **Community Discussion:** The proposal will be discussed by the community and project maintainers.

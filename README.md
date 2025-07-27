@@ -1,4 +1,4 @@
-# **The Sim-One Framework**
+# **The SIM-ONE Framework**
 
 <img width="1536" height="1024" alt="sim_one_image_2_five_laws_pillars" src="https://github.com/user-attachments/assets/d3d583a3-ace4-4b28-8f06-22fcae433435" />
 
@@ -11,15 +11,15 @@
 ![Status: Active](https://img.shields.io/badge/Status-Active-brightgreen.svg)
 
 
-> **Project Purpose:** The Sim-One Framework provides a formal structure for building governed artificial intelligence, offering an alternative to current brute-force LLM models through modular orchestration and protocolic control.
+> **Project Purpose:** The SIM-ONE Framework provides a formal structure for building governed artificial intelligence, offering an alternative to current brute-force LLM models through modular orchestration and protocolic control.
 
-This repository contains the official documentation for the Sim-One Framework, an open cognitive architecture designed to create trustworthy, efficient, and transparent AI systems. Built on the Five Laws of Cognitive Governance, this framework utilizes a modular system of agents—including a Planner, Verifier, and a specialized Minimum Viable Language Model (MVLM)—to move beyond brute-force scaling. This project provides a new, open standard for AGI development that prioritizes architectural elegance and auditable, protocol-driven intelligence.
+This repository contains the official documentation for the SIM-ONE Framework, an open cognitive architecture designed to create trustworthy, efficient, and transparent AI systems. Built on the Five Laws of Cognitive Governance, this framework utilizes a modular system of agents—including a Planner, Verifier, and a specialized Minimum Viable Language Model (MVLM)—to move beyond brute-force scaling. This project provides a new, open standard for AGI development that prioritizes architectural elegance and auditable, protocol-driven intelligence.
 
 -----
 
 ## **Table of Contents**
 
-  * [1. Introduction: Redefining AGI Through Governed Intelligence](https://www.google.com/search?q=%231-introduction-redefining-agi-through-governed-intelligence-with-the-sim-one-framework)
+  * [1. Introduction: Redefining AGI Through Governed Intelligence](https://www.google.com/search?q=%231-introduction-redefining-agi-through-governed-intelligence-with-the-SIM-ONE-framework)
   * [2. The Five Laws of Cognitive Governance](https://www.google.com/search?q=%232-the-five-laws-of-cognitive-governance)
   * [3. The Architecture in Action](https://www.google.com/search?q=%233-the-architecture-in-action)
   * [4. MVLM: A Minimalist Execution Engine for Efficient Cognitive Tasks](https://www.google.com/search?q=%234-mvlm-a-minimalist-execution-engine-for-efficient-cognitive-tasks)
@@ -42,7 +42,7 @@ This repository serves as the canonical reference for this open cognitive archit
 
 ## **2. The Five Laws of Cognitive Governance**
 
-The philosophical core of the Sim-One framework is a set of five non-negotiable laws that ensure a governed, stable, and coherent intelligence.
+The philosophical core of the SIM-ONE framework is a set of five non-negotiable laws that ensure a governed, stable, and coherent intelligence.
 
 1.  **The Law of Structural Priority:** The framework must prioritize the integrity and logic of its own architecture above any single output it generates.
 2.  **The Law of Recursive Validation:** The framework must verify its own outputs against its inputs, its internal plan, and its ethical principles before releasing them.
@@ -50,7 +50,7 @@ The philosophical core of the Sim-One framework is a set of five non-negotiable 
 4.  **The Law of Experiential Memory:** The framework must maintain a persistent, auditable log of its operations to learn from its experience and ensure accountability.
 5.  **The Law of Protocolic Governance:** The framework must be governed by explicit, machine-readable protocols, not by ambiguous, emergent behaviors.
 
-[**Read the full Sim-One Manifesto here**](./MANIFESTO.md)
+[**Read the full SIM-ONE Manifesto here**](./MANIFESTO.md)
 
 ## **3. The Architecture in Action**
 
@@ -68,7 +68,7 @@ The Five Laws are not just a philosophy; they are implemented in a specific, tra
 
 ## **4. MVLM: A Minimalist Execution Engine for Efficient Cognitive Tasks**
 
-A key innovation of the Sim-One framework is the concept of the [MVLM](/docs/MVLM_TECHNICAL_PRIMER.md). Instead of relying on a single, massive, all-purpose model, we advocate for a small, highly efficient language model explicitly designed for execution, rather than general reasoning. By offloading the cognitive labor of planning and verification to other agents, the MVLM can remain lean, fast, and predictable.
+A key innovation of the SIM-ONE framework is the concept of the [MVLM](/docs/MVLM_TECHNICAL_PRIMER.md). Instead of relying on a single, massive, all-purpose model, we advocate for a small, highly efficient language model explicitly designed for execution, rather than general reasoning. By offloading the cognitive labor of planning and verification to other agents, the MVLM can remain lean, fast, and predictable.
 
 ### **Memory & State Management:**
 
@@ -78,7 +78,7 @@ The MVLM is stateless by design. All session context, memory, and recursive oper
 
 ## **5. Project Documentation**
 
-  * [The Sim-One Manifesto](./MANIFESTO.md)
+  * [The SIM-ONE Manifesto](./MANIFESTO.md)
   * [The "Sustainable Intelligence" White Paper (scheduled Q3 2025)]
   * **Protocol Repositories:**
       * [HIP Protocol Repository](https://www.google.com/search?q=./protocols/HIP)
@@ -91,23 +91,23 @@ The MVLM is stateless by design. All session context, memory, and recursive oper
 
 ## **6. Getting Started**
 
-This project is currently in the documentation and specification phase. The best way to get started is by reading the [Sim-One Manifesto](./MANIFESTO.md) to understand the core principles.
+This project is currently in the documentation and specification phase. The best way to get started is by reading the [SIM-ONE Manifesto](./MANIFESTO.md) to understand the core principles.
 
 ## **7. About the Author**
 
-The principles and architecture of the Sim-One Framework were developed by Daniel T. Sasser II. For more information on his background, philosophy, and work, please see the [AUTHORS.md](./AUTHORS.md) file.
+The principles and architecture of the SIM-ONE Framework were developed by Daniel T. Sasser II. For more information on his background, philosophy, and work, please see the [AUTHORS.md](./AUTHORS.md) file.
 
 -----
 
 ## **8. 🧠 Acknowledgements**
 
-The Sim-One Framework and Five Laws were refined via human-AI collaboration, including contributions from ChatGPT, Gemini AI, and early feedback from developer stakeholders.
+The SIM-ONE Framework and Five Laws were refined via human-AI collaboration, including contributions from ChatGPT, Gemini AI, and early feedback from developer stakeholders.
 
 -----
 
 ## **9. 🚀 Contribution & Governance**
 
-The Sim-One Framework is an open project, and we welcome contributions from the community to help shape the future of governed intelligence. We believe in a transparent and collaborative development process where the best ideas can be debated, refined, and adopted.
+The SIM-ONE Framework is an open project, and we welcome contributions from the community to help shape the future of governed intelligence. We believe in a transparent and collaborative development process where the best ideas can be debated, refined, and adopted.
 
 Contributions can range from feedback on the Manifesto and technical papers to formal proposals for new protocols. All activity is managed through this repository and is governed by our Code of Conduct. For detailed guidelines on how to get involved, including our process for submitting ideas and proposing new protocols, please read our full contribution guide.
 

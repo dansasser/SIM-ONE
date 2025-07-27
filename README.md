@@ -42,7 +42,7 @@ The philosophical core of the Sim-One framework is a set of five non-negotiable 
 4.  **The Law of Experiential Memory:** The framework must maintain a persistent, auditable log of its operations to learn from its experience and ensure accountability.
 5.  **The Law of Protocolic Governance:** The framework must be governed by explicit, machine-readable protocols, not by ambiguous, emergent behaviors.
 
-[**Read the full Sim-One Manifesto here](./MANIFESTO.md)**
+[**Read the full Sim-One Manifesto here**](./MANIFESTO.md)
 
 ## **3. The Architecture in Action**
 

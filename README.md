@@ -1,5 +1,7 @@
 # **The Sim-One Framework**
 
+<img width="1536" height="1024" alt="sim_one_image_2_five_laws_pillars" src="https://github.com/user-attachments/assets/d3d583a3-ace4-4b28-8f06-22fcae433435" />
+
 > ⚙️ **Built and maintained by cognitive architects with two decades of experience. MIT-licensed, peer-reviewed specification frameworks.**
 
 [![Manifesto](https://img.shields.io/badge/Manifesto-Ready-green)](./MANIFESTO.md)

@@ -1,16 +1,16 @@
-# **Sim-One Framework - Code of Conduct**
+# **SIM-ONE Framework - Code of Conduct**
 
-> This Code of Conduct governs interactions within the Sim-One ecosystem, ensuring our principles of clarity, trust, and architectural integrity extend to every contributor.
+> This Code of Conduct governs interactions within the SIM-ONE ecosystem, ensuring our principles of clarity, trust, and architectural integrity extend to every contributor.
 
 ## **1. Our Pledge**
 
-We, as contributors and maintainers, pledge to make participation in the Sim-One Framework project and its community a harassment-free experience for everyone. We are committed to a community where all individuals are treated with respect and dignity, and contributions are judged based on their intellectual merit and alignment with the project's principles, not on personal identity or background.
+We, as contributors and maintainers, pledge to make participation in the SIM-ONE Framework project and its community a harassment-free experience for everyone. We are committed to a community where all individuals are treated with respect and dignity, and contributions are judged based on their intellectual merit and alignment with the project's principles, not on personal identity or background.
 
 We believe that intense intellectual debate is essential for progress, and we pledge to ensure that even the most critical disagreements are conducted respectfully and constructively.
 
 ## **2. The Civic Protocols of Interaction**
 
-The Sim-One Framework is an intellectual project built on a foundation of order, clarity, and architectural integrity. We expect all community members to adhere to these same principles in their interactions. All contributions are judged on their technical merit and adherence to framework principles—not on the contributor’s background or affiliations.
+The SIM-ONE Framework is an intellectual project built on a foundation of order, clarity, and architectural integrity. We expect all community members to adhere to these same principles in their interactions. All contributions are judged on their technical merit and adherence to framework principles—not on the contributor’s background or affiliations.
 
 ### **Examples of behavior that contributes to a positive and rigorous environment:**
 
@@ -53,4 +53,4 @@ All enforcement actions will be carried out with the goal of protecting the comm
 
 ## **6. Attribution**
 
-This Code of Conduct is adapted from the [Contributor Covenant](https://www.contributor-covenant.org/version/2/1/code_of_conduct.html), version 2.1, tailored to reflect the core philosophical principles of the Sim-One Framework.
+This Code of Conduct is adapted from the [Contributor Covenant](https://www.contributor-covenant.org/version/2/1/code_of_conduct.html), version 2.1, tailored to reflect the core philosophical principles of the SIM-ONE Framework.

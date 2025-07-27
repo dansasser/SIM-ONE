@@ -25,7 +25,7 @@ Agents using HIP can:
 
 ## 📖 Documentation
 
-The full protocol specification is located in [`HIP.md`](./HIP_PROTOCAL.md). It includes:
+The full protocol specification is located in [`HIP_PROTOCAL.md`](./HIP_PROTOCAL.md). It includes:
 
 - Problem overview and rationale  
 - Five-step agent process model  

@@ -1,4 +1,5 @@
 # **The Minimum Viable Language Model (MVLM): Redefining AI with Architecture-First Design**
+<img width="1536" height="1024" alt="sim_one_image_3_modular_architecture_flow" src="https://github.com/user-attachments/assets/436047f5-f79b-496a-a2a9-61b5d03ed70a" />
 
 ![Status: Draft](https://img.shields.io/badge/Status-Draft-orange)
 ![Version: 1.0](https://img.shields.io/badge/Version-1.0-blue)

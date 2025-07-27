@@ -40,6 +40,13 @@ For minor changes, like fixing a typo, correcting a factual error, or improving 
 5.  Push your branch to your fork.
 6.  Open a Pull Request to the `main` branch of the `dansasser/SIM-ONE` repository.
 
+### 📨 Direct Contact
+
+For inquiries about private collaboration, security, or other matters not suitable for a public GitHub issue, you can reach the author directly at:
+
+[contact@dansasser.me](mailto:contact@dansasser.me)
+[contact@gorombo.com](mailto:contact@gorombo.com)
+
 ## **Code of Conduct**
 
 This project and everyone participating in it is governed by our [Code of Conduct](./CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior. We are committed to fostering an open, welcoming, and respectful environment.

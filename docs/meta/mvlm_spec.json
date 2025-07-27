@@ -1,0 +1,45 @@
+{
+  "title": "The Minimum Viable Language Model (MVLM): Redefining AI with Architecture-First Design",
+  "author": "Daniel T. Sasser II",
+  "version": "1.0",
+  "status": "Draft",
+  "framework": "SIM-ONE Framework",
+  "component": "MVLM (Minimum Viable Language Model)",
+  "keywords": [
+    "MVLM",
+    "Sim-One Framework",
+    "architecture-first AI",
+    "modular AI",
+    "recursive memory",
+    "cognitive loop",
+    "execution-only language model",
+    "AGI sustainability",
+    "stateless inference",
+    "verifier architecture",
+    "protocol-driven AI"
+  ],
+  "sections": [
+    "Abstract",
+    "1. Introduction: The Crisis of the Monolithic Model",
+    "2. Defining the Minimum Viable Language Model (MVLM)",
+    "3. The Architectural Role of the MVLM in the Sim-One Framework",
+    "4. The Asymmetric Advantage: Benefits of the MVLM Approach",
+    "5. Future Research & Development",
+    "6. Conclusion",
+    "7. Appendix"
+  ],
+  "appendix": {
+    "technical_faq": "Coming Soon",
+    "performance_benchmarks": "Coming Soon",
+    "versioning_roadmap": {
+      "v1.0": "Execution engine specification",
+      "v1.1": "Model training and validation protocols",
+      "v2.0": "Multi-domain MVLM deployment"
+    },
+    "glossary": "To be developed",
+    "references": [
+      "./MANIFESTO.md"
+    ]
+  },
+  "last_updated": "2025-07-27T00:00:00Z"
+}

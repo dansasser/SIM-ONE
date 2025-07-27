@@ -101,10 +101,15 @@ The principles and architecture of the Sim-One Framework were developed by Danie
 
 The Sim-One Framework and Five Laws were refined via human-AI collaboration, including contributions from ChatGPT, Gemini AI, and early feedback from developer stakeholders.
 
+-----
+
 ## **9. 🚀 Contribution & Governance**
 
-  * Concepts and protocols are tracked in their individual markdown repos.
-  * Contributions are visible via issues and pull requests in each protocol repo.
+The Sim-One Framework is an open project, and we welcome contributions from the community to help shape the future of governed intelligence. We believe in a transparent and collaborative development process where the best ideas can be debated, refined, and adopted.
+
+Contributions can range from feedback on the Manifesto and technical papers to formal proposals for new protocols. All activity is managed through this repository and is governed by our Code of Conduct. For detailed guidelines on how to get involved, including our process for submitting ideas and proposing new protocols, please read our full contribution guide.
+
+[Read our full Contribution Guidelines here**](./CONTRIBUTING.md)
 
 ## **10. License**
 

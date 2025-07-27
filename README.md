@@ -2,9 +2,9 @@
 
 > ⚙️ **Built and maintained by cognitive architects with two decades of experience. MIT-licensed, peer-reviewed specification frameworks.**
 
-[](https://www.google.com/search?q=./MANIFESTO.md)
-[](https://www.google.com/search?q=./protocols)
-[](https://www.google.com/search?q=./LICENSE.md)
+[MANIFESTO](https://www.google.com/search?q=./MANIFESTO.md)
+[PROTOCALS](https://www.google.com/search?q=./protocols)
+[LICENCE](https://www.google.com/search?q=./LICENSE.md)
 ![Version: 1.0.0](https://img.shields.io/badge/Version-1.0.0-blue.svg)
 ![Status: Active](https://img.shields.io/badge/Status-Active-brightgreen.svg)
 

@@ -2,11 +2,12 @@
 
 > ⚙️ **Built and maintained by cognitive architects with two decades of experience. MIT-licensed, peer-reviewed specification frameworks.**
 
-[MANIFESTO](https://www.google.com/search?q=./MANIFESTO.md)
-[PROTOCALS](https://www.google.com/search?q=./protocols)
-[LICENCE](https://www.google.com/search?q=./LICENSE.md)
+[![Manifesto](https://img.shields.io/badge/Manifesto-Ready-green)](./MANIFESTO.md)
+[![Protocols](https://img.shields.io/badge/Protocols–HIP_POCP_REP-blue)](./protocols)
+[![License](https://img.shields.io/badge/license-MIT-red)](./LICENSE.md)
 ![Version: 1.0.0](https://img.shields.io/badge/Version-1.0.0-blue.svg)
 ![Status: Active](https://img.shields.io/badge/Status-Active-brightgreen.svg)
+
 
 > **Project Purpose:** The Sim-One Framework provides a formal structure for building governed artificial intelligence, offering an alternative to current brute-force LLM models through modular orchestration and protocolic control.
 
@@ -84,7 +85,7 @@ The MVLM is stateless by design. All session context, memory, and recursive oper
 
 ## **6. Getting Started**
 
-This project is currently in the documentation and specification phase. The best way to get started is by reading the [Sim-One Manifesto](https://www.google.com/search?q=./MANIFESTO.md) to understand the core principles.
+This project is currently in the documentation and specification phase. The best way to get started is by reading the [Sim-One Manifesto](./MANIFESTO.md) to understand the core principles.
 
 ## **7. About the Author**
 
@@ -100,6 +101,15 @@ The Sim-One Framework and Five Laws were refined via human-AI collaboration, inc
 
   * Concepts and protocols are tracked in their individual markdown repos.
   * Contributions are visible via issues and pull requests in each protocol repo.
+
+## 📘 Related Reading  
+* [Sim‑One Manifesto](./MANIFESTO.md)  
+* Sustainable Intelligence White Paper (forthcoming)
+* [HIP Protocol Repository](./protocols/HIP)
+* [POCP Protocol Repository](./protocols/POCP)
+* [REP Protocol Repository](./protocols/REP)
+* [Case Study Directory (`case-studies/`)](./case-studies)
+
 
 ## **10. License**
 

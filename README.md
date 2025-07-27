@@ -109,7 +109,7 @@ The Sim-One Framework is an open project, and we welcome contributions from the 
 
 Contributions can range from feedback on the Manifesto and technical papers to formal proposals for new protocols. All activity is managed through this repository and is governed by our Code of Conduct. For detailed guidelines on how to get involved, including our process for submitting ideas and proposing new protocols, please read our full contribution guide.
 
-[Read our full Contribution Guidelines here**](./CONTRIBUTING.md)
+[**Read our full Contribution Guidelines here**](./CONTRIBUTING.md)
 
 ## **10. License**
 

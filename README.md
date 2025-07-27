@@ -72,6 +72,8 @@ A key innovation of the Sim-One framework is the concept of the [MVLM](/docs/MVL
 
 The MVLM is stateless by design. All session context, memory, and recursive operational history are stored in an external, audit-grade database, enforcing Law 4 (Experiential Memory) and enabling deterministic behavior over time.
 
+📄 For more information about the MVLM [View MVLM Documentation here.](/docs/MVLM_TECHNICAL_PRIMER.md)
+
 ## **5. Project Documentation**
 
   * [The Sim-One Manifesto](./MANIFESTO.md)
@@ -81,9 +83,9 @@ The MVLM is stateless by design. All session context, memory, and recursive oper
       * [POCP Protocol Repository](https://www.google.com/search?q=./protocols/POCP)
       * [REP Protocol Repository](https://www.google.com/search?q=./protocols/REP)
   * **Case Studies:**
-      * [Case Study Directory](./case-studies)
-   
- 📄 [View MVLM Metadata (JSON)](./docs/meta/mvlm_spec.json)
+      * [Case Study Directory](./case-studies)   
+  * [MVLM Documentation)](/docs/MVLM_TECHNICAL_PRIMER.md)
+  * [View MVLM Metadata (JSON)](./docs/meta/mvlm_spec.json)
 
 ## **6. Getting Started**
 

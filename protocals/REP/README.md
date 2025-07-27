@@ -45,7 +45,7 @@ Each module is configurable via a JSON object. The system also supports logging 
 ## 🔗 Full Protocol Specification
 
 Read the full technical protocol here:  
-📄 [REP.md – Readability Enhancement Protocol v1.3](./REP.md)
+📄 [REP.md – Readability Enhancement Protocol v1.3](./REP_PROTOCAL.md)
 
 ---
 

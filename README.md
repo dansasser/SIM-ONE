@@ -8,14 +8,14 @@
 
 **SIM‑ONE is the first open framework to formalize *governed cognition*, moving beyond brute‑force scaling to establish a principled, efficient, and reliable approach to AI architecture.**
 
-This repository contains the official **manifesto**, architectural philosophy, and guiding principles for the SIM‑ONE Framework.  
+This repository contains the official **MANIFESTO**, architectural philosophy, and guiding principles for the SIM‑ONE Framework.  
 It is intentionally designed to be **transparent about the "why"** and **protective of the "how"**.
 
 ---
 
 ## Table of Contents
 - [Core Philosophy](#core-philosophy)
-- [The Manifesto](#the-manifesto)
+- [The MANIFESTO](#the-MANIFESTO)
 - [The Five Laws of Cognitive Governance](#the-five-laws-of-cognitive-governance)
 - [Architectural Overview](#architectural-overview)
 - [Project Status](#project-status)
@@ -39,9 +39,9 @@ Governed cognition over unrestrained generation.
 
 ---
 
-## The Manifesto
+## The MANIFESTO
 
-The complete SIM‑ONE Manifesto is available in [`manifesto.md`](./manifesto.md).  
+The complete SIM‑ONE MANIFESTO is available in [`MANIFESTO.md`](./MANIFESTO.md).  
 It outlines the philosophical and engineering basis for governed cognition.
 
 ---
@@ -77,7 +77,7 @@ Without revealing implementation details, SIM‑ONE is:
 
 - **Philosophical Framework** – Complete  
 - **Nine Governance Protocols** – Defined (implementation private)  
-- **Public Documentation** – [`manifesto.md`](./manifesto.md) available for reference  
+- **Public Documentation** – [`MANIFESTO.md`](./MANIFESTO.md) available for reference  
 - **Benchmarking** – Completed in controlled environments  
 - **Implementation** – Internal builds operational, private codebase maintained
 

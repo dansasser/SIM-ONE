@@ -2,7 +2,7 @@
 
 [![Framework Status](https://img.shields.io/badge/Status-v1.0-green.svg)](./)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-[![Author: Daniel T. Sasser II](https://img.shields.io/badge/Author-Daniel_T._Sasser_II-orange.svg)](https://dansasser.me/)
+[![Author: Daniel T. Sasser II](https://img.shields.io/badge/Author-Daniel_T._Sasser_II-orange.svg)](https://dansasser.me/about/)
 
 **This document contains the official manifesto for the SIM-ONE Framework, a new standard for building trustworthy, efficient, and auditable AI systems by prioritizing architectural governance over brute-force scale.**
 

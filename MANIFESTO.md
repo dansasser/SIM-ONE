@@ -101,11 +101,11 @@ This isn't a manifesto to admire. It's an architecture to test and implement. We
 > "Intelligence emerges from governance, not scale."
 > - The SIM-ONE Principle
 
-##  8. Licensing & Repository Information**
+## 8. Licensing & Repository Information
 
 This paper is part of the Synthetic Cognition Series hosted at [github.com/dansasser](https://github.com/dansasser). It is licensed under the MIT License. Protocol definitions, supporting documents, and implementation guides are included in this repository.
 
-**12. Suggested Citation**
+## 9. Suggested Citation
 
 Sasser, D. T. (2025). *The SIM-ONE Manifesto: A New Architecture for Governed Cognition*. GitHub Repository.
 

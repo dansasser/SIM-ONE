@@ -80,3 +80,19 @@ The agentic AI landscape of 2025 is at a critical inflection point. While the po
 This paper has argued for and demonstrated a solution: a **protocol-driven architecture**. By abstracting core agentic capabilities into formal, machine-readable protocols, we introduce a new architectural layer that provides the technical governance necessary for reliable execution. Our case studies of HIP, POCP, and REP have shown that this is not a theoretical exercise; it is a practical methodology for solving real-world problems of resource access, output consistency, and stylistic quality. The successful autonomous adoption of these protocols by existing agents further proves their power as a blueprint for more advanced agentic systems.
 
 The future of reliable AI will not be built on better prompts alone, but on better architecture. The next step for this work is to foster an open ecosystem of protocols, where developers can create, share, and implement standardized modules for a vast array of agentic tasks, leading to more robust and interoperable AI systems.
+
+### **7.0 Acknowledgements**
+
+We wish to thank the collaborative efforts of AI assistants, including ChatGPT and Gemini, whose contextual reasoning, protocol interpretation, and iterative refinement helped shape and validate the ideas presented in this work.
+
+### **8.0 Author Contributions**
+
+Daniel T. Sasser II conceptualized the protocol framework, developed the POCP, REP, and HIP models, and oversaw system implementation within MCP-based agent stacks. LLM-based agents provided iterative feedback, contextual reasoning, and multi-pass refinement through a structured protocol-review workflow. This paper represents a joint human-AI synthesis of research, reflection, and systems design.
+
+### **9.0 Licensing & Repository Information**
+
+This paper is part of the Synthetic Cognition Series hosted at github.com/dansasser. It is licensed under the MIT License. Protocol definitions, supporting documents, and implementation guides are included in this repository.
+
+### **10.0 Suggested Citation**
+
+Sasser, D. T. (2025). Protocols as a Beyond Prompting: A Protocol-Driven Architecture for Reliable and Consistent AI Agents. GitHub Repository.

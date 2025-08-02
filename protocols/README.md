@@ -1,4 +1,5 @@
 # SIM‑ONE Framework Protocols
+<img width="1024" height="1536" alt="ChatGPT Image Aug 2, 2025, 12_27_52 AM" src="https://github.com/user-attachments/assets/afbf7d3c-8a83-476b-a3d4-d8478b6b7a8e" />
 
 This directory contains the formal governance protocol documentation for the **SIM‑ONE Framework**.  
 Each protocol defines a distinct **governed cognitive function** that works in coordination with the others to produce deterministic, reliable, and truth‑aligned outputs.

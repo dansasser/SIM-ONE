@@ -7,6 +7,7 @@
 [![Energy Efficiency](https://img.shields.io/badge/Principle-Energy_Efficient_Architecture-lightgrey.svg)](./)
 
 **SIM‑ONE is the first open framework to formalize *governed cognition*, moving beyond brute‑force scaling to establish a principled, efficient, and reliable approach to AI architecture.**
+<img width="1536" height="1024" alt="sim_one_image_2_five_laws_pillars" src="https://github.com/user-attachments/assets/f4aa7a02-d454-4658-80be-f3abe24ccb8c" />
 
 This repository contains the official **MANIFESTO**, architectural philosophy, and guiding principles for the SIM‑ONE Framework.  
 It is intentionally designed to be **transparent about the "why"** and **protective of the "how"**.

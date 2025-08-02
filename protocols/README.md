@@ -12,7 +12,7 @@ They are intentionally designed to be **transparent about what each protocol doe
 
 | #  | Protocol Name | File | Purpose Summary |
 |----|---------------|------|-----------------|
-| 1  | **POCP‑Core — Procedural Output Control Protocol (Core Foundation)** | [`POCP-Core_PROTOCOL.md`](./POCP-Core_PROTOCOL.md) | Establishes the foundational procedural governance layer, ensuring all outputs follow structured, logical, and consistent patterns. |
+| 1  | **POCP‑Core — Procedural Output Control Protocol (Core Foundation)** | [`POCP_CORE_PROTOCOL.md`](./POCP_CORE_PROTOCOL.md) | Establishes the foundational procedural governance layer, ensuring all outputs follow structured, logical, and consistent patterns. |
 | 2  | **CCP — Cognitive Control Protocol** | [`CCP_PROTOCOL.md`](./CCP_PROTOCOL.md) | Orchestrates multi‑protocol workflows, ensuring deterministic coordination between all governed processes. |
 | 3  | **EEP — Energy Efficiency Protocol** | [`EEP_PROTOCOL.md`](./EEP_PROTOCOL.md) | Enforces sustainable resource usage, optimizing performance without sacrificing governance reliability. |
 | 4  | **ESL — Emotional Salience Layer** | [`ESL_PROTOCOL.md`](./ESL_PROTOCOL.md) | Governs emotional context interpretation and integration for consistent, truth‑aligned communication. |

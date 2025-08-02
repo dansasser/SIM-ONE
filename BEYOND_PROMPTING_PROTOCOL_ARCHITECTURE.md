@@ -95,4 +95,4 @@ This paper is part of the Synthetic Cognition Series hosted at github.com/dansas
 
 ### **10.0 Suggested Citation**
 
-Sasser, D. T. (2025). Protocols as a Beyond Prompting: A Protocol-Driven Architecture for Reliable and Consistent AI Agents. GitHub Repository.
+Sasser, D. T. (2025). *Protocols as a Beyond Prompting: A Protocol-Driven Architecture for Reliable and Consistent AI Agents.* GitHub Repository.

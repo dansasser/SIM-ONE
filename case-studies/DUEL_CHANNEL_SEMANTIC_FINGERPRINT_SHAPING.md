@@ -389,10 +389,6 @@ This is not merely a marketing tactic — it is an **architectural change in the
 
 ---
 
-Here’s the **tightened Section 8.4** with a one‑line addition so it closes by explicitly naming **training ingestion** alongside retrieval reinforcement:
-
----
-
 ### **8.4 Looking Ahead**
 
 As AI retrieval systems mature, **semantic fingerprint shaping** will likely become an intentional discipline — part brand strategy, part AI‑era influence management, and part information security.

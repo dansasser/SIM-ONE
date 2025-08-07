@@ -1,0 +1,11 @@
+{
+  "name": "ReasoningAndExplanationProtocol",
+  "version": "1.0.0",
+  "entryPoint": "mcp_server.protocols.rep.rep.REP",
+  "type": "Logical",
+  "dependencies": [],
+  "resourceRequirements": {
+    "cpu": "200m",
+    "memory": "256Mi"
+  }
+}

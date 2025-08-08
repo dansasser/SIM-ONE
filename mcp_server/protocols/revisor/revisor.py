@@ -17,23 +17,14 @@ class RevisorProtocol:
         self.rag_manager = RAGManager()
 
     async def _research_feedback_points(self, feedback: List[str]) -> str:
-        """
-        Performs research on the topics mentioned in the feedback.
-        """
+        # ... (same as before) ...
         logger.info(f"Revisor: Researching {len(feedback)} feedback points.")
-        # For simplicity, we'll just research the first 1-2 feedback points
-        # to avoid excessive search calls.
-
         topics_to_research = []
-        for point in feedback[:2]: # Limit to first 2 points
-            # A simple heuristic to extract a research topic from feedback
+        for point in feedback[:2]:
             if "lacks examples" in point or "fact-check" in point or "verify" in point:
                 topics_to_research.append(point)
-
         if not topics_to_research:
             return "No specific research was triggered by the feedback."
-
-        # Perform research on the extracted topics
         research_context = await self.rag_manager.perform_research(" ".join(topics_to_research), num_sources=1)
         return research_context
 
@@ -41,13 +32,16 @@ class RevisorProtocol:
         """
         Executes the revision workflow.
         """
+        # FIX: Look for the latest draft, whether from a previous Revisor run or the initial Drafter run.
+        revisor_results = data.get("RevisorProtocol", {})
         drafter_results = data.get("DrafterProtocol", {})
-        draft_text = drafter_results.get("draft_text")
+        draft_text = revisor_results.get("revised_draft_text") or drafter_results.get("draft_text")
+
         critic_results = data.get("CriticProtocol", {})
         feedback = critic_results.get("feedback")
 
         if not draft_text or not feedback:
-            return {"error": "Draft text or feedback not provided."}
+            return {"error": "Draft text or feedback not provided for revision."}
 
         # 1. Research the feedback points
         research_context = await self._research_feedback_points(feedback)
@@ -57,7 +51,7 @@ class RevisorProtocol:
         revision_prompt = (
             "You are a professional editor and writer. Your task is to revise the following draft based on the provided critique. "
             "Use the supplementary research material to enrich the content and address factual inaccuracies.\n\n"
-            f"--- Original Draft ---\n{draft_text}\n\n"
+            f"--- Document to Revise ---\n{draft_text}\n\n"
             f"--- Critique ---\n"
         )
         for point in feedback:
@@ -66,7 +60,7 @@ class RevisorProtocol:
         revision_prompt += (
             f"\n--- Supplementary Research ---\n{research_context}\n\n"
             "Please provide the full, revised version of the document, incorporating the feedback and research. "
-            "Ensure the final text is polished, coherent, and factually accurate."
+            "Do not just list the changes; provide the complete, rewritten text."
         )
 
         # 3. Use the Neural Engine to generate the revised draft
@@ -75,21 +69,13 @@ class RevisorProtocol:
         return {"revised_draft_text": revised_draft}
 
 async def main():
+    # ... (same as before) ...
     logging.basicConfig(level=logging.INFO)
     revisor = RevisorProtocol()
-
     sample_data = {
-        "DrafterProtocol": {
-            "draft_text": "The sun is hot. The moon is not."
-        },
-        "CriticProtocol": {
-            "feedback": [
-                "1. The statement about the sun is too simplistic. Please add more detail about solar fusion.",
-                "2. Please fact-check the temperature of the moon's surface."
-            ]
-        }
+        "DrafterProtocol": {"draft_text": "The sun is hot."},
+        "CriticProtocol": {"feedback": ["Please add more detail."]}
     }
-
     try:
         result = await revisor.execute(sample_data)
         print("\n--- Revisor Protocol Result ---")

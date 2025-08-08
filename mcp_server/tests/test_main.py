@@ -32,9 +32,12 @@ class TestApi(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
 
         response_json = response.json()
-        self.assertIn("ReasoningAndExplanationProtocol", response_json)
+        self.assertIn("results", response_json)
+        self.assertIn("resource_usage", response_json)
+        self.assertIn("ReasoningAndExplanationProtocol", response_json["results"])
+        self.assertIn("ReasoningAndExplanationProtocol", response_json["resource_usage"])
 
-        conclusions = response_json["ReasoningAndExplanationProtocol"]["conclusions"]
+        conclusions = response_json["results"]["ReasoningAndExplanationProtocol"]["conclusions"]
         self.assertIn("is_bird", conclusions)
         self.assertIn("is_flying_bird", conclusions)
         self.assertIn("is_oviparous_bird", conclusions)

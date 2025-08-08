@@ -1,6 +1,10 @@
 import logging
-from typing import List, Dict, Any
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
+from typing import List, Dict, Any, Literal
+
 from mcp_server.protocol_manager.protocol_manager import ProtocolManager
+from mcp_server.resource_manager.resource_manager import ResourceManager
 
 logger = logging.getLogger(__name__)
 
@@ -9,47 +13,72 @@ class OrchestrationEngine:
     Orchestrates the execution of cognitive workflows.
     """
 
-    def __init__(self, protocol_manager: ProtocolManager):
+    def __init__(self, protocol_manager: ProtocolManager, resource_manager: ResourceManager):
         self.protocol_manager = protocol_manager
+        self.resource_manager = resource_manager
+        # Using a ThreadPoolExecutor to run synchronous protocol code in a non-blocking way
+        self.executor = ThreadPoolExecutor()
 
-    def execute_workflow(self, protocol_names: List[str], initial_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def execute_workflow(
+        self,
+        protocol_names: List[str],
+        initial_data: Dict[str, Any],
+        coordination_mode: Literal['Sequential', 'Parallel'] = 'Sequential'
+    ) -> Dict[str, Any]:
         """
-        Executes a workflow of protocols sequentially.
+        Executes a workflow of protocols.
 
         Args:
-            protocol_names: A list of protocol names to execute in order.
+            protocol_names: A list of protocol names to execute.
             initial_data: The initial input data for the workflow.
+            coordination_mode: The mode of execution ('Sequential' or 'Parallel').
 
         Returns:
             A dictionary containing the final result.
         """
-        current_data = initial_data.copy()
-        workflow_results = {}
+        logger.info(f"Executing workflow in {coordination_mode} mode: {' -> '.join(protocol_names)}")
 
-        logger.info(f"Executing workflow: {' -> '.join(protocol_names)}")
+        if coordination_mode == 'Sequential':
+            return await self._execute_sequential(protocol_names, initial_data)
+        elif coordination_mode == 'Parallel':
+            return await self._execute_parallel(protocol_names, initial_data)
+        else:
+            return {"error": f"Unknown coordination mode: {coordination_mode}"}
+
+    def _execute_protocol(self, protocol_name: str, data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Synchronous wrapper for executing a single protocol with resource profiling.
+        """
+        protocol = self.protocol_manager.get_protocol(protocol_name)
+        if not protocol:
+            raise ValueError(f"Protocol '{protocol_name}' not found.")
+
+        with self.resource_manager.profile(protocol_name) as metrics:
+            if protocol_name == "ReasoningAndExplanationProtocol":
+                facts = data.get("facts", [])
+                rules = data.get("rules", [])
+                result = protocol.execute(facts, rules)
+            else:
+                # This will be used by the VVP protocol later
+                result = protocol.execute(data)
+
+        return {"result": result, "metrics": metrics}
+
+    async def _execute_sequential(self, protocol_names: List[str], initial_data: Dict[str, Any]) -> Dict[str, Any]:
+        current_data = initial_data.copy()
+        workflow_results = {"results": {}, "resource_usage": {}}
+        loop = asyncio.get_running_loop()
 
         for protocol_name in protocol_names:
-            logger.info(f"  - Executing protocol: {protocol_name}")
-            protocol = self.protocol_manager.get_protocol(protocol_name)
-            if not protocol:
-                logger.error(f"    - Could not load protocol '{protocol_name}'. Aborting workflow.")
-                workflow_results['error'] = f"Protocol '{protocol_name}' not found."
-                return workflow_results
-
+            logger.info(f"  - Sequentially executing protocol: {protocol_name}")
             try:
-                # This is a simplification for the MVP. A real implementation
-                # would have a more sophisticated way of passing data between protocols.
-                if protocol_name == "ReasoningAndExplanationProtocol":
-                    facts = current_data.get("facts", [])
-                    rules = current_data.get("rules", [])
-                    result = protocol.execute(facts, rules)
-                else:
-                    result = protocol.execute(current_data)
-
-                workflow_results[protocol_name] = result
-                current_data.update(result)
-                logger.info(f"    - Protocol '{protocol_name}' executed successfully.")
-
+                # Run the synchronous execute method in a thread pool to avoid blocking
+                res = await loop.run_in_executor(
+                    self.executor, self._execute_protocol, protocol_name, current_data
+                )
+                workflow_results["results"][protocol_name] = res["result"]
+                workflow_results["resource_usage"][protocol_name] = res["metrics"]
+                current_data.update(res["result"])
             except Exception as e:
                 logger.error(f"    - Error executing protocol '{protocol_name}': {e}")
                 workflow_results['error'] = f"Error in protocol '{protocol_name}': {e}"
@@ -57,25 +86,26 @@ class OrchestrationEngine:
 
         return workflow_results
 
-if __name__ == '__main__':
-    # Example Usage
-    logging.basicConfig(level=logging.INFO)
-    pm = ProtocolManager()
-    engine = OrchestrationEngine(pm)
+    async def _execute_parallel(self, protocol_names: List[str], initial_data: Dict[str, Any]) -> Dict[str, Any]:
+        workflow_results = {"results": {}, "resource_usage": {}}
+        loop = asyncio.get_running_loop()
 
-    workflow = ["ReasoningAndExplanationProtocol"]
-    data = {
-        "facts": ["has_feathers", "flies", "lays_eggs"],
-        "rules": [
-            (["has_feathers"], "is_bird"),
-            (["flies", "is_bird"], "is_flying_bird"),
-            (["is_bird", "lays_eggs"], "is_oviparous_bird")
+        # Create a task for each protocol execution
+        tasks = [
+            loop.run_in_executor(self.executor, self._execute_protocol, name, initial_data)
+            for name in protocol_names
         ]
-    }
 
-    final_result = engine.execute_workflow(workflow, data)
+        # Wait for all tasks to complete
+        results = await asyncio.gather(*tasks, return_exceptions=True)
 
-    logger.info("\nWorkflow finished.")
-    logger.info("Final Result:")
-    import json
-    logger.info(json.dumps(final_result, indent=2))
+        for i, res in enumerate(results):
+            protocol_name = protocol_names[i]
+            if isinstance(res, Exception):
+                logger.error(f"    - Error executing protocol '{protocol_name}' in parallel: {res}")
+                workflow_results["results"][protocol_name] = {"error": str(res)}
+            else:
+                workflow_results["results"][protocol_name] = res["result"]
+                workflow_results["resource_usage"][protocol_name] = res["metrics"]
+
+        return workflow_results

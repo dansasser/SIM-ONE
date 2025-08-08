@@ -1,0 +1,11 @@
+{
+  "name": "ValidationAndVerificationProtocol",
+  "version": "1.0.0",
+  "entryPoint": "mcp_server.protocols.vvp.vvp.VVP",
+  "type": "Validation",
+  "dependencies": [],
+  "resourceRequirements": {
+    "cpu": "50m",
+    "memory": "64Mi"
+  }
+}

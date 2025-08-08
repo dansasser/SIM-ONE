@@ -7,3 +7,6 @@ redis
 beautifulsoup4
 requests
 llama-cpp-python
+python-jose[cryptography]
+slowapi
+pydantic-settings

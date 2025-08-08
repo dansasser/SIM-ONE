@@ -9,11 +9,9 @@ from mcp_server.resource_manager.resource_manager import ResourceManager
 from mcp_server.session_manager.session_manager import SessionManager
 from mcp_server.workflow_template_manager.workflow_template_manager import WorkflowTemplateManager
 
-# --- Logging Configuration ---
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# --- Initialization ---
 logger.info("Initializing mCP Server...")
 protocol_manager = ProtocolManager()
 resource_manager = ResourceManager()
@@ -22,69 +20,69 @@ workflow_template_manager = WorkflowTemplateManager()
 orchestration_engine = OrchestrationEngine(protocol_manager, resource_manager)
 logger.info("mCP Server initialized.")
 
-app = FastAPI(
-    title="mCP Server",
-    description="A server for orchestrating cognitive protocols based on the SIM-ONE framework.",
-    version="0.5.0",
-)
+app = FastAPI(title="mCP Server", version="0.7.0")
 
-# --- Data Models ---
 class WorkflowRequest(BaseModel):
-    # Now, a client can provide either a template name or a direct list of protocols
-    template_name: Optional[str] = Field(None, description="The name of the workflow template to use.")
-    protocol_names: Optional[List[str]] = Field(None, description="A direct list of protocol names to execute.")
-    coordination_mode: Optional[Literal['Sequential', 'Parallel']] = Field(
-        'Sequential',
-        description="The coordination mode for executing the protocols (if not using a template)."
-    )
+    template_name: Optional[str] = Field(None)
+    protocol_names: Optional[List[str]] = Field(None)
+    coordination_mode: Optional[Literal['Sequential', 'Parallel']] = Field('Sequential')
     initial_data: Dict[str, Any]
-    session_id: Optional[str] = Field(None, description="The ID of the conversational session.")
+    session_id: Optional[str] = Field(None)
 
 class WorkflowResponse(BaseModel):
     session_id: str
     results: Dict[str, Any]
-    resource_usage: Dict[str, Any]
+    resource_usage: Optional[Dict[str, Any]] = None
     error: Optional[str] = None
 
-# --- API Endpoints ---
 @app.post("/execute", response_model=WorkflowResponse, tags=["Orchestration"])
 async def execute_workflow(request: WorkflowRequest) -> WorkflowResponse:
-    logger.info(f"Received workflow request for session: {request.session_id}")
-
-    protocols_to_run: List[str] = []
-    mode: Literal['Sequential', 'Parallel'] = 'Sequential'
-
-    if request.template_name:
-        template = workflow_template_manager.get_template(request.template_name)
-        if not template:
-            return WorkflowResponse(session_id=request.session_id or "", results={}, resource_usage={}, error=f"Template '{request.template_name}' not found.")
-        protocols_to_run = template.get("protocols", [])
-        mode = template.get("mode", "Sequential")
-    elif request.protocol_names:
-        protocols_to_run = request.protocol_names
-        mode = request.coordination_mode or 'Sequential'
-    else:
-        return WorkflowResponse(session_id=request.session_id or "", results={}, resource_usage={}, error="Either 'template_name' or 'protocol_names' must be provided.")
-
     sid = request.session_id or session_manager.create_session()
-    history = session_manager.get_history(sid) or []
+
+    # CRITICAL FIX: Do not pass the entire history into the context to avoid circular references.
+    # A future MTP protocol would need a different way to access memory, e.g., by session_id.
     workflow_context = request.initial_data.copy()
-    workflow_context['history'] = history
+    workflow_context['session_id'] = sid # Pass ID for context if needed
 
-    result = await orchestration_engine.execute_workflow(protocols_to_run, workflow_context, mode)
+    final_results = {}
+    error = None
 
-    current_turn = {"user_request": request.dict(exclude={'session_id'}), "server_response": result}
-    history.append(current_turn)
-    session_manager.update_history(sid, history)
+    try:
+        if request.template_name:
+            template = workflow_template_manager.get_template(request.template_name)
+            if not template:
+                error = f"Template '{request.template_name}' not found."
+            elif "workflow" in template:
+                final_results = await orchestration_engine.execute_structured_workflow(template["workflow"], workflow_context)
+            else:
+                final_results = await orchestration_engine.execute_workflow(template.get("protocols", []), workflow_context, template.get("mode", "Sequential"))
+        elif request.protocol_names:
+            final_results = await orchestration_engine.execute_workflow(request.protocol_names, workflow_context, request.coordination_mode or 'Sequential')
+        else:
+            error = "Either 'template_name' or 'protocol_names' must be provided."
+
+        if "error" in final_results:
+            error = final_results.get("error")
+
+    except Exception as e:
+        logger.error(f"Critical error during workflow execution: {e}", exc_info=True)
+        error = f"An unexpected server error occurred: {e}"
+
+    # Save history separately to avoid circular references in the response model
+    if session_manager.redis_client and not error:
+        history = session_manager.get_history(sid) or []
+        current_turn = {"user_request": request.model_dump(exclude={'session_id'}), "server_response": final_results}
+        history.append(current_turn)
+        session_manager.update_history(sid, history)
 
     return WorkflowResponse(
         session_id=sid,
-        results=result.get("results", {}),
-        resource_usage=result.get("resource_usage", {}),
-        error=result.get("error")
+        results=final_results.get("results", final_results if not error else {}),
+        resource_usage=final_results.get("resource_usage"),
+        error=error
     )
 
-# ... (other endpoints remain the same) ...
+# Other endpoints...
 @app.get("/protocols", tags=["Protocols"])
 async def list_protocols() -> Dict[str, Any]:
     return protocol_manager.protocols
@@ -96,10 +94,16 @@ async def list_templates() -> Dict[str, Any]:
 @app.get("/session/{session_id}", tags=["Sessions"])
 async def get_session_history(session_id: str):
     history = session_manager.get_history(session_id)
-    if history is None:
+    if history is None and session_manager.redis_client:
         return {"error": "Session not found."}
-    return {"session_id": session_id, "history": history}
+    return {"session_id": session_id, "history": history or []}
 
 @app.get("/", tags=["Status"])
 async def root():
     return {"message": "mCP Server is running."}
+
+# WebSocket endpoint is temporarily disabled until a robust context-passing solution is designed
+# to avoid the circular reference issue in a streaming context.
+# @app.websocket("/ws/execute")
+# async def websocket_execute_workflow(websocket: WebSocket):
+#     ...

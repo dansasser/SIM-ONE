@@ -14,5 +14,20 @@
       "SummarizerProtocol"
     ],
     "mode": "Sequential"
+  },
+  "writing_team": {
+    "description": "A full multi-agent writing team with a revise/critique loop.",
+    "workflow": [
+      { "step": "IdeatorProtocol" },
+      { "step": "DrafterProtocol" },
+      {
+        "loop": 2,
+        "steps": [
+          { "step": "CriticProtocol" },
+          { "step": "RevisorProtocol" }
+        ]
+      },
+      { "step": "SummarizerProtocol" }
+    ]
   }
 }

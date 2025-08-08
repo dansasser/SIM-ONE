@@ -1,0 +1,11 @@
+{
+  "name": "RevisorProtocol",
+  "version": "1.0.0",
+  "entryPoint": "mcp_server.protocols.revisor.revisor.RevisorProtocol",
+  "type": "Generative",
+  "dependencies": ["DrafterProtocol", "CriticProtocol"],
+  "resourceRequirements": {
+    "cpu": "200m",
+    "memory": "256Mi"
+  }
+}

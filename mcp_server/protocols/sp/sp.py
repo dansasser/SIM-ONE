@@ -7,45 +7,43 @@ logger = logging.getLogger(__name__)
 
 class SP:
     """
-    A simple implementation of the Summarizer Protocol (SP).
+    An enhanced implementation of the Summarizer Protocol (SP).
     """
 
     def __init__(self):
-        # In a more advanced design, the NeuralEngine might be injected as a dependency.
-        # For this implementation, the protocol instantiates it directly.
         self.neural_engine = NeuralEngine()
 
     def execute(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Executes the summarization logic.
+        Executes the summarization logic on the final draft.
 
         Args:
-            data: The data from the workflow. It's expected to contain
-                  the output of the ReasoningAndExplanationProtocol.
+            data: The workflow context. It looks for the output of the
+                  RevisorProtocol or, failing that, the DrafterProtocol.
 
         Returns:
             A dictionary with the generated summary.
         """
-        logger.info("Executing SP...")
+        logger.info("Executing enhanced SP...")
 
-        rep_results = data.get("ReasoningAndExplanationProtocol", {})
-        conclusions = rep_results.get("conclusions", [])
-        explanation = rep_results.get("explanation", [])
+        # Prioritize the revised draft, but fall back to the initial draft.
+        revisor_results = data.get("RevisorProtocol", {})
+        drafter_results = data.get("DrafterProtocol", {})
 
-        if not conclusions:
+        text_to_summarize = revisor_results.get("revised_draft_text") or drafter_results.get("draft_text")
+
+        if not text_to_summarize:
             return {
-                "summary": "No conclusions were provided to summarize.",
+                "summary": "No draft text was found in the context to summarize.",
                 "status": "skipped"
             }
 
-        # Construct a detailed prompt for the LLM
         prompt = (
-            "Please provide a concise, human-readable summary of the following logical process.\n\n"
-            f"Initial Facts and Rules led to the following explanation steps:\n"
-            f"{' -> '.join(explanation)}\n\n"
-            f"This process resulted in the following final conclusions:\n"
-            f"{', '.join(conclusions)}\n\n"
-            "Synthesize this information into a brief summary paragraph."
+            "Please provide a concise, polished, and executive-level summary of the following document.\n\n"
+            f"--- Document ---\n"
+            f"{text_to_summarize}\n\n"
+            f"--- End of Document ---\n\n"
+            "The summary should be a single, well-written paragraph."
         )
 
         summary = self.neural_engine.generate_text(prompt)
@@ -61,18 +59,27 @@ if __name__ == '__main__':
 
     sp_protocol = SP()
 
-    sample_data = {
-        "ReasoningAndExplanationProtocol": {
-            "conclusions": ["is_bird", "is_flying_bird", "is_oviparous_bird"],
-            "explanation": [
-                "Initial facts: {'has_feathers', 'flies', 'lays_eggs'}",
-                "Rule applied: IF has_feathers THEN is_bird. New fact derived: is_bird",
-                "Rule applied: IF flies AND is_bird THEN is_flying_bird. New fact derived: is_flying_bird",
-                "Rule applied: IF is_bird AND lays_eggs THEN is_oviparous_bird. New fact derived: is_oviparous_bird"
-            ]
+    # --- Test Case 1: With revised draft ---
+    print("--- Test Case 1: With revised draft ---")
+    sample_data_revised = {
+        "RevisorProtocol": {
+            "revised_draft_text": "The sun is a star, a glowing ball of plasma held together by its own gravity. Nuclear fusion in its core produces immense energy."
         }
     }
+    result = sp_protocol.execute(sample_data_revised)
+    print(result.get("summary"))
 
-    result = sp_protocol.execute(sample_data)
-    print("\n--- Summarizer Protocol Result ---")
-    print(result['summary'])
+    # --- Test Case 2: With initial draft only ---
+    print("\n--- Test Case 2: With initial draft only ---")
+    sample_data_initial = {
+        "DrafterProtocol": {
+            "draft_text": "The sun is hot."
+        }
+    }
+    result = sp_protocol.execute(sample_data_initial)
+    print(result.get("summary"))
+
+    # --- Test Case 3: No text to summarize ---
+    print("\n--- Test Case 3: No text ---")
+    result = sp_protocol.execute({})
+    print(result.get("summary"))

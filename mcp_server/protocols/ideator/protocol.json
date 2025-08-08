@@ -1,0 +1,11 @@
+{
+  "name": "IdeatorProtocol",
+  "version": "1.0.0",
+  "entryPoint": "mcp_server.protocols.ideator.ideator.IdeatorProtocol",
+  "type": "Generative",
+  "dependencies": [],
+  "resourceRequirements": {
+    "cpu": "200m",
+    "memory": "256Mi"
+  }
+}

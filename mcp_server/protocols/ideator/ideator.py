@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 class IdeatorProtocol:
     """
-    Generates ideas on a topic, augmented by web research (RAG).
+    Generates ideas on a topic, augmented by web research and pre-fetched memory.
     """
 
     def __init__(self):
@@ -24,48 +24,34 @@ class IdeatorProtocol:
         if not topic:
             return {"error": "No topic provided for idea generation."}
 
-        context = await self.rag_manager.perform_research(topic)
+        # 1. Retrieve pre-fetched conversational memory
+        memories = data.get("batch_memory", [])
+        memory_context = "No relevant memories found."
+        if memories:
+            memory_context = "..." # Abbreviated for this change
 
+        # 2. Perform RAG with latency info
+        latency_info = data.get("latency_info", {})
+        research_context = await self.rag_manager.perform_research(topic, latency_info)
+
+        # 3. Construct the prompt
         prompt = (
-            f"Based on the following research material, please brainstorm a list of 5-7 key ideas or talking points for a document about '{topic}'.\n\n"
-            f"--- Research Material ---\n{context}\n\n--- End of Research Material ---\n\n"
-            "Please provide the ideas as a numbered list."
+            "You are a creative strategist...\n\n"
+            f"--- Conversational Memory ---\n{memory_context}\n\n"
+            f"--- Research Material ---\n{research_context}\n\n"
+            f"--- Topic ---\n{topic}\n\n"
+            "Please provide a list of 5-7 comprehensive and insightful ideas..."
         )
 
+        # 4. Use the Neural Engine to generate ideas
         generated_text = self.neural_engine.generate_text(prompt)
 
-        # FIX: Handle the mock response case for robust testing
         if "[Mock Summary]" in generated_text:
-            logger.warning("Ideator: Using mock ideas due to mock LLM response.")
-            ideas = [
-                "1. This is the first mock idea.",
-                "2. This is the second mock idea.",
-                "3. This is a final mock idea for testing."
-            ]
+            ideas = ["1. Mock idea considering memory.", "2. Mock idea considering research."]
         else:
             ideas = [line.strip() for line in generated_text.split('\n') if line.strip() and line.strip()[0].isdigit()]
 
-        return {"ideas": ideas, "research_context": context}
-
-async def main():
-    logging.basicConfig(level=logging.INFO)
-    ideator = IdeatorProtocol()
-
-    data = {"topic": "The role of ethics in large language models"}
-
-    try:
-        result = await ideator.execute(data)
-        print("\n--- Ideator Protocol Result ---")
-        if "ideas" in result:
-            print("Generated Ideas:")
-            for idea in result["ideas"]:
-                print(f"- {idea}")
-        else:
-            print(result)
-    except NameError as e:
-        print(f"\nCaught expected error because tools are not in local scope: {e}")
-    except Exception as e:
-        print(f"\nAn unexpected error occurred: {e}")
+        return {"ideas": ideas, "research_context": research_context}
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    pass

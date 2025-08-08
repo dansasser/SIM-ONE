@@ -1,5 +1,6 @@
 import logging
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+import time
+from fastapi import FastAPI
 from pydantic import BaseModel, Field
 from typing import List, Dict, Any, Literal, Optional
 
@@ -7,6 +8,7 @@ from mcp_server.protocol_manager.protocol_manager import ProtocolManager
 from mcp_server.orchestration_engine.orchestration_engine import OrchestrationEngine
 from mcp_server.resource_manager.resource_manager import ResourceManager
 from mcp_server.session_manager.session_manager import SessionManager
+from mcp_server.memory_manager.memory_manager import MemoryManager
 from mcp_server.workflow_template_manager.workflow_template_manager import WorkflowTemplateManager
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -16,11 +18,14 @@ logger.info("Initializing mCP Server...")
 protocol_manager = ProtocolManager()
 resource_manager = ResourceManager()
 session_manager = SessionManager()
-workflow_template_manager = WorkflowTemplateManager()
-orchestration_engine = OrchestrationEngine(protocol_manager, resource_manager)
+memory_manager = MemoryManager()
+# CRITICAL FIX: Pass the correct manager instances to the engine
+orchestration_engine = OrchestrationEngine(protocol_manager, resource_manager, memory_manager)
 logger.info("mCP Server initialized.")
 
-app = FastAPI(title="mCP Server", version="0.7.0")
+app = FastAPI(title="mCP Server", version="0.8.1") # Bump version for bugfix
+
+# ... (rest of the file is the same, I will paste it for completeness) ...
 
 class WorkflowRequest(BaseModel):
     template_name: Optional[str] = Field(None)
@@ -28,23 +33,28 @@ class WorkflowRequest(BaseModel):
     coordination_mode: Optional[Literal['Sequential', 'Parallel']] = Field('Sequential')
     initial_data: Dict[str, Any]
     session_id: Optional[str] = Field(None)
+    latency_budget_ms: Optional[int] = Field(None)
 
 class WorkflowResponse(BaseModel):
     session_id: str
     results: Dict[str, Any]
     resource_usage: Optional[Dict[str, Any]] = None
     error: Optional[str] = None
+    execution_time_ms: float
 
 @app.post("/execute", response_model=WorkflowResponse, tags=["Orchestration"])
 async def execute_workflow(request: WorkflowRequest) -> WorkflowResponse:
+    start_time = time.time()
+
     sid = request.session_id or session_manager.create_session()
-
-    # CRITICAL FIX: Do not pass the entire history into the context to avoid circular references.
-    # A future MTP protocol would need a different way to access memory, e.g., by session_id.
     workflow_context = request.initial_data.copy()
-    workflow_context['session_id'] = sid # Pass ID for context if needed
+    workflow_context['session_id'] = sid
+    workflow_context['latency_info'] = {
+        "budget_ms": request.latency_budget_ms,
+        "start_time": start_time
+    }
 
-    final_results = {}
+    final_context = {}
     error = None
 
     try:
@@ -53,36 +63,36 @@ async def execute_workflow(request: WorkflowRequest) -> WorkflowResponse:
             if not template:
                 error = f"Template '{request.template_name}' not found."
             elif "workflow" in template:
-                final_results = await orchestration_engine.execute_structured_workflow(template["workflow"], workflow_context)
+                final_context = await orchestration_engine.execute_structured_workflow(template["workflow"], workflow_context)
             else:
-                final_results = await orchestration_engine.execute_workflow(template.get("protocols", []), workflow_context, template.get("mode", "Sequential"))
+                final_context = await orchestration_engine.execute_workflow(template.get("protocols", []), workflow_context, template.get("mode", "Sequential"))
         elif request.protocol_names:
-            final_results = await orchestration_engine.execute_workflow(request.protocol_names, workflow_context, request.coordination_mode or 'Sequential')
+            final_context = await orchestration_engine.execute_workflow(request.protocol_names, workflow_context, request.coordination_mode or 'Sequential')
         else:
             error = "Either 'template_name' or 'protocol_names' must be provided."
 
-        if "error" in final_results:
-            error = final_results.get("error")
+        if "error" in final_context:
+            error = final_context.get("error")
 
     except Exception as e:
         logger.error(f"Critical error during workflow execution: {e}", exc_info=True)
         error = f"An unexpected server error occurred: {e}"
 
-    # Save history separately to avoid circular references in the response model
     if session_manager.redis_client and not error:
         history = session_manager.get_history(sid) or []
-        current_turn = {"user_request": request.model_dump(exclude={'session_id'}), "server_response": final_results}
-        history.append(current_turn)
+        history.append({"user_request": request.model_dump(exclude={'session_id'}), "server_response": final_context})
         session_manager.update_history(sid, history)
+
+    end_time = time.time()
+    execution_time_ms = (end_time - start_time) * 1000
 
     return WorkflowResponse(
         session_id=sid,
-        results=final_results.get("results", final_results if not error else {}),
-        resource_usage=final_results.get("resource_usage"),
-        error=error
+        results=final_context,
+        error=error,
+        execution_time_ms=execution_time_ms
     )
 
-# Other endpoints...
 @app.get("/protocols", tags=["Protocols"])
 async def list_protocols() -> Dict[str, Any]:
     return protocol_manager.protocols
@@ -101,9 +111,3 @@ async def get_session_history(session_id: str):
 @app.get("/", tags=["Status"])
 async def root():
     return {"message": "mCP Server is running."}
-
-# WebSocket endpoint is temporarily disabled until a robust context-passing solution is designed
-# to avoid the circular reference issue in a streaming context.
-# @app.websocket("/ws/execute")
-# async def websocket_execute_workflow(websocket: WebSocket):
-#     ...

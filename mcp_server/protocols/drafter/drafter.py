@@ -7,21 +7,16 @@ logger = logging.getLogger(__name__)
 
 class DrafterProtocol:
     """
-    Takes a list of ideas and research context and generates a first draft.
+    Takes ideas, research, and pre-fetched memory context and generates a first draft.
     """
 
     def __init__(self):
         self.neural_engine = NeuralEngine()
+        # No longer instantiates MemoryManager
 
     def execute(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Executes the drafting workflow.
-
-        Args:
-            data: The input data, expected to contain the output of the IdeatorProtocol.
-
-        Returns:
-            A dictionary with the generated draft text.
         """
         ideator_results = data.get("IdeatorProtocol", {})
         ideas = ideator_results.get("ideas")
@@ -30,45 +25,35 @@ class DrafterProtocol:
         if not ideas:
             return {"error": "No ideas provided from IdeatorProtocol to draft from."}
 
-        logger.info(f"Drafter: Drafting document based on {len(ideas)} ideas and research context.")
+        # 1. Retrieve pre-fetched conversational memory
+        memories = data.get("batch_memory", [])
+        memory_context = "No relevant memories found."
+        if memories:
+            memory_context = "The following memories have been tagged in this conversation. Use them to maintain a consistent tone and context:\n"
+            for mem in memories:
+                memory_context += f"- Entity: {mem['entity']}, Emotion: {mem['emotional_state']}\n"
 
+        logger.info(f"Drafter: Drafting document with memory context.")
+
+        # 2. Construct the prompt
         prompt = (
-            "You are a skilled and articulate writer. Your task is to write a detailed and well-structured first draft of a document. "
-            "Use the provided key ideas as the main structure for the document, and enrich the content with information from the research material.\n\n"
-            "--- Key Ideas ---\n"
+            "You are a skilled writer. Write a detailed first draft based on the key ideas. "
+            "Use the research material for factual content and the conversational memory to inform the tone and style of the draft.\n\n"
+            f"--- Conversational Memory ---\n{memory_context}\n\n"
+            f"--- Key Ideas ---\n"
         )
         for idea in ideas:
             prompt += f"- {idea}\n"
 
         prompt += (
-            "\n--- Supporting Research Material ---\n"
-            f"{research_context}\n"
-            "\n--- End of Research Material ---\n\n"
-            "Please write a comprehensive draft. Ensure the tone is formal and academic. "
-            "Structure the document with clear headings for each key idea."
+            f"\n--- Supporting Research Material ---\n{research_context}\n\n"
+            "Please write a comprehensive and well-structured draft."
         )
 
-        draft_text = self.neural_engine.generate_text(prompt, model="gpt-3.5-turbo")
+        # 3. Generate the draft
+        draft_text = self.neural_engine.generate_text(prompt)
 
         return {"draft_text": draft_text}
 
 if __name__ == '__main__':
-    # Example Usage
-    logging.basicConfig(level=logging.INFO)
-    drafter = DrafterProtocol()
-
-    sample_data = {
-        "IdeatorProtocol": {
-            "ideas": [
-                "1. Introduce the concept of AI Constitutionalism.",
-                "2. Discuss the challenges of implementing global AI treaties.",
-                "3. Propose a framework for decentralized AI safety audits."
-            ],
-            "research_context": "A recent paper from the Stanford Institute for Human-Centered AI suggests that..."
-        }
-    }
-
-    result = drafter.execute(sample_data)
-
-    print("\n--- Drafter Protocol Result ---")
-    print(result.get("draft_text"))
+    pass

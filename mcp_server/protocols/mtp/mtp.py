@@ -1,83 +1,92 @@
 import logging
 from typing import Dict, Any, List, Set
 
+from mcp_server.memory_manager.memory_manager import MemoryManager
+
 logger = logging.getLogger(__name__)
 
 class MTP:
     """
-    A simple implementation of the Memory Tagger Protocol (MTP).
+    An enhanced implementation of the Memory Tagger Protocol (MTP).
+    It now persists emotionally-tagged memories using the MemoryManager.
     """
+    def __init__(self):
+        self.memory_manager = MemoryManager()
 
     def execute(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Extracts entities from the user input and adds them to memory.
-
-        Args:
-            data: The input data, expected to contain 'user_input' and 'history'.
-
-        Returns:
-            A dictionary with the newly tagged entities.
+        Extracts entities, tags them with emotional context, and saves them to memory.
         """
         user_input = data.get("user_input", "")
-        history = data.get("history", [])
-        logger.info(f"MTP: Analyzing input for entities: '{user_input[:50]}...'")
+        esl_results = data.get("EmotionalStateLayerProtocol", {})
+        session_id = data.get("session_id")
 
-        if not user_input:
-            return {"newly_tagged_entities": [], "status": "skipped"}
+        logger.info(f"MTP: Analyzing input for session {session_id} with context: {esl_results}")
 
-        # Extract existing entities from history
-        # In a real system, memory would be more structured. Here we just use a flat list of tags.
-        memory: Set[str] = set()
-        for turn in history:
-            # Assuming MTP results are stored in the response
-            if 'server_response' in turn and 'results' in turn['server_response']:
-                mtp_res = turn['server_response']['results'].get('MemoryTaggerProtocol', {})
-                memory.update(mtp_res.get('newly_tagged_entities', []))
+        if not user_input or not session_id:
+            return {"status": "skipped", "reason": "Missing user_input or session_id."}
 
-        # A very simple entity extraction: find capitalized words not at the start of a sentence.
-        # This is a placeholder for a real NER model.
+        # Get existing entities from memory to avoid re-tagging
+        all_memories = self.memory_manager.get_all_memories(session_id)
+        existing_entities = {mem.get("entity") for mem in all_memories}
+
+        # Simple entity extraction
         words = user_input.split()
         potential_entities = {word.strip(".,?!") for i, word in enumerate(words) if i > 0 and word.istitle()}
+        new_entities = list(potential_entities - existing_entities)
 
-        newly_tagged_entities = list(potential_entities - memory)
+        if not new_entities:
+            return {"status": "no_new_entities", "tagged_count": 0}
 
-        logger.info(f"MTP: Found {len(newly_tagged_entities)} new entities: {newly_tagged_entities}")
+        # Create structured memory objects
+        emotional_state = esl_results.get("emotional_state", "unknown")
+        salience = esl_results.get("salience", 0)
 
-        return {
-            "newly_tagged_entities": newly_tagged_entities,
-            "status": "success"
-        }
+        new_memories = []
+        for entity in new_entities:
+            new_memories.append({
+                "entity": entity,
+                "emotional_state": emotional_state,
+                "salience": salience,
+                "source_input": user_input
+            })
+
+        # Persist the new memories
+        self.memory_manager.add_memories(session_id, new_memories)
+
+        logger.info(f"MTP: Persisted {len(new_memories)} new memories for session {session_id}.")
+
+        return {"status": "success", "tagged_count": len(new_memories)}
 
 if __name__ == '__main__':
     # Example Usage
+    import uuid
     logging.basicConfig(level=logging.INFO)
-    mtp_protocol = MTP()
 
-    print("--- Testing MTP Protocol ---")
+    mtp = MTP()
 
-    # --- Test Case 1: New entities ---
-    history1 = []
-    data1 = {"user_input": "My name is Jules and I work at Google.", "history": history1}
-    result1 = mtp_protocol.execute(data1)
-    print(f"Input: '{data1['user_input']}' -> New Entities: {result1['newly_tagged_entities']}")
-    assert "Jules" in result1['newly_tagged_entities']
-    assert "Google" in result1['newly_tagged_entities']
+    if mtp.memory_manager.redis_client:
+        session_id = str(uuid.uuid4())
+        print(f"--- Testing Enhanced MTP with session: {session_id} ---")
 
-    # --- Test Case 2: Some existing entities ---
-    history2 = [
-        {"server_response": {"results": {"MemoryTaggerProtocol": {"newly_tagged_entities": ["Jules"]}}}}
-    ]
-    data2 = {"user_input": "Jules is still working at Google.", "history": history2}
-    result2 = mtp_protocol.execute(data2)
-    print(f"Input: '{data2['user_input']}' -> New Entities: {result2['newly_tagged_entities']}")
-    assert "Jules" not in result2['newly_tagged_entities']
-    assert "Google" in result2['newly_tagged_entities']
+        sample_data = {
+            "user_input": "I think Google is a fascinating company.",
+            "EmotionalStateLayerProtocol": {"emotional_state": "positive", "salience": 1},
+            "session_id": session_id
+        }
 
-    # --- Test Case 3: No new entities ---
-    history3 = [
-        {"server_response": {"results": {"MemoryTaggerProtocol": {"newly_tagged_entities": ["Jules", "Google"]}}}}
-    ]
-    data3 = {"user_input": "Yes, Jules from Google.", "history": history3}
-    result3 = mtp_protocol.execute(data3)
-    print(f"Input: '{data3['user_input']}' -> New Entities: {result3['newly_tagged_entities']}")
-    assert not result3['newly_tagged_entities']
+        result = mtp.execute(sample_data)
+        print(f"Execution result: {result}")
+        assert result['status'] == 'success' and result['tagged_count'] == 1
+
+        # Verify that the memory was saved
+        memories = mtp.memory_manager.get_all_memories(session_id)
+        print(f"Retrieved memories: {memories}")
+        assert len(memories) == 1
+        assert memories[0]['entity'] == 'Google'
+        assert memories[0]['emotional_state'] == 'positive'
+
+        # Clean up
+        mtp.memory_manager.redis_client.delete(f"memory:{session_id}")
+    else:
+        print("Cannot run MTP example because Redis connection failed.")

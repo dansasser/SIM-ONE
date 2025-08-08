@@ -14,65 +14,69 @@ from mcp_server.workflow_template_manager.workflow_template_manager import Workf
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-logger.info("Initializing mCP Server...")
+# --- Initialization ---
 protocol_manager = ProtocolManager()
 resource_manager = ResourceManager()
 session_manager = SessionManager()
 memory_manager = MemoryManager()
-# CRITICAL FIX: Pass the correct manager instances to the engine
+workflow_template_manager = WorkflowTemplateManager()
 orchestration_engine = OrchestrationEngine(protocol_manager, resource_manager, memory_manager)
-logger.info("mCP Server initialized.")
+app = FastAPI(title="mCP Server", version="1.0.0")
 
-app = FastAPI(title="mCP Server", version="0.8.1") # Bump version for bugfix
-
-# ... (rest of the file is the same, I will paste it for completeness) ...
-
+# --- API Models ---
 class WorkflowRequest(BaseModel):
     template_name: Optional[str] = Field(None)
     protocol_names: Optional[List[str]] = Field(None)
     coordination_mode: Optional[Literal['Sequential', 'Parallel']] = Field('Sequential')
     initial_data: Dict[str, Any]
     session_id: Optional[str] = Field(None)
-    latency_budget_ms: Optional[int] = Field(None)
 
 class WorkflowResponse(BaseModel):
     session_id: str
     results: Dict[str, Any]
-    resource_usage: Optional[Dict[str, Any]] = None
     error: Optional[str] = None
     execution_time_ms: float
 
+# --- API Endpoints ---
 @app.post("/execute", response_model=WorkflowResponse, tags=["Orchestration"])
 async def execute_workflow(request: WorkflowRequest) -> WorkflowResponse:
     start_time = time.time()
-
     sid = request.session_id or session_manager.create_session()
+
     workflow_context = request.initial_data.copy()
     workflow_context['session_id'] = sid
-    workflow_context['latency_info'] = {
-        "budget_ms": request.latency_budget_ms,
-        "start_time": start_time
-    }
 
-    final_context = {}
     error = None
+    final_context = {}
 
     try:
+        workflow_def = []
         if request.template_name:
             template = workflow_template_manager.get_template(request.template_name)
             if not template:
                 error = f"Template '{request.template_name}' not found."
-            elif "workflow" in template:
-                final_context = await orchestration_engine.execute_structured_workflow(template["workflow"], workflow_context)
             else:
-                final_context = await orchestration_engine.execute_workflow(template.get("protocols", []), workflow_context, template.get("mode", "Sequential"))
+                if "workflow" in template:
+                    workflow_def = template["workflow"]
+                else:
+                    protocols = template.get("protocols", [])
+                    if template.get("mode") == "Parallel":
+                        workflow_def = [{"parallel": [{"step": name} for name in protocols]}]
+                    else:
+                        # FIX: Corrected the closing bracket
+                        workflow_def = [{"step": name} for name in protocols]
         elif request.protocol_names:
-            final_context = await orchestration_engine.execute_workflow(request.protocol_names, workflow_context, request.coordination_mode or 'Sequential')
+            if request.coordination_mode == "Parallel":
+                workflow_def = [{"parallel": [{"step": name} for name in request.protocol_names]}]
+            else:
+                workflow_def = [{"step": name} for name in request.protocol_names]
         else:
             error = "Either 'template_name' or 'protocol_names' must be provided."
 
-        if "error" in final_context:
-            error = final_context.get("error")
+        if not error:
+            final_context = await orchestration_engine.execute_workflow(workflow_def, workflow_context)
+            if "error" in final_context:
+                error = final_context.pop("error")
 
     except Exception as e:
         logger.error(f"Critical error during workflow execution: {e}", exc_info=True)
@@ -93,13 +97,14 @@ async def execute_workflow(request: WorkflowRequest) -> WorkflowResponse:
         execution_time_ms=execution_time_ms
     )
 
+@app.get("/", tags=["Status"])
+async def root(): return {"message": "mCP Server is running."}
+
 @app.get("/protocols", tags=["Protocols"])
-async def list_protocols() -> Dict[str, Any]:
-    return protocol_manager.protocols
+async def list_protocols(): return protocol_manager.protocols
 
 @app.get("/templates", tags=["Workflows"])
-async def list_templates() -> Dict[str, Any]:
-    return workflow_template_manager.templates
+async def list_templates(): return workflow_template_manager.templates
 
 @app.get("/session/{session_id}", tags=["Sessions"])
 async def get_session_history(session_id: str):
@@ -107,7 +112,3 @@ async def get_session_history(session_id: str):
     if history is None and session_manager.redis_client:
         return {"error": "Session not found."}
     return {"session_id": session_id, "history": history or []}
-
-@app.get("/", tags=["Status"])
-async def root():
-    return {"message": "mCP Server is running."}

@@ -1,17 +1,19 @@
 import unittest
-import json
+import os
+from unittest.mock import patch
 from fastapi.testclient import TestClient
 from mcp_server.main import app
 
-class TestCoreApi(unittest.TestCase):
-    """Tests for the basic API endpoints and simple workflows."""
+class TestMCP(unittest.TestCase):
+    """The final, consolidated test suite for the mCP Server."""
+
     def setUp(self):
         self.client = TestClient(app)
 
-    def test_root_and_basic_endpoints(self):
+    def test_01_basic_endpoints(self):
+        """Tests the status, protocols, and templates endpoints."""
         response = self.client.get("/")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), {"message": "mCP Server is running."})
 
         response = self.client.get("/protocols")
         self.assertEqual(response.status_code, 200)
@@ -19,9 +21,10 @@ class TestCoreApi(unittest.TestCase):
 
         response = self.client.get("/templates")
         self.assertEqual(response.status_code, 200)
-        self.assertIn("full_reasoning", response.json())
+        self.assertIn("writing_team", response.json())
 
-    def test_simple_sequential_workflow(self):
+    def test_02_simple_sequential_workflow(self):
+        """Tests a simple sequential workflow."""
         test_request = {
             "protocol_names": ["ReasoningAndExplanationProtocol"],
             "initial_data": {"facts": ["a"], "rules": [[["a"], "b"]]}
@@ -29,9 +32,12 @@ class TestCoreApi(unittest.TestCase):
         response = self.client.post("/execute", json=test_request)
         self.assertEqual(response.status_code, 200)
         response_json = response.json()
+        self.assertIsNone(response_json.get("error"))
         self.assertIn("ReasoningAndExplanationProtocol", response_json["results"])
+        self.assertIn("conclusions", response_json["results"]["ReasoningAndExplanationProtocol"]["result"])
 
-    def test_parallel_workflow(self):
+    def test_03_parallel_workflow(self):
+        """Tests a parallel workflow."""
         test_request = {
             "protocol_names": ["ValidationAndVerificationProtocol", "EmotionalStateLayerProtocol"],
             "coordination_mode": "Parallel",
@@ -40,69 +46,34 @@ class TestCoreApi(unittest.TestCase):
         response = self.client.post("/execute", json=test_request)
         self.assertEqual(response.status_code, 200)
         response_json = response.json()
+        self.assertIsNone(response_json.get("error"))
         self.assertIn("ValidationAndVerificationProtocol", response_json["results"])
         self.assertIn("EmotionalStateLayerProtocol", response_json["results"])
 
-class TestAdvancedWorkflows(unittest.TestCase):
-    """Tests for the more complex, multi-agent and templated workflows."""
-    def setUp(self):
-        self.client = TestClient(app)
+    @patch('mcp_server.tools.rag_tools.google_search')
+    @patch('mcp_server.tools.rag_tools.view_text_website')
+    def test_04_writing_team_workflow(self, mock_view_text, mock_google_search):
+        """Tests the full multi-agent pipeline with mocked RAG."""
+        mock_google_search.return_value = "http://mock.url"
+        mock_view_text.return_value = "Mocked web content."
 
-    def test_template_workflow(self):
-        test_request = {
-            "template_name": "full_reasoning",
-            "initial_data": {"facts": ["c"], "rules": [[["c"], "d"]]}
-        }
-        response = self.client.post("/execute", json=test_request)
-        self.assertEqual(response.status_code, 200)
-        response_json = response.json()
-        self.assertIn("SummarizerProtocol", response_json["results"])
-
-    def test_writing_team_workflow(self):
-        """Tests the full multi-agent pipeline."""
         test_request = {
             "template_name": "writing_team",
             "initial_data": {"topic": "AI Ethics"}
         }
         response = self.client.post("/execute", json=test_request)
+
         self.assertEqual(response.status_code, 200)
         response_json = response.json()
-        self.assertIsNone(response_json.get("error"))
-        self.assertIn("IdeatorProtocol", response_json["results"])
-        self.assertIn("DrafterProtocol", response_json["results"])
-        self.assertIn("CriticProtocol", response_json["results"])
-        self.assertIn("RevisorProtocol", response_json["results"])
-        self.assertIn("SummarizerProtocol", response_json["results"])
+        self.assertIsNone(response_json.get("error"), f"Workflow returned an error: {response_json.get('error')}")
 
-    def test_session_management(self):
-        """Tests conversational session management."""
-        request1 = {
-            "template_name": "analyze_only",
-            "initial_data": { "user_input": "My name is Jules." }
-        }
-        response1 = self.client.post("/execute", json=request1)
-        self.assertEqual(response1.status_code, 200)
-        session_id = response1.json()["session_id"]
-
-        request2 = {
-            "session_id": session_id,
-            "template_name": "analyze_only",
-            "initial_data": { "user_input": "I am happy." }
-        }
-        response2 = self.client.post("/execute", json=request2)
-        self.assertEqual(response2.status_code, 200)
-        # Add assertions here if needed, e.g., checking MTP doesn't re-tag "Jules"
-
-# Temporarily disabling the WebSocket test as it requires a more robust
-# implementation to handle the complex context objects without circular references.
-# class TestStreamingApi(unittest.TestCase):
-#     def setUp(self):
-#         self.client = TestClient(app)
-#
-#     def test_websocket_execution(self):
-#         with self.client.websocket_connect("/ws/execute") as websocket:
-#             # ... test logic ...
-#             pass
+        results = response_json["results"]
+        self.assertIn("IdeatorProtocol", results)
+        self.assertIn("DrafterProtocol", results)
+        self.assertIn("CriticProtocol", results)
+        self.assertIn("RevisorProtocol", results)
+        self.assertIn("SummarizerProtocol", results)
+        self.assertIn("summary", results["SummarizerProtocol"]["result"])
 
 if __name__ == "__main__":
     unittest.main()

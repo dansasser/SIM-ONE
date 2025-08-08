@@ -5,3 +5,5 @@ psutil
 openai
 redis
 beautifulsoup4
+requests
+llama-cpp-python

@@ -1,0 +1,18 @@
+{
+  "analyze_only": {
+    "description": "Analyzes user input for emotional state and entities.",
+    "protocols": [
+      "EmotionalStateLayerProtocol",
+      "MemoryTaggerProtocol"
+    ],
+    "mode": "Parallel"
+  },
+  "full_reasoning": {
+    "description": "Performs reasoning and summarizes the result.",
+    "protocols": [
+      "ReasoningAndExplanationProtocol",
+      "SummarizerProtocol"
+    ],
+    "mode": "Sequential"
+  }
+}

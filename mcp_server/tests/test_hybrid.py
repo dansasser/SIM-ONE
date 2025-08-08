@@ -27,15 +27,15 @@ class TestHybridWorkflow(unittest.TestCase):
 
         response_json = response.json()
 
-        # Check that we have results for both protocols
+        self.assertIn("session_id", response_json)
+        self.assertIn("results", response_json)
+
         self.assertIn("ReasoningAndExplanationProtocol", response_json["results"])
         self.assertIn("SummarizerProtocol", response_json["results"])
 
-        # Check the REP results
         rep_conclusions = response_json["results"]["ReasoningAndExplanationProtocol"]["conclusions"]
         self.assertIn("is_bird", rep_conclusions)
 
-        # Check the SP results
         sp_result = response_json["results"]["SummarizerProtocol"]
         self.assertEqual(sp_result["status"], "success")
         self.assertIn("[Mock Summary]", sp_result["summary"])

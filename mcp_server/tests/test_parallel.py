@@ -27,23 +27,19 @@ class TestParallelExecution(unittest.TestCase):
 
         response_json = response.json()
 
-        # Check that we have results and resource usage
+        self.assertIn("session_id", response_json)
         self.assertIn("results", response_json)
         self.assertIn("resource_usage", response_json)
 
-        # Check for results from both protocols
         self.assertIn("ReasoningAndExplanationProtocol", response_json["results"])
         self.assertIn("ValidationAndVerificationProtocol", response_json["results"])
 
-        # Check the REP results
         rep_conclusions = response_json["results"]["ReasoningAndExplanationProtocol"]["conclusions"]
         self.assertIn("is_bird", rep_conclusions)
 
-        # Check the VVP results
         vvp_status = response_json["results"]["ValidationAndVerificationProtocol"]["validation_status"]
         self.assertEqual(vvp_status, "success")
 
-        # Check for resource usage from both protocols
         self.assertIn("ReasoningAndExplanationProtocol", response_json["resource_usage"])
         self.assertIn("ValidationAndVerificationProtocol", response_json["resource_usage"])
 

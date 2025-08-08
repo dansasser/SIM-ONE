@@ -9,17 +9,19 @@ class REP:
     using a rule-based forward-chaining inference engine.
     """
 
-    def execute(self, facts: List[str], rules: List[Tuple[List[str], str]]) -> Dict[str, Any]:
+    def execute(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Executes the reasoning engine.
 
         Args:
-            facts: A list of initial facts.
-            rules: A list of rules, where each rule is a tuple of (premises, conclusion).
+            data: The input data for the protocol, expected to contain 'facts' and 'rules'.
 
         Returns:
             A dictionary with the conclusions and the explanation.
         """
+        facts = data.get("facts", [])
+        rules = data.get("rules", [])
+
         known_facts: Set[str] = set(facts)
         explanation: List[str] = [f"Initial facts: {known_facts}"]
 
@@ -49,28 +51,16 @@ if __name__ == '__main__':
     # Example Usage
     logging.basicConfig(level=logging.INFO)
 
-    initial_facts = ["Socrates is a man", "All men are mortal"]
-    knowledge_rules = [
-        (["Socrates is a man", "All men are mortal"], "Socrates is mortal"),
-    ]
+    sample_data = {
+        "facts": ["Socrates is a man", "All men are mortal"],
+        "rules": [
+            (["Socrates is a man", "All men are mortal"], "Socrates is mortal"),
+        ]
+    }
 
     rep_protocol = REP()
-    result = rep_protocol.execute(initial_facts, knowledge_rules)
+    result = rep_protocol.execute(sample_data)
 
-    logger.info("Conclusions: %s", result["conclusions"])
-    logger.info("Explanation:")
-    for step in result["explanation"]:
-        logger.info("- %s", step)
-
-    # A more complex example
-    logger.info("\n--- More Complex Example ---")
-    facts = ["has_feathers", "flies", "lays_eggs"]
-    rules = [
-        (["has_feathers"], "is_bird"),
-        (["flies", "is_bird"], "is_flying_bird"),
-        (["is_bird", "lays_eggs"], "is_oviparous_bird")
-    ]
-    result = rep_protocol.execute(facts, rules)
     logger.info("Conclusions: %s", result["conclusions"])
     logger.info("Explanation:")
     for step in result["explanation"]:

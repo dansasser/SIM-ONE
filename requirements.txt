@@ -2,3 +2,4 @@ fastapi
 uvicorn[standard]
 httpx
 psutil
+openai

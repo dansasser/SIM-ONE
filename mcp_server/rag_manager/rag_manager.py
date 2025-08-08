@@ -1,86 +1,131 @@
 import logging
 import asyncio
-from typing import List
+from typing import List, Set
+from urllib.parse import urljoin
 
-# The tools are globally available in the agent's environment
-# from mcp_server.tools import google_search, view_text_website
+from bs4 import BeautifulSoup
+from mcp_server.protocols.hip.hip import HIPProtocol
 
 logger = logging.getLogger(__name__)
 
 class RAGManager:
     """
-    A manager to handle Retrieval-Augmented Generation by searching the web.
+    A manager to handle recursive, governed Retrieval-Augmented Generation.
     """
 
-    async def perform_research(self, topic: str, num_sources: int = 2) -> str:
+    def __init__(self):
+        self.hip_protocol = HIPProtocol()
+
+    async def perform_research(self, topic: str, num_sources: int = 2, depth: int = 1) -> str:
         """
         Performs research on a given topic and returns a consolidated context.
 
         Args:
             topic: The topic to research.
-            num_sources: The number of top search results to use as sources.
+            num_sources: The number of top search results to use as seed URLs.
+            depth: The recursion depth for following links.
 
         Returns:
             A string containing the consolidated research material.
         """
-        logger.info(f"RAGManager: Starting research for topic: '{topic}'")
+        logger.info(f"RAGManager: Starting research for topic: '{topic}' at depth {depth}.")
 
-        search_queries = [
-            f"in-depth analysis of {topic}",
-            f"key aspects of {topic}",
-            f"criticism and viewpoints on {topic}"
-        ]
+        # --- Initial Seed URL Search ---
+        try:
+            search_results_str = await google_search(f"in-depth article about {topic}")
+            seed_urls = [line.split(' ')[0] for line in search_results_str.strip().split('\n') if line.startswith('http')]
+        except Exception as e:
+            logger.error(f"RAGManager: Initial google_search failed: {e}")
+            return "Could not perform initial search."
 
-        all_urls: List[str] = []
-        for query in search_queries:
-            try:
-                search_results_str = await google_search(query)
-                urls = [line.split(' ')[0] for line in search_results_str.strip().split('\n') if line.startswith('http')]
-                all_urls.extend(urls)
-            except Exception as e:
-                logger.warning(f"RAGManager: Search query '{query}' failed: {e}")
-
-        # Remove duplicate URLs while preserving order
-        unique_urls = list(dict.fromkeys(all_urls))
-
-        if not unique_urls:
-            logger.warning("RAGManager: No URLs found for any search query.")
+        if not seed_urls:
+            logger.warning("RAGManager: No seed URLs found.")
             return "No relevant information found during web research."
 
-        # Fetch content from the top URLs
-        tasks = [view_text_website(url) for url in unique_urls[:num_sources]]
-        results = await asyncio.gather(*tasks, return_exceptions=True)
-
-        research_context = ""
-        for i, res in enumerate(results):
-            url = unique_urls[i]
-            if isinstance(res, Exception):
-                logger.warning(f"RAGManager: Failed to retrieve content from {url}: {res}")
-            else:
-                logger.info(f"RAGManager: Successfully retrieved content from {url}")
-                research_context += f"--- Source: {url} ---\n"
-                research_context += res[:2000] # Truncate each source to keep context manageable
-                research_context += "\n\n"
+        # --- Recursive Content Retrieval ---
+        visited_urls: Set[str] = set()
+        research_context = await self._recursive_fetch(seed_urls[:num_sources], depth, visited_urls)
 
         if not research_context:
             return "Could not retrieve content from any web sources."
 
         return research_context
 
+    async def _recursive_fetch(self, urls_to_visit: List[str], depth: int, visited_urls: Set[str]) -> str:
+        """
+        Recursively fetches content from URLs, governed by the HIP protocol.
+        """
+        if depth < 0 or not urls_to_visit:
+            return ""
+
+        # Fetch content from the current list of URLs
+        tasks = {url: asyncio.create_task(view_text_website(url)) for url in urls_to_visit if url not in visited_urls}
+        if not tasks:
+            return ""
+
+        done, _ = await asyncio.wait(tasks.values())
+
+        current_level_context = ""
+        next_level_urls: List[str] = []
+
+        for url, task in tasks.items():
+            visited_urls.add(url)
+            try:
+                html_content = task.result()
+                soup = BeautifulSoup(html_content, 'html.parser')
+
+                # Extract text content
+                text_content = soup.get_text(separator=' ', strip=True)
+                current_level_context += f"--- Source: {url} ---\n"
+                current_level_context += text_content[:2000] # Truncate
+                current_level_context += "\n\n"
+
+                # Extract links for next level of recursion
+                if depth > 0:
+                    for link in soup.find_all('a', href=True):
+                        full_url = urljoin(url, link['href'])
+                        # Use HIP to govern link following
+                        if self.hip_protocol.execute({"url": full_url})["action"] == "follow":
+                            if full_url not in visited_urls:
+                                next_level_urls.append(full_url)
+            except Exception as e:
+                logger.warning(f"RAGManager: Failed to process URL {url}: {e}")
+
+        # Recursively fetch content from the approved links
+        deeper_context = await self._recursive_fetch(next_level_urls, depth - 1, visited_urls)
+
+        return current_level_context + deeper_context
+
 if __name__ == '__main__':
     async def main():
         logging.basicConfig(level=logging.INFO)
         rag_manager = RAGManager()
 
-        topic = "the impact of AI on modern software development"
-        print(f"--- Performing research on: '{topic}' ---")
+        topic = "the SIM-ONE framework for AI governance"
+        print(f"--- Performing recursive research on: '{topic}' ---")
 
         try:
-            context = await rag_manager.perform_research(topic)
+            # Mock the tools for local testing
+            async def mock_google_search(query):
+                return "https://www.mocksite.com/page1\nhttps://www.anothersite.com/articleA"
+
+            async def mock_view_text_website(url):
+                if url == "https://www.mocksite.com/page1":
+                    return "<html><body>Page 1 content. <a href='/page2'>Link to Page 2</a></body></html>"
+                if url == "https://www.mocksite.com/page2":
+                    return "<html><body>Page 2 content. Deeper research here.</body></html>"
+                if url == "https://www.anothersite.com/articleA":
+                    return "<html><body>Article A content. <a href='https://example.com/login'>Ignore this link</a></body></html>"
+                return ""
+
+            # Replace the global tools with mocks for the test
+            global google_search, view_text_website
+            google_search = mock_google_search
+            view_text_website = mock_view_text_website
+
+            context = await rag_manager.perform_research(topic, depth=1)
             print("\n--- Research Context ---")
-            print(context[:500] + "...")
-        except NameError as e:
-            print(f"\nCaught expected error because tools are not in local scope: {e}")
+            print(context)
         except Exception as e:
             print(f"\nAn unexpected error occurred: {e}")
 

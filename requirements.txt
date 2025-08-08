@@ -4,3 +4,4 @@ httpx
 psutil
 openai
 redis
+beautifulsoup4

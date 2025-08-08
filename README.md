@@ -1,110 +1,133 @@
-# The SIM-ONE Framework: A New Architecture for Governed Cognition
+# mCP Server
 
-[![Framework Status](https://img.shields.io/badge/Status-v1.2-green.svg)](./)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-[![Author: Daniel T. Sasser II](https://img.shields.io/badge/Author-Daniel_T._Sasser_II-orange.svg)](https://dansasser.me/)
-[![Governed Cognition](https://img.shields.io/badge/Focus-Governed_Cognition-blue.svg)](./)
-[![Energy Efficiency](https://img.shields.io/badge/Principle-Energy_Efficient_Architecture-lightgrey.svg)](./)
+The mCP (Cognitive Control Protocol) Server is a Python-based application for orchestrating and governing cognitive workflows, based on the principles of the SIM-ONE framework. It is designed to be a modular, extensible, and stateful platform for building conversational AI systems that are transparent, reliable, and resource-aware.
 
-**SIM‑ONE is the first open framework to formalize *governed cognition*, moving beyond brute‑force scaling to establish a principled, efficient, and reliable approach to AI architecture.**
-<img width="1536" height="1024" alt="sim_one_image_2_five_laws_pillars" src="https://github.com/user-attachments/assets/f4aa7a02-d454-4658-80be-f3abe24ccb8c" />
+This implementation serves as a comprehensive proof-of-concept for the core principles of the SIM-ONE framework, including the Five Laws of Cognitive Governance.
 
-This repository contains the official **MANIFESTO**, architectural philosophy, and guiding principles for the SIM‑ONE Framework.  
-It is intentionally designed to be **transparent about the "why"** and **protective of the "how"**.
+## Features
 
----
+- **Dynamic Protocol Loading:** Automatically discovers and loads cognitive protocols from the filesystem.
+- **Stateful Session Management:** Tracks conversational history and context using a Redis backend.
+- **Dual Orchestration Modes:** Supports both `Sequential` and `Parallel` execution of protocol workflows.
+- **Real-time Streaming API:** Provides a WebSocket endpoint (`/ws/execute`) for streaming results in real-time.
+- **Resource Monitoring:** Implements the "Energy Stewardship" law by profiling the CPU and memory usage of every protocol.
+- **Workflow Templating:** Allows clients to execute complex, pre-defined workflows by name.
+- **Hybrid Symbolic-Generative Workflows:** Capable of running workflows that combine symbolic logic protocols (like REP) and generative protocols (like SP).
 
-## Table of Contents
-- [Core Philosophy](#core-philosophy)
-- [The MANIFESTO](#the-MANIFESTO)
-- [The Five Laws of Cognitive Governance](#the-five-laws-of-cognitive-governance)
-- [Architectural Overview](#architectural-overview)
-- [Project Status](#project-status)
-- [Contributions](#contributions)
-- [License](#license)
-- [Author](#author)
+## Prerequisites
 
----
+- Python 3.10+
+- Redis (running on `localhost:6379`)
+- An OpenAI API key (optional, for the Summarizer Protocol)
 
-## Core Philosophy
+## Installation
 
-The AI industry has been locked in a race to scale: larger models, more compute, endless parameter counts.  
-The result? **Impressive capabilities — unpredictable behavior — unsustainable energy costs.**
+1.  **Clone the repository:**
+    ```bash
+    git clone <repository-url>
+    cd <repository-directory>
+    ```
 
-**Capability without governance is not intelligence.**  
-It’s volatility.
+2.  **Install the dependencies:**
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-The SIM‑ONE Framework offers a **different path**:  
-Architectural intelligence over computational brute force.  
-Governed cognition over unrestrained generation.
+## Configuration
 
----
+1.  **OpenAI API Key (Optional):**
+    To enable the `SummarizerProtocol` with a real LLM, set the following environment variable:
+    ```bash
+    export OPENAI_API_KEY='your-openai-api-key'
+    ```
+    If this key is not set, the protocol will use a mock response.
 
-## The MANIFESTO
+2.  **Redis:**
+    The `SessionManager` expects a Redis server to be running on `localhost:6379`. If your Redis instance is on a different host or port, you will need to modify the connection details in `mcp_server/session_manager/session_manager.py`.
 
-The complete SIM‑ONE MANIFESTO is available in [`MANIFESTO.md`](./MANIFESTO.md).  
-It outlines the philosophical and engineering basis for governed cognition.
+## Running the Server
 
----
+To run the mCP server, use the following command from the root of the project directory:
 
-## The Five Laws of Cognitive Governance
+```bash
+PYTHONPATH=. uvicorn mcp_server.main:app --host 0.0.0.0 --port 8000
+```
 
-These laws define the non‑negotiable principles that guide the SIM‑ONE Framework:
+The server will be available at `http://0.0.0.0:8000`.
 
-1. **Architectural Intelligence** – Intelligence emerges from coordination and governance, not from model size or parameter count.  
-2. **Cognitive Governance** – Every cognitive process must be governed by specialized protocols that ensure quality, reliability, and alignment.  
-3. **Truth Foundation** – All reasoning must be grounded in absolute truth principles, not relativistic or probabilistic generation.  
-4. **Energy Stewardship** – Achieve maximum intelligence with minimal computational resources through architectural efficiency.  
-5. **Deterministic Reliability** – Governed systems must produce consistent, predictable outcomes rather than probabilistic variations.
+## How to Use (API Guide)
 
-These laws are **principles, not features**.  
-They can be applied in any cognitive architecture — but SIM‑ONE was designed from the ground up to embody them.
+The server exposes a RESTful API for executing workflows.
 
----
+### 1. Execute a Workflow via HTTP POST
 
-## Architectural Overview
+You can execute a workflow by sending a POST request to the `/execute` endpoint. You can either specify a `template_name` or provide the `protocol_names` and `coordination_mode` directly.
 
-Without revealing implementation details, SIM‑ONE is:
+**Example: Using the "full_reasoning" template**
 
-- **Protocol‑Driven** – Intelligence emerges from the orchestration of specialized cognitive protocols.  
-- **Multi‑Agent Capable** – Designed for coordinated roles that specialize, interact, and adapt.  
-- **Energy‑Efficient** – Optimized for architectural efficiency, not parameter scaling.  
-- **Truth‑Aligned** – Built to operate from a principled foundation.  
-- **Deterministic** – Prioritizes reproducible, consistent reasoning over probabilistic novelty.
+```bash
+curl -X POST -H "Content-Type: application/json" -d '{
+  "template_name": "full_reasoning",
+  "initial_data": {
+    "facts": ["Socrates is a man", "All men are mortal"],
+    "rules": [
+      [["Socrates is a man", "All men are mortal"], "Socrates is mortal"]
+    ]
+  }
+}' http://0.0.0.0:8000/execute
+```
 
----
+### 2. Execute a Workflow via WebSocket (Streaming)
 
-## Project Status
+For a real-time experience, you can connect to the `/ws/execute` endpoint.
 
-- **Philosophical Framework** – Complete  
-- **Nine Governance Protocols** – Defined (implementation private)  
-- **Public Documentation** – [`MANIFESTO.md`](./MANIFESTO.md) available for reference  
-- **Benchmarking** – Completed in controlled environments  
-- **Implementation** – Internal builds operational, private codebase maintained
+**Example: Python client for WebSocket streaming**
 
----
+```python
+import asyncio
+import websockets
+import json
 
-## Contributions
+async def run_streaming_workflow():
+    uri = "ws://localhost:8000/ws/execute"
+    async with websockets.connect(uri) as websocket:
+        request = {
+            "protocol_names": ["ReasoningAndExplanationProtocol", "SummarizerProtocol"],
+            "initial_data": {
+                "facts": ["Socrates is a man", "All men are mortal"],
+                "rules": [[["Socrates is a man", "All men are mortal"], "Socrates is mortal"]]
+            }
+        }
+        await websocket.send(json.dumps(request))
 
-The SIM‑ONE Framework is an open philosophical and architectural standard.  
-We welcome discussions, critiques, and conceptual contributions that advance governed cognition as a field.  
+        while True:
+            response = await websocket.recv()
+            data = json.loads(response)
+            print(f"Received: {data}")
+            if data.get("status") == "complete":
+                break
 
-For proposals, please open an issue in this repository.
+if __name__ == "__main__":
+    asyncio.run(run_streaming_workflow())
+```
 
----
+### Available Endpoints
 
-## License
+-   `POST /execute`: Execute a workflow.
+-   `GET /protocols`: List all available protocols.
+-   `GET /templates`: List all available workflow templates.
+-   `GET /session/{session_id}`: Retrieve the history for a given session.
+-   `WS /ws/execute`: Execute a workflow over a WebSocket connection for streaming results.
 
-This project is licensed under the terms of the **MIT License**.  
-See the [`LICENSE`](./LICENSE) file for full details.
+## Available Protocols
 
----
+-   **ReasoningAndExplanationProtocol (REP):** A rule-based symbolic logic engine.
+-   **ValidationAndVerificationProtocol (VVP):** Validates the format of workflow inputs.
+-   **EmotionalStateLayerProtocol (ESL):** A keyword-based sentiment analyzer.
+-   **MemoryTaggerProtocol (MTP):** A simple entity extractor for conversational memory.
+-   **SummarizerProtocol (SP):** A generative protocol that uses an LLM to create summaries.
 
-## Author
+## Available Workflow Templates
 
-**Daniel T. Sasser II** — [dansasser.me](https://dansasser.me)  
-Founder, **SIM‑ONE Framework** • [Part of the Gorombo Agent Ecosystem](https://gorombo.com)  
-
----
-
-*The SIM‑ONE Framework: Where architectural intelligence meets cognitive governance to define the future of AI.*
+-   **analyze_only:** Runs ESL and MTP in parallel to analyze user input.
+-   **full_reasoning:** Runs REP and SP sequentially to perform reasoning and summarize the result.

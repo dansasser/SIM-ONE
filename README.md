@@ -1,133 +1,99 @@
-# mCP Server
+# SIM-ONE Cognitive Control Protocol (mCP) Server
 
-The mCP (Cognitive Control Protocol) Server is a Python-based application for orchestrating and governing cognitive workflows, based on the principles of the SIM-ONE framework. It is designed to be a modular, extensible, and stateful platform for building conversational AI systems that are transparent, reliable, and resource-aware.
+## Project Overview
 
-This implementation serves as a comprehensive proof-of-concept for the core principles of the SIM-ONE framework, including the Five Laws of Cognitive Governance.
+Welcome to the SIM-ONE mCP Server, a sophisticated, multi-protocol cognitive architecture designed to simulate advanced reasoning, emotional intelligence, and metacognitive governance. This server is the backbone of the SIM-ONE framework, providing a powerful platform for developing and orchestrating autonomous AI agents that can perform complex cognitive tasks.
 
-## Features
+The server is built on a modular, protocol-based architecture, allowing for dynamic loading and execution of various cognitive functions. From deep reasoning and emotional analysis to advanced entity extraction and self-governance, the mCP Server provides the tools to build truly intelligent systems.
 
-- **Dynamic Protocol Loading:** Automatically discovers and loads cognitive protocols from the filesystem.
-- **Stateful Session Management:** Tracks conversational history and context using a Redis backend.
-- **Dual Orchestration Modes:** Supports both `Sequential` and `Parallel` execution of protocol workflows.
-- **Real-time Streaming API:** Provides a WebSocket endpoint (`/ws/execute`) for streaming results in real-time.
-- **Resource Monitoring:** Implements the "Energy Stewardship" law by profiling the CPU and memory usage of every protocol.
-- **Workflow Templating:** Allows clients to execute complex, pre-defined workflows by name.
-- **Hybrid Symbolic-Generative Workflows:** Capable of running workflows that combine symbolic logic protocols (like REP) and generative protocols (like SP).
+## Key Features
 
-## Prerequisites
+*   **Modular Protocol Architecture**: Dynamically load and chain "Cognitive Protocols" to create complex workflows.
+*   **Advanced Reasoning (REP)**: A rule-based engine for deductive, inductive, and abductive reasoning.
+*   **Emotional Intelligence (ESL)**: Sophisticated, rule-based emotional analysis to understand user sentiment and intent.
+*   **Entity & Relationship Extraction (MTP)**: Advanced entity recognition (people, places, organizations) and detection of the relationships between them.
+*   **Cognitive Governance Engine**: A powerful metacognitive layer that validates the coherence, quality, and resilience of all cognitive processes.
+*   **Persistent Memory**: A memory manager that allows the system to learn and recall information across sessions.
+*   **Secure and Scalable**: Built with FastAPI, including features like API key authentication, rate limiting, and a configurable setup for production deployment.
 
-- Python 3.10+
-- Redis (running on `localhost:6379`)
-- An OpenAI API key (optional, for the Summarizer Protocol)
+## Quick Start Guide
+
+Get the server up and running in 5 minutes.
+
+**1. Clone the repository:**
+```bash
+git clone [repository-url]
+cd SIM-ONE
+```
+
+**2. Set up a Python virtual environment:**
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+**3. Install dependencies:**
+```bash
+pip install -r requirements.txt
+```
+
+**4. Configure environment variables:**
+Create a `.env` file in the root directory and add the required variables. See the [Configuration Guide](./docs/CONFIGURATION.md) for details. A minimal example:
+```
+MCP_API_KEY="your-secret-api-key"
+```
+
+**5. Run the server:**
+```bash
+uvicorn mcp_server.main:app --host 0.0.0.0 --port 8000
+```
+The server is now running and accessible at `http://localhost:8000`.
+
+## Architecture Overview
+
+The mCP Server consists of several key components that work in tandem:
+
+*   **API Gateway (`main.py`)**: The public-facing interface of the server, handling incoming requests, authentication, and routing.
+*   **Orchestration Engine**: The core component that executes workflows by managing and sequencing Cognitive Protocols.
+*   **Protocol Manager**: Responsible for dynamically discovering and loading available protocols (e.g., REP, ESL, MTP).
+*   **Cognitive Protocols**: Individual modules that perform specific cognitive tasks. Each protocol is self-contained and exposes a standard interface.
+*   **Cognitive Governance Engine**: A metacognitive layer that monitors, validates, and governs the outputs of all protocols to ensure coherence and quality.
+*   **Memory Manager**: Interfaces with a Redis database to provide persistent memory and session management.
+
+For a more detailed breakdown, please see the full [Architecture Documentation](./docs/ARCHITECTURE.md).
 
 ## Installation
 
-1.  **Clone the repository:**
-    ```bash
-    git clone <repository-url>
-    cd <repository-directory>
-    ```
-
-2.  **Install the dependencies:**
-    ```bash
-    pip install -r requirements.txt
-    ```
+For detailed, step-by-step installation instructions for various platforms and production environments, please refer to our comprehensive [Installation Guide](./docs/INSTALLATION.md).
 
 ## Configuration
 
-1.  **OpenAI API Key (Optional):**
-    To enable the `SummarizerProtocol` with a real LLM, set the following environment variable:
-    ```bash
-    export OPENAI_API_KEY='your-openai-api-key'
-    ```
-    If this key is not set, the protocol will use a mock response.
+The server is configured entirely through environment variables. For a full list of all required and optional variables, their purpose, and example values, please see the [Configuration Guide](./docs/CONFIGURATION.md).
 
-2.  **Redis:**
-    The `SessionManager` expects a Redis server to be running on `localhost:6379`. If your Redis instance is on a different host or port, you will need to modify the connection details in `mcp_server/session_manager/session_manager.py`.
+## API Documentation
 
-## Running the Server
+The server exposes a powerful API for executing cognitive workflows. For detailed information on all available endpoints, request/response formats, authentication, and usage examples, please refer to our full [API Documentation](./docs/API_DOCUMENTATION.md).
 
-To run the mCP server, use the following command from the root of the project directory:
+### Basic API Usage Example
+
+Here is a quick example of how to execute a workflow using `curl`:
 
 ```bash
-PYTHONPATH=. uvicorn mcp_server.main:app --host 0.0.0.0 --port 8000
+curl -X POST "http://localhost:8000/v1/execute" \
+-H "Authorization: Bearer your-secret-api-key" \
+-H "Content-Type: application/json" \
+-d '{
+    "workflow": "StandardReasoningWorkflow",
+    "data": {
+        "user_input": "John works at Microsoft and lives in Seattle."
+    }
+}'
 ```
 
-The server will be available at `http://0.0.0.0:8000`.
+## Contributing
 
-## How to Use (API Guide)
+We welcome contributions from the community! If you'd like to contribute, please read our [Contributing Guidelines](./CONTRIBUTING.md) to get started.
 
-The server exposes a RESTful API for executing workflows.
+## License
 
-### 1. Execute a Workflow via HTTP POST
-
-You can execute a workflow by sending a POST request to the `/execute` endpoint. You can either specify a `template_name` or provide the `protocol_names` and `coordination_mode` directly.
-
-**Example: Using the "full_reasoning" template**
-
-```bash
-curl -X POST -H "Content-Type: application/json" -d '{
-  "template_name": "full_reasoning",
-  "initial_data": {
-    "facts": ["Socrates is a man", "All men are mortal"],
-    "rules": [
-      [["Socrates is a man", "All men are mortal"], "Socrates is mortal"]
-    ]
-  }
-}' http://0.0.0.0:8000/execute
-```
-
-### 2. Execute a Workflow via WebSocket (Streaming)
-
-For a real-time experience, you can connect to the `/ws/execute` endpoint.
-
-**Example: Python client for WebSocket streaming**
-
-```python
-import asyncio
-import websockets
-import json
-
-async def run_streaming_workflow():
-    uri = "ws://localhost:8000/ws/execute"
-    async with websockets.connect(uri) as websocket:
-        request = {
-            "protocol_names": ["ReasoningAndExplanationProtocol", "SummarizerProtocol"],
-            "initial_data": {
-                "facts": ["Socrates is a man", "All men are mortal"],
-                "rules": [[["Socrates is a man", "All men are mortal"], "Socrates is mortal"]]
-            }
-        }
-        await websocket.send(json.dumps(request))
-
-        while True:
-            response = await websocket.recv()
-            data = json.loads(response)
-            print(f"Received: {data}")
-            if data.get("status") == "complete":
-                break
-
-if __name__ == "__main__":
-    asyncio.run(run_streaming_workflow())
-```
-
-### Available Endpoints
-
--   `POST /execute`: Execute a workflow.
--   `GET /protocols`: List all available protocols.
--   `GET /templates`: List all available workflow templates.
--   `GET /session/{session_id}`: Retrieve the history for a given session.
--   `WS /ws/execute`: Execute a workflow over a WebSocket connection for streaming results.
-
-## Available Protocols
-
--   **ReasoningAndExplanationProtocol (REP):** A rule-based symbolic logic engine.
--   **ValidationAndVerificationProtocol (VVP):** Validates the format of workflow inputs.
--   **EmotionalStateLayerProtocol (ESL):** A keyword-based sentiment analyzer.
--   **MemoryTaggerProtocol (MTP):** A simple entity extractor for conversational memory.
--   **SummarizerProtocol (SP):** A generative protocol that uses an LLM to create summaries.
-
-## Available Workflow Templates
-
--   **analyze_only:** Runs ESL and MTP in parallel to analyze user input.
--   **full_reasoning:** Runs REP and SP sequentially to perform reasoning and summarize the result.
+This project is licensed under the terms of the [MIT License](./LICENSE).

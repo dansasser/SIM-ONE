@@ -1,132 +1,160 @@
 import logging
+import re
 import json
-from typing import Dict, Any, List, Set
+import sys
+import os
+from typing import Dict, Any, List
+
+# Allow running this script directly for testing
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
 
 from mcp_server.memory_manager.memory_manager import MemoryManager
+from mcp_server.protocols.mtp import entity_patterns
 
 logger = logging.getLogger(__name__)
 
 class MTP:
     """
-    Memory Tagger Protocol (MTP) updated to handle sophisticated,
-    multi-dimensional emotional data from the new ESLProtocol.
+    An advanced Memory Tagger Protocol (MTP) that performs sophisticated, rule-based
+    entity extraction, relationship detection, and emotional tagging.
     """
     def __init__(self):
         self.memory_manager = MemoryManager()
+        self.entity_patterns = entity_patterns.ENTITY_PATTERNS
+        self.relationship_patterns = entity_patterns.RELATIONSHIP_PATTERNS
+        self.entity_processing_order = ['organization', 'place', 'person', 'event', 'object', 'concept']
+
+    def _extract_entities(self, text: str) -> List[Dict]:
+        """Extracts entities using regex patterns and prevents overlapping matches."""
+        found_spans = {}
+        for entity_type in self.entity_processing_order:
+            patterns = self.entity_patterns.get(entity_type, [])
+            for pattern in patterns:
+                for match in pattern.finditer(text):
+                    span = match.span()
+                    # Skip if this span is already contained within another
+                    if any(s[0] <= span[0] and s[1] >= span[1] and s != span for s in found_spans):
+                        continue
+
+                    # If this exact span is already found, the first type (higher priority) wins
+                    if span in found_spans:
+                        continue
+
+                    entity_name = match.group(1) if match.groups() else match.group(0)
+                    found_spans[span] = {"entity": entity_name.strip(), "type": entity_type, "span": span}
+
+        return sorted(list(found_spans.values()), key=lambda x: x['span'][0])
+
+    def _detect_relationships(self, text: str, entities: List[Dict]) -> List[Dict]:
+        """Finds relationship keywords and connects the nearest valid source/target entities."""
+        relationships = []
+        person_centric_rels = ['works_at', 'located_in']
+
+        for rel_type, pattern in self.relationship_patterns.items():
+            for rel_match in pattern.finditer(text):
+                rel_span = rel_match.span()
+
+                source_entity, target_entity = None, None
+
+                # Find nearest entity before the relationship
+                candidates_before = [e for e in entities if e['span'][1] <= rel_span[0]]
+                # If it's a person-centric relationship, strongly prefer a person as the source
+                if rel_type in person_centric_rels:
+                    person_candidates = [p for p in candidates_before if p['type'] == 'person']
+                    if person_candidates:
+                        candidates_before = person_candidates # Prioritize persons
+
+                if candidates_before:
+                    source_entity = min(candidates_before, key=lambda e: rel_span[0] - e['span'][1])
+
+                # Find nearest entity after the relationship
+                candidates_after = [e for e in entities if e['span'][0] >= rel_span[1]]
+                if candidates_after:
+                    target_entity = min(candidates_after, key=lambda e: e['span'][0] - rel_span[1])
+
+                if source_entity and target_entity:
+                    is_valid = False
+                    if rel_type == 'works_at' and source_entity['type'] == 'person' and target_entity['type'] == 'organization':
+                        is_valid = True
+                    elif rel_type == 'located_in' and source_entity['type'] == 'person' and target_entity['type'] == 'place':
+                        is_valid = True
+
+                    if is_valid:
+                        rel = {
+                            "source": source_entity['entity'], "target": target_entity['entity'],
+                            "relationship_type": rel_type, "strength": 0.9
+                        }
+                        if rel not in relationships:
+                            relationships.append(rel)
+                            logger.info(f"Found relationship: {source_entity['entity']} -> {rel_type} -> {target_entity['entity']}")
+        return relationships
+
+    def _calculate_salience(self, entity: Dict, text: str) -> float:
+        salience = 0.5
+        if entity['type'] in ['person', 'organization', 'place']: salience += 0.2
+        salience += 0.1 * text.lower().count(entity['entity'].lower())
+        return min(1.0, round(salience, 2))
 
     def execute(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Extracts entities, tags them with rich emotional context from ESL,
-        and saves them to memory.
-        """
-        user_input = data.get("user_input", "")
-        esl_results = data.get("EmotionalStateLayerProtocol", {})
-        session_id = data.get("session_id")
+        user_input, emotional_context, session_id = data.get("user_input", ""), data.get("emotional_context", {}), data.get("session_id")
+        if not user_input or not session_id: return {"status": "skipped", "reason": "Missing user_input or session_id."}
 
-        logger.info(f"MTP: Analyzing input for session {session_id} with context: {esl_results}")
+        extracted_entities = self._extract_entities(user_input)
+        entity_relationships = self._detect_relationships(user_input, extracted_entities)
 
-        if not user_input or not session_id:
-            return {"status": "skipped", "reason": "Missing user_input or session_id."}
+        processed_entities = [
+            {
+                "entity": e['entity'], "type": e['type'], "salience": self._calculate_salience(e, user_input),
+                "emotional_state": emotional_context.get('valence', 'neutral'),
+                "context": user_input[max(0, e['span'][0]-20):e['span'][1]+20],
+                "relationships": list(set([r['target'] for r in entity_relationships if r['source'] == e['entity']])),
+                "confidence": 0.85, "first_mention": user_input.find(e['entity']) == e['span'][0]
+            } for e in extracted_entities
+        ]
 
-        # Simple entity extraction (find capitalized words)
-        # This is a naive implementation and could be improved with a real NER model.
-        words = user_input.split()
-        potential_entities = {word.strip(".,?!") for word in words if word.istitle()}
+        memory_tags = self._create_memory_tags(processed_entities, user_input, emotional_context)
+        if memory_tags: self.memory_manager.add_memories(session_id, memory_tags)
 
-        if not potential_entities:
-            return {"status": "no_new_entities", "tagged_count": 0}
+        return {
+            "extracted_entities": processed_entities, "entity_relationships": entity_relationships,
+            "memory_tags": memory_tags,
+            "contextual_factors": {"entity_count": len(processed_entities), "new_entities": len(memory_tags)},
+            "explanation": f"Extracted {len(processed_entities)} entities. Found {len(entity_relationships)} relationships."
+        }
 
-        # Get the rich emotional data from the new ESL output
-        detected_emotions = esl_results.get("detected_emotions", [])
-        overall_valence = esl_results.get("valence", "neutral")
-
-        if not detected_emotions:
-            logger.info("MTP: No emotions detected by ESL. Skipping memory creation.")
-            return {"status": "skipped", "reason": "No emotions detected."}
-
-        # Get existing entities from memory to avoid re-tagging the same entity
-        # in the same way, although this logic could be more sophisticated.
-        all_memories = self.memory_manager.get_all_memories(session_id)
-        existing_entities = {mem.get("entity") for mem in all_memories}
-        new_entities = list(potential_entities - existing_entities)
-
-        if not new_entities:
-            return {"status": "no_new_entities_found", "tagged_count": 0}
-
-        new_memories = []
-        for entity in new_entities:
-            new_memories.append({
-                "entity": entity,
-                "emotions": json.dumps(detected_emotions),  # Serialize list of dicts to a JSON string
-                "overall_valence": overall_valence,
-                "source_input": user_input
-            })
-
-        self.memory_manager.add_memories(session_id, new_memories)
-
-        logger.info(f"MTP: Persisted {len(new_memories)} new memories for session {session_id}.")
-
-        return {"status": "success", "tagged_count": len(new_memories)}
+    def _create_memory_tags(self, entities: List[Dict], user_input: str, emotional_context: Dict) -> List[Dict]:
+        return [
+            {
+                "entity": e['entity'], "emotions": json.dumps(emotional_context.get('detected_emotions', [])),
+                "overall_valence": emotional_context.get('valence', 'neutral'), "source_input": user_input,
+                "salience": e['salience'], "source_protocol": "MTP"
+            } for e in entities
+        ]
 
 if __name__ == '__main__':
-    import uuid
     logging.basicConfig(level=logging.INFO)
-
     mtp = MTP()
+    mock_esl_output = {"valence": "positive", "detected_emotions": [{"emotion": "joy", "intensity": 0.8}]}
+    test_input = "John works at Microsoft and lives in Seattle."
+    print(f"--- Testing Advanced MTP (v4) ---")
+    print(f"Input: '{test_input}'")
 
-    # The MemoryManager uses Redis, so we need a connection to run the test.
-    if mtp.memory_manager.redis_client:
-        session_id = str(uuid.uuid4())
-        print(f"--- Testing Updated MTP with session: {session_id} ---")
+    class MockMemoryManager:
+        def add_memories(self, session_id, memories):
+            print(f"\n--- Mock MemoryManager: Adding {len(memories)} memories to session {session_id} ---")
+            for mem in memories: print(f"  - {mem}")
+    mtp.memory_manager = MockMemoryManager()
 
-        # Sample output from the new, sophisticated ESL
-        sample_esl_output = {
-            "emotional_state": "gratitude",
-            "valence": "positive",
-            "intensity": 0.75,
-            "salience": 0.57,
-            "confidence": 0.9,
-            "detected_emotions": [
-                {
-                    "emotion": "gratitude",
-                    "intensity": 0.75,
-                    "confidence": 0.9,
-                    "dimension": "social",
-                    "valence": "positive"
-                }
-            ],
-            "analysis_type": "linguistic_patterns",
-            "ml_ready": True
-        }
+    result = mtp.execute({"user_input": test_input, "emotional_context": mock_esl_output, "session_id": "test-session-123"})
+    print("\n--- MTP Execution Result ---")
+    print(json.dumps(result, indent=2))
 
-        sample_data = {
-            "user_input": "I am so grateful for the help from OpenAI.",
-            "EmotionalStateLayerProtocol": sample_esl_output,
-            "session_id": session_id
-        }
-
-        result = mtp.execute(sample_data)
-        print(f"Execution result: {result}")
-        assert result['status'] == 'success' and result['tagged_count'] == 1
-
-        # Verify that the memory was saved correctly
-        memories = mtp.memory_manager.get_all_memories(session_id)
-        print(f"Retrieved memories: {memories}")
-        assert len(memories) == 1
-
-        saved_memory = memories[0]
-        assert saved_memory['entity'] == 'OpenAI'
-        assert saved_memory['overall_valence'] == 'positive'
-
-        # Check the stored emotions
-        retrieved_emotions = json.loads(saved_memory['emotions'])
-        print(f"Retrieved and deserialized emotions: {retrieved_emotions}")
-        assert isinstance(retrieved_emotions, list)
-        assert len(retrieved_emotions) == 1
-        assert retrieved_emotions[0]['emotion'] == 'gratitude'
-
-        # Clean up the test data from Redis
-        mtp.memory_manager.redis_client.delete(f"memory:{session_id}")
-        print(f"--- Test complete and cleaned up for session: {session_id} ---")
-    else:
-        print("Cannot run MTP example because Redis connection is not available.")
+    extracted_entities_map = {e['entity']: e['type'] for e in result['extracted_entities']}
+    assert extracted_entities_map.get("John") == "person", f"John was {extracted_entities_map.get('John')}"
+    assert extracted_entities_map.get("Microsoft") == "organization", f"Microsoft was {extracted_entities_map.get('Microsoft')}"
+    assert extracted_entities_map.get("Seattle") == "place", f"Seattle was {extracted_entities_map.get('Seattle')}"
+    assert len(result['entity_relationships']) == 2, f"Found {len(result['entity_relationships'])} relationships"
+    rel_tuples = {(r['source'], r['relationship_type'], r['target']) for r in result['entity_relationships']}
+    assert ("John", "works_at", "Microsoft") in rel_tuples
+    assert ("John", "located_in", "Seattle") in rel_tuples
+    print("\n--- All Assertions Passed! ---")

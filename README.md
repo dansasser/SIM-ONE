@@ -1,7 +1,7 @@
 # The SIM-ONE Framework: A New Architecture for Governed Cognition
 
 [![Framework Status](https://img.shields.io/badge/Status-v1.2-green.svg)](./)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+[![License: AGPL v3 / Commercial](https://img.shields.io/badge/License-AGPL%20v3%20or%20Commercial-blue.svg)](./LICENSE.md)
 [![Author: Daniel T. Sasser II](https://img.shields.io/badge/Author-Daniel_T._Sasser_II-orange.svg)](https://dansasser.me/)
 [![Governed Cognition](https://img.shields.io/badge/Focus-Governed_Cognition-blue.svg)](./)
 [![Energy Efficiency](https://img.shields.io/badge/Principle-Energy_Efficient_Architecture-lightgrey.svg)](./)

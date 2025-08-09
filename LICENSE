@@ -12,7 +12,7 @@ By obtaining, using, or copying the Software, you agree to be bound by the terms
 
 For non‑commercial use—including academic research, personal projects, educational activities and non‑profit initiatives—you may use the Software under the GNU Affero General Public License version 3 (AGPL v3).
 
-The AGPL v3 is a free, copyleft license designed to ensure that software used over a network remains free and that users can access the complete source code. As explained by the Free Software Foundation, the AGPL requires the operator of a network server to provide the source code of any modified version running on that server\[^1\]. This prevents service providers from running proprietary forks without releasing their changes to the community.
+The AGPL v3 is a free, copyleft license designed to ensure that software used over a network remains free and that users can access the complete source code. As explained by the Free Software Foundation, the AGPL requires the operator of a network server to provide the source code of any modified version running on that server. This prevents service providers from running proprietary forks without releasing their changes to the community.
 
 Under the AGPL v3 you may copy, modify, and distribute the Software, provided that:
 
@@ -112,7 +112,7 @@ A 30‑day transition period applies from the date the Licensor publishes this d
 
 5. Original MIT license Notice
 
-Earlier versions of the Software were released under the MIT license. The MIT license permits recipients to copy, modify, distribute, sublicense and sell copies of the Software, provided that the copyright and permission notice is included in all copies\[^2\]. When relicensing MIT code under a copyleft license such as the AGPL, users must continue to include the original MIT notice and comply with its minimal requirement to preserve the notice\[^3\]. Accordingly, the following MIT notice applies to portions of the Software originally licensed under MIT:
+Earlier versions of the Software were released under the MIT license. The MIT license permits recipients to copy, modify, distribute, sublicense and sell copies of the Software, provided that the copyright and permission notice is included in all copies. When relicensing MIT code under a copyleft license such as the AGPL, users must continue to include the original MIT notice and comply with its minimal requirement to preserve the notice. Accordingly, the following MIT notice applies to portions of the Software originally licensed under MIT:
 
 Copyright © 2025 Daniel T. Sasser II
 
@@ -140,7 +140,7 @@ By using the Software, you acknowledge that you have read and understand this li
 7. Full Text of AGPL v3
 The complete text of the GNU Affero General Public License version 3 is reproduced below. To the extent any terms of the AGPL v3 conflict with this Commercial license, the terms of the Commercial license prevail for commercial use.
 
-```markdown
+
 GNU AFFERO GENERAL PUBLIC LICENSE
 Version 3, 19 November 2007
 
@@ -152,7 +152,7 @@ of this license document, but changing it is not allowed.
 
       The GNU Affero General Public License is a free, copyleft license for
 software and other kinds of works, specifically designed to ensure
-cooperation with the community in the case of network server software.:contentReference[oaicite:3]{index=3}
+cooperation with the community in the case of network server software.:contentReference
 
       The licenses for most software and other practical works are designed
 to take away your freedom to share and change the works.  By contrast,
@@ -186,7 +186,7 @@ source code to the public.
 ensure that, in such cases, the modified source code becomes available
 to the community.  It requires the operator of a network server to
 provide the source code of the modified version running there to
-the users of that server:contentReference[oaicite:4]{index=4}.  Therefore, public use of a modified version, on
+the users of that server:contentReference.  Therefore, public use of a modified version, on
 a publicly accessible server, gives the public access to the source
 code of the modified version.
 
@@ -788,6 +788,6 @@ necessary.  For more information on this, and how to apply and follow
 the GNU Affero General Public License, see <https://www.gnu.org/licenses/>.
 
 
-```
+
 
 

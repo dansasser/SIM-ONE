@@ -1,0 +1,11 @@
+{
+  "name": "EmotionalStateLayerProtocol",
+  "version": "1.0.0",
+  "entryPoint": "mcp_server.protocols.esl.esl.ESL",
+  "type": "Analysis",
+  "dependencies": [],
+  "resourceRequirements": {
+    "cpu": "50m",
+    "memory": "64Mi"
+  }
+}

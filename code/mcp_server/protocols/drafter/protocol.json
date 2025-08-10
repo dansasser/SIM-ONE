@@ -1,0 +1,11 @@
+{
+  "name": "DrafterProtocol",
+  "version": "1.0.0",
+  "entryPoint": "mcp_server.protocols.drafter.drafter.DrafterProtocol",
+  "type": "Generative",
+  "dependencies": ["IdeatorProtocol"],
+  "resourceRequirements": {
+    "cpu": "100m",
+    "memory": "128Mi"
+  }
+}

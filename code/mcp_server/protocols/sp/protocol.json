@@ -1,0 +1,11 @@
+{
+  "name": "SummarizerProtocol",
+  "version": "1.0.0",
+  "entryPoint": "mcp_server.protocols.sp.sp.SP",
+  "type": "Generative",
+  "dependencies": ["ReasoningAndExplanationProtocol"],
+  "resourceRequirements": {
+    "cpu": "100m",
+    "memory": "128Mi"
+  }
+}

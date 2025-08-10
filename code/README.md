@@ -96,4 +96,4 @@ We welcome contributions from the community! If you'd like to contribute, please
 
 ## License
 
-This project is licensed under the terms of the [MIT License](./LICENSE).
+This project is licensed under the terms of the [AGPL v3 / Commercial](../LICENSE).

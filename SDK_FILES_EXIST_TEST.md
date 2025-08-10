@@ -1,0 +1,1 @@
+This is a test file to diagnose the issue with new files not appearing in commits. If you can see this file, then the `create_file_with_block` and `submit` tools are working correctly for new files in the root directory.

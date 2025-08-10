@@ -3,33 +3,14 @@
  */
 
 import { WorkflowRequest, WorkflowResponse } from './api/McpServerApi';
+import { handleHttpError, SdkError, AuthenticationError } from './http/ErrorHandler';
+import { SecurityMiddleware } from './http/SecurityMiddleware';
+import { TokenManager } from './auth/TokenManager';
 
-/**
- * Configuration for the SimoneClient.
- */
 export interface SimoneClientConfig {
-  /**
-   * The full base URL of the MCP server.
-   * @example "http://localhost:8000"
-   */
   mcpServerUrl: string;
-
-  /**
-   * The API key for authenticating with the MCP server.
-   */
   apiKey: string;
-
-  /**
-   * Optional configuration for session management.
-   * @default false
-   */
-  sessionManagement?: boolean;
-
-  /**
-   * Optional configuration for real-time features.
-   * @default false
-   */
-  realtime?: boolean;
+  // OAuth config will be added here in a future step
 }
 
 /**
@@ -37,64 +18,65 @@ export interface SimoneClientConfig {
  */
 export class SimoneClient {
   private config: SimoneClientConfig;
+  private securityMiddleware: SecurityMiddleware;
+  private tokenManager: TokenManager;
 
-  /**
-   * Creates an instance of the SimoneClient.
-   * @param config The configuration object for the client.
-   */
   constructor(config: SimoneClientConfig) {
     if (!config.mcpServerUrl || !config.apiKey) {
       throw new Error('mcpServerUrl and apiKey are required configuration properties.');
     }
     this.config = config;
+    this.tokenManager = new TokenManager();
+    this.securityMiddleware = new SecurityMiddleware(this.config, this.tokenManager);
   }
 
   /**
-   * Executes a cognitive workflow on the MCP server.
-   * @param request The workflow request object.
-   * @returns A promise that resolves with the workflow response.
+   * A private helper method to handle fetch requests with security and retries.
    */
+  private async _fetch(endpoint: string, options: RequestInit = {}, retry: boolean = true): Promise<any> {
+    const url = `${this.config.mcpServerUrl}${endpoint}`;
+
+    // Use the middleware to process the request and add auth headers
+    const processedOptions = await this.securityMiddleware.processRequest(options);
+
+    try {
+      const response = await fetch(url, processedOptions);
+      await handleHttpError(response);
+      const text = await response.text();
+      return text ? JSON.parse(text) : {};
+    } catch (error) {
+      // If it's an auth error, try to refresh the token and retry ONCE
+      if (error instanceof AuthenticationError && retry) {
+        const refreshed = await this.securityMiddleware.handleAuthError(error);
+        if (refreshed) {
+          console.log('Retrying request with new token...');
+          return this._fetch(endpoint, options, false); // Set retry to false to prevent infinite loops
+        }
+      }
+
+      if (error instanceof SdkError) {
+        throw error;
+      }
+      throw new SdkError(`Network request failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
   public async executeWorkflow(request: WorkflowRequest): Promise<WorkflowResponse> {
-    // HTTP client logic will be implemented here.
-    console.log('Executing workflow:', request);
-    // This is a temporary return value to satisfy the type signature.
-    // It will be replaced with a real API call.
-    return Promise.resolve({
-      session_id: request.session_id || 'new-session-id',
-      results: { message: 'Workflow executed (mock response).' },
-      error: null,
-      execution_time_ms: 50.0,
+    return this._fetch('/execute', {
+      method: 'POST',
+      body: JSON.stringify(request),
     });
   }
 
-  /**
-   * Retrieves the list of available protocols from the server.
-   * @returns A promise that resolves with the list of protocols.
-   */
   public async getProtocols(): Promise<any> {
-    // HTTP client logic will be implemented here.
-    console.log('Fetching protocols...');
-    return Promise.resolve({});
+    return this._fetch('/protocols', { method: 'GET' });
   }
 
-  /**
-   * Retrieves the list of available workflow templates from the server.
-   * @returns A promise that resolves with the list of templates.
-   */
   public async getTemplates(): Promise<any> {
-    // HTTP client logic will be implemented here.
-    console.log('Fetching templates...');
-    return Promise.resolve({});
+    return this._fetch('/templates', { method: 'GET' });
   }
 
-  /**
-   * Retrieves the history for a specific session from the server.
-   * @param sessionId The ID of the session to retrieve.
-   * @returns A promise that resolves with the session history.
-   */
   public async getSession(sessionId: string): Promise<any> {
-    // HTTP client logic will be implemented here.
-    console.log(`Fetching session: ${sessionId}`);
-    return Promise.resolve({});
+    return this._fetch(`/session/${sessionId}`, { method: 'GET' });
   }
 }

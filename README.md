@@ -1,7 +1,9 @@
 # The SIM-ONE Framework: A New Architecture for Governed Cognition
 
 [![Framework Status](https://img.shields.io/badge/Status-v1.2-green.svg)](./)
-[![License: AGPL v3 / Commercial](https://img.shields.io/badge/License-AGPL%20v3%20or%20Commercial-blue.svg)](./LICENSE.md)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE.md)
+[![Commercial: Available](https://img.shields.io/badge/Commercial-Available-brightgreen.svg)](LICENSE.md#6-how-to-obtain-a-commercial-license)
+[![Security Policy](https://img.shields.io/badge/Security-Policy-important.svg)](SECURITY.md)
 [![Author: Daniel T. Sasser II](https://img.shields.io/badge/Author-Daniel_T._Sasser_II-orange.svg)](https://dansasser.me/)
 [![Governed Cognition](https://img.shields.io/badge/Focus-Governed_Cognition-blue.svg)](./)
 [![Energy Efficiency](https://img.shields.io/badge/Principle-Energy_Efficient_Architecture-lightgrey.svg)](./)
@@ -97,6 +99,19 @@ For proposals, please open an issue in this repository.
 
 This project is licensed under the terms of the **MIT License**.  
 See the [`LICENSE`](./LICENSE) file for full details.
+
+---
+
+## Security
+
+Please report vulnerabilities privately so we can protect users.
+
+- **How to report:** Email **security@gorombo.com** with subject `[SECURITY] Vulnerability Report`.
+- **What to include:** Impact, steps to reproduce or PoC, affected version/commit, environment details, and any relevant logs.
+- **Response targets:** Acknowledgment within 3 business days. Triage and severity within 7 business days.
+- **Coordinated disclosure:** Default embargo 90 days from acknowledgment, adjusted based on risk and mitigations.
+
+See the full policy in [SECURITY.md](./SECURITY.md).
 
 ---
 

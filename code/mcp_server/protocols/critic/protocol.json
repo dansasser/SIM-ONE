@@ -1,0 +1,11 @@
+{
+  "name": "CriticProtocol",
+  "version": "1.0.0",
+  "entryPoint": "mcp_server.protocols.critic.critic.CriticProtocol",
+  "type": "Analysis",
+  "dependencies": ["DrafterProtocol"],
+  "resourceRequirements": {
+    "cpu": "200m",
+    "memory": "256Mi"
+  }
+}

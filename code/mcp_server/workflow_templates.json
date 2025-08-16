@@ -1,0 +1,33 @@
+{
+  "analyze_only": {
+    "description": "Analyzes user input for emotional state and entities.",
+    "protocols": [
+      "EmotionalStateLayerProtocol",
+      "MemoryTaggerProtocol"
+    ],
+    "mode": "Parallel"
+  },
+  "full_reasoning": {
+    "description": "Performs reasoning and summarizes the result.",
+    "protocols": [
+      "ReasoningAndExplanationProtocol",
+      "SummarizerProtocol"
+    ],
+    "mode": "Sequential"
+  },
+  "writing_team": {
+    "description": "A full multi-agent writing team with a revise/critique loop.",
+    "workflow": [
+      { "step": "IdeatorProtocol" },
+      { "step": "DrafterProtocol" },
+      {
+        "loop": 2,
+        "steps": [
+          { "step": "CriticProtocol" },
+          { "step": "RevisorProtocol" }
+        ]
+      },
+      { "step": "SummarizerProtocol" }
+    ]
+  }
+}

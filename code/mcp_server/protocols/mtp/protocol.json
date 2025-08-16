@@ -1,0 +1,11 @@
+{
+  "name": "MemoryTaggerProtocol",
+  "version": "1.0.0",
+  "entryPoint": "mcp_server.protocols.mtp.mtp.MTP",
+  "type": "Analysis",
+  "dependencies": [],
+  "resourceRequirements": {
+    "cpu": "50m",
+    "memory": "64Mi"
+  }
+}

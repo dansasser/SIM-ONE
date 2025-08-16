@@ -1,0 +1,123 @@
+name: Bug report
+description: Report a problem in the SIM-ONE Framework
+title: "[bug]: "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: >
+        Thanks for helping improve SIM-ONE. If this is a security issue,
+        please stop and email security@gorombo.com per SECURITY.md.
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Pre-flight
+      options:
+        - label: I searched existing issues and discussions
+          required: true
+        - label: This is not a security vulnerability
+          required: true
+        - label: I can reproduce on the latest commit on main
+          required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Affected version or commit
+      placeholder: v1.0.0 or commit SHA
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component(s)
+      multiple: true
+      options:
+        - Core engine
+        - mCP (Modular Control Protocols)
+        - HIP (Hyperlink Interpretation Protocol)
+        - POCP (Punctuation Output Control Protocol)
+        - SDK
+        - CLI
+        - Docs
+        - Examples
+        - Integrations: Astro
+        - Integrations: Node.js
+        - Integrations: Python
+        - RAG adapter
+        - AEO utilities
+    validations:
+      required: true
+
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      placeholder: OS, CPU, RAM, Docker or bare metal, cloud provider if relevant
+
+  - type: input
+    id: runtime
+    attributes:
+      label: Runtime versions
+      placeholder: Node.js x.y.z, Python a.b.c, pnpm/npm/yarn version
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+      render: bash
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or stack traces
+      description: Redact secrets. Use fenced code blocks.
+      render: bash
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - S0 - critical (production down, data loss)
+        - S1 - high (major feature broken, no workaround)
+        - S2 - medium (degraded, workaround exists)
+        - S3 - low (minor issue, cosmetics)
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: regression
+    attributes:
+      label: Is this a regression?
+      options:
+        - label: This worked in an earlier version
+        - label: I can bisect to a specific commit
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Additional context
+      description: Links to minimal repro repo or gist, screenshots, related issues

@@ -1,0 +1,82 @@
+name: Feature request
+description: Propose an enhancement for the SIM-ONE Framework
+title: "[feat]: "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: >
+        Use this form for new capabilities, APIs, or integrations
+        (e.g., Astro, Node.js, Python, RAG adapters).
+
+  - type: input
+    id: problem
+    attributes:
+      label: Problem or use case
+      placeholder: What pain does this solve?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      placeholder: High-level approach, key APIs, CLI, or config
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      placeholder: Other approaches and why they are not ideal
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      multiple: true
+      options:
+        - Core engine
+        - mCP (Modular Control Protocols)
+        - HIP
+        - POCP
+        - SDK
+        - CLI
+        - Docs
+        - Examples
+        - Integrations: Astro
+        - Integrations: Node.js
+        - Integrations: Python
+        - RAG adapter
+        - AEO utilities
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope and impact
+      options:
+        - label: Backward compatible
+        - label: Requires docs updates
+        - label: Requires security review
+        - label: Affects public API
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      placeholder: Clear, testable outcomes
+
+  - type: textarea
+    id: risks
+    attributes:
+      label: Risks and dependencies
+      placeholder: Performance, security, licensing, third-party deps
+
+  - type: textarea
+    id: examples
+    attributes:
+      label: Examples or pseudo-code
+      render: bash

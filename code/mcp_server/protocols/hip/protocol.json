@@ -1,0 +1,11 @@
+{
+  "name": "HyperlinkInterpretationProtocol",
+  "version": "1.0.0",
+  "entryPoint": "mcp_server.protocols.hip.hip.HIPProtocol",
+  "type": "Validation",
+  "dependencies": [],
+  "resourceRequirements": {
+    "cpu": "20m",
+    "memory": "32Mi"
+  }
+}

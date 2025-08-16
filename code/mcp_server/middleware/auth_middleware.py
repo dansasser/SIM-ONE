@@ -18,7 +18,7 @@ def get_api_key(api_key: str = Security(api_key_header)):
             status_code=403,
             detail="Could not validate credentials: API Key is missing."
         )
-    if api_key not in settings.VALID_API_KEYS:
+    if api_key not in settings.get_valid_api_keys():
         logger.warning(f"Invalid API Key received: {api_key}")
         raise HTTPException(
             status_code=403,

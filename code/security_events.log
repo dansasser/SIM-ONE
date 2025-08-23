@@ -1,0 +1,51 @@
+2025-08-16 21:53:06,974 - security_logger - WARNING - Client error for request POST http://testserver/execute: Invalid API Key.
+2025-08-16 21:53:07,040 - security_logger - WARNING - Client error for request POST http://testserver/execute: Invalid API Key.
+2025-08-16 21:55:50,560 - security_logger - WARNING - Client error for request GET http://testserver/protocols: Not authenticated
+2025-08-16 21:55:50,565 - security_logger - WARNING - Client error for request GET http://testserver/protocols: Invalid API Key.
+2025-08-16 21:55:50,576 - security_logger - WARNING - Client error for request POST http://testserver/execute: Potentially malicious input detected.
+2025-08-16 21:55:50,582 - security_logger - ERROR - Unhandled exception for request POST http://testserver/execute: 'MemoryManager' object has no attribute 'redis_client'
+Traceback (most recent call last):
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/middleware/cors.py", line 85, in __call__
+    await self.app(scope, receive, send)
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/routing.py", line 78, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/routing.py", line 75, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/fastapi/routing.py", line 302, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/fastapi/routing.py", line 213, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/slowapi/extension.py", line 734, in async_wrapper
+    response = await func(*args, **kwargs)  # type: ignore
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/code/mcp_server/main.py", line 101, in execute_workflow
+    final_context = await orchestration_engine.execute_workflow(workflow_def, workflow_context)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/code/mcp_server/orchestration_engine/orchestration_engine.py", line 30, in execute_workflow
+    if session_id and self.memory_manager.redis_client:
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MemoryManager' object has no attribute 'redis_client'
+2025-08-16 21:57:30,053 - security_logger - WARNING - Client error for request GET http://testserver/protocols: Not authenticated
+2025-08-16 21:57:30,058 - security_logger - WARNING - Client error for request GET http://testserver/protocols: Invalid API Key.
+2025-08-16 21:57:30,070 - security_logger - WARNING - Client error for request POST http://testserver/execute: Potentially malicious input detected.

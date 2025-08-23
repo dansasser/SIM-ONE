@@ -27,9 +27,9 @@ class OrchestrationEngine:
         """
         # --- Batch Memory Pull ---
         session_id = context.get('session_id')
-        if session_id and self.memory_manager.redis_client:
+        if session_id:
             logger.info(f"Performing batch memory pull for session {session_id}")
-            context['batch_memory'] = self.memory_manager.get_all_memories(session_id)
+            context['batch_memory'] = self.memory_manager.get_all_memories()
         else:
             context['batch_memory'] = []
 

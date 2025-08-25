@@ -1,31 +1,11 @@
 import logging
 from typing import Dict, Any, List
 
+import logging
+from typing import Dict, Any, List
+from llama_cpp import Llama
+
 logger = logging.getLogger(__name__)
-
-# This is a placeholder for the real LlamaCpp class.
-# In a real environment, you would import it:
-# from llama_cpp import Llama
-# For this sandboxed environment, we will mock it.
-
-class MockLlama:
-    """A mock of the Llama class for testing without a real model."""
-    def __init__(self, model_path: str, **kwargs):
-        logger.info(f"MockLlama: Initialized with model_path: {model_path}")
-        if not model_path:
-            raise ValueError("model_path must be specified.")
-
-    def create_chat_completion(self, messages: List[Dict[str, str]], **kwargs) -> Dict:
-        logger.info("MockLlama: Generating mock chat completion.")
-        return {
-            "choices": [
-                {
-                    "message": {
-                        "content": "[Mock Local LLM Response]: This is a response from the local model engine."
-                    }
-                }
-            ]
-        }
 
 class LocalModelEngine:
     """
@@ -36,24 +16,21 @@ class LocalModelEngine:
         self.model_path = model_path
         self.client = None
         try:
-            # In a real environment, Llama would be imported. We use our mock.
-            # from llama_cpp import Llama
-            Llama = MockLlama
-
             # This will fail if the model path doesn't exist, but we are scaffolding.
             # In a real deployment, a valid model path would be provided.
             self.client = Llama(model_path=self.model_path, n_ctx=2048)
             logger.info("LocalModelEngine initialized.")
         except Exception as e:
-            logger.error(f"Failed to initialize LocalModelEngine: {e}")
-            logger.warning("LocalModelEngine will not be available.")
+            logger.error(f"Failed to initialize LocalModelEngine with model at '{model_path}': {e}")
+            logger.warning("LocalModelEngine will not be available. Ensure model file exists.")
 
     def generate_text(self, prompt: str, model: str = None) -> str:
         """
         Generates text using the loaded local model.
         """
         if not self.client:
-            return "[Error]: Local model client is not available."
+            logger.error("LocalModelEngine client not initialized. Cannot generate text.")
+            raise ValueError("LocalModelEngine is not available. Check model path and configuration.")
 
         try:
             logger.info(f"Sending prompt to local model...")

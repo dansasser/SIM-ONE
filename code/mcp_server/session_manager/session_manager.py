@@ -65,3 +65,13 @@ class SessionManager:
                 self.redis_client.set(session_id, history_json, ex=86400)
         except Exception as e:
             logger.error(f"Error updating history for session {session_id}: {e}")
+
+    def get_all_session_ids(self) -> List[str]:
+        if not self.redis_client:
+            return []
+        try:
+            # Use scan_iter to avoid blocking the server with a large number of keys
+            return [key for key in self.redis_client.scan_iter("session:*")]
+        except Exception as e:
+            logger.error(f"Error getting all session IDs from Redis: {e}")
+            return []

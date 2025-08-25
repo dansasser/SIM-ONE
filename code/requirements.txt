@@ -11,3 +11,4 @@ python-jose[cryptography]
 slowapi
 pydantic-settings
 python-dotenv==1.0.0
+gunicorn

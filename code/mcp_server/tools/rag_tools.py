@@ -13,8 +13,8 @@ async def google_search(query: str) -> str:
     """
     api_key = settings.SERPER_API_KEY
     if not api_key:
-        logger.warning("SERPER_API_KEY not found in config. Returning mock search results.")
-        return "http://mock.url/result1 Mock Title 1\nhttp://mock.url/result2 Mock Title 2"
+        logger.error("SERPER_API_KEY not found in config. Cannot perform search.")
+        raise ValueError("SERPER_API_KEY is not configured.")
 
     url = "https://google.serper.dev/search"
     payload = json.dumps({"q": query})

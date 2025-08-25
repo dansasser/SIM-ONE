@@ -49,17 +49,47 @@ class MemoryManager:
             if not entity_name: continue
             entity_id = self.get_or_create_entity(entity_name)
             if not entity_id: continue
+
+            # Prepare data for new schema, using defaults for now
             self._execute_db_query(
-                "INSERT INTO memories (entity_id, content, emotional_state, salience, source_protocol) VALUES (?, ?, ?, ?, ?)",
-                (entity_id, memory.get("source_input", ""), memory.get("emotional_state"), memory.get("salience"), memory.get("source_protocol", "MTP"))
+                """
+                INSERT INTO memories (
+                    entity_id, content, emotional_state, source_protocol,
+                    emotional_salience, rehearsal_count, last_accessed,
+                    confidence_score, memory_type, actors, context_tags
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    entity_id,
+                    memory.get("source_input", ""),
+                    memory.get("emotional_state"),
+                    memory.get("source_protocol", "MTP"),
+                    memory.get("emotional_salience", 0.5),
+                    memory.get("rehearsal_count", 0),
+                    memory.get("last_accessed"),
+                    memory.get("confidence_score", 1.0),
+                    memory.get("memory_type", "episodic"),
+                    json.dumps(memory.get("actors", [])),
+                    json.dumps(memory.get("context_tags", {}))
+                )
             )
         logger.info(f"Persisted {len(memories)} new memories to SQLite.")
 
     def get_all_memories(self) -> List[Dict[str, Any]]:
         # ... (same as before) ...
-        rows = self._execute_db_query("SELECT m.content, m.emotional_state, m.salience, e.name as entity FROM memories m JOIN entities e ON m.entity_id = e.id ORDER BY m.timestamp DESC", fetch='all')
+        rows = self._execute_db_query("SELECT m.*, e.name as entity FROM memories m JOIN entities e ON m.entity_id = e.id ORDER BY m.timestamp DESC", fetch='all')
         if not rows: return []
-        return [dict(row) for row in rows]
+
+        memories = []
+        for row in rows:
+            memory = dict(row)
+            # Deserialize JSON fields
+            if memory.get('actors'):
+                memory['actors'] = json.loads(memory['actors'])
+            if memory.get('context_tags'):
+                memory['context_tags'] = json.loads(memory['context_tags'])
+            memories.append(memory)
+        return memories
 
     def search_memories(self, query_text: str, top_k: int = 3) -> List[Dict[str, Any]]:
         """

@@ -76,7 +76,13 @@ def initialize_api_keys():
 
         # This is a sample role assignment.
         # For a real production system, you would have a more secure way to assign roles.
-        role = "admin" if "admin" in key else "user"
+        if "admin" in key:
+            role = "admin"
+        elif "readonly" in key:
+            role = "read-only"
+        else:
+            role = "user"
+
         user_id = f"user_{hashlib.sha1(key.encode()).hexdigest()[:8]}"
 
         salt = os.urandom(16).hex()

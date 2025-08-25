@@ -234,3 +234,13 @@ NameError: name 'HTTPException' is not defined. Did you mean: 'BaseException'?
 2025-08-25 15:26:42,752 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential SQL Injection
 2025-08-25 15:26:42,758 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential XSS
 2025-08-25 15:26:42,785 - security_logger - WARNING - Client error for request GET http://testserver/session/bc654e35-aebb-49b5-989a-c1656881d4ec: Not authorized to view this session.
+2025-08-25 15:35:38,921 - security_logger - WARNING - Client error for request POST http://testserver/execute: Not authorized.
+2025-08-25 15:35:38,930 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential SQL Injection
+2025-08-25 15:35:38,936 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential SQL Injection
+2025-08-25 15:35:38,941 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential XSS
+2025-08-25 15:35:38,966 - security_logger - WARNING - Client error for request GET http://testserver/session/773308a0-efab-4f14-814d-fef0692396b0: Not authorized to view this session.
+2025-08-25 15:36:57,377 - security_logger - WARNING - Client error for request POST http://testserver/execute: Not authorized.
+2025-08-25 15:36:57,387 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential SQL Injection
+2025-08-25 15:36:57,393 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential SQL Injection
+2025-08-25 15:36:57,398 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential XSS
+2025-08-25 15:36:57,425 - security_logger - WARNING - Client error for request GET http://testserver/session/7b8a2660-251c-4129-802b-d9b7565ef05a: Not authorized to view this session.

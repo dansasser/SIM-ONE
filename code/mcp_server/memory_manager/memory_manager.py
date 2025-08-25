@@ -99,30 +99,59 @@ class MemoryManager:
             memories.append(memory)
         return memories
 
-    def search_memories(self, session_id: str, query_text: str, top_k: int = 3) -> List[Dict[str, Any]]:
+    def search_memories(self, session_id: str, query_text: str, top_k: int = 3, context: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
         """
         Performs a mock semantic search using simple keyword matching.
         """
-        logger.info(f"Performing mock semantic search for: '{query_text}' in session {session_id}")
+        logger.info(f"Performing mock semantic search for: '{query_text}' in session {session_id} with context {context}")
         all_memories = self.get_all_memories(session_id)
 
         query_words = set(query_text.lower().split())
 
         scored_memories = []
         for mem in all_memories:
+            # 1. Keyword Score
             content_words = set(mem.get("content", "").lower().split())
             keyword_score = len(query_words.intersection(content_words))
 
-            # Factor in emotional salience
+            # 2. Emotional Salience Boost
             emotional_salience = mem.get("emotional_salience", 0.5)
-            final_score = keyword_score * (1 + emotional_salience)
+            salience_boost = 1 + emotional_salience
+
+            # 3. Rehearsal Boost
+            rehearsal_boost = mem.get("rehearsal_count", 0) * 0.1
+
+            # 4. Recency Boost (simple implementation)
+            recency_boost = 0
+            if mem.get("last_accessed"):
+                # A more complex implementation would calculate time decay
+                recency_boost = 0.2
+
+            # 5. Actor Boost
+            actor_boost = 0
+            if context and 'actors' in context:
+                memory_actors = mem.get('actors', [])
+                if any(actor in memory_actors for actor in context['actors']):
+                    actor_boost = 1.0 # Significant boost for matching actors
+
+            # Combine scores
+            final_score = (keyword_score * salience_boost) + rehearsal_boost + recency_boost + actor_boost
 
             if final_score > 0:
                 scored_memories.append({"score": final_score, "memory": mem})
 
         scored_memories.sort(key=lambda x: x['score'], reverse=True)
 
-        return [item['memory'] for item in scored_memories[:top_k]]
+        retrieved_memories = [item['memory'] for item in scored_memories[:top_k]]
+
+        # Update rehearsal and recency for retrieved memories
+        for mem in retrieved_memories:
+            self._execute_db_query(
+                "UPDATE memories SET rehearsal_count = rehearsal_count + 1, last_accessed = CURRENT_TIMESTAMP WHERE id = ?",
+                (mem['id'],)
+            )
+
+        return retrieved_memories
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)

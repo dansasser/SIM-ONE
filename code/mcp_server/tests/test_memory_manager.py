@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 from mcp_server.memory_manager.memory_manager import MemoryManager
-from mcp_server.database.memory_database import initialize_database, DB_FILE
+from mcp_server.database.memory_database import initialize_database, DB_FILE, get_db_connection
 
 class TestMemoryManagerWithSalience(unittest.TestCase):
 
@@ -80,6 +80,50 @@ class TestMemoryManagerWithSalience(unittest.TestCase):
         session_2_memories = self.memory_manager.get_all_memories(session_2_id)
         self.assertEqual(len(session_2_memories), 1)
         self.assertEqual(session_2_memories[0]['content'], "Session 2 memory.")
+
+    def test_rehearsal_and_recency(self):
+        """
+        Tests that rehearsal_count and last_accessed are updated on retrieval.
+        """
+        session_id = "test_rehearsal"
+        self.memory_manager.add_memories(session_id, [{"entity": "Test", "source_input": "rehearsal test"}])
+
+        # Retrieve the memory once
+        retrieved_memories = self.memory_manager.search_memories(session_id, "rehearsal")
+        self.assertEqual(len(retrieved_memories), 1)
+
+        # Check the database directly
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT rehearsal_count, last_accessed FROM memories WHERE session_id = ?", (session_id,))
+        row = cursor.fetchone()
+        conn.close()
+
+        self.assertEqual(row['rehearsal_count'], 1)
+        self.assertIsNotNone(row['last_accessed'])
+
+    def test_contextual_search_with_actors(self):
+        """
+        Tests that search results are boosted by matching actors in the context.
+        """
+        session_id = "test_actors"
+        memories = [
+            {"entity": "Meeting", "source_input": "Project meeting notes.", "actors": ["Alice"]},
+            {"entity": "Meeting", "source_input": "Project meeting notes with Bob.", "actors": ["Alice", "Bob"]}
+        ]
+        self.memory_manager.add_memories(session_id, memories)
+
+        # Search without context
+        results_no_context = self.memory_manager.search_memories(session_id, "meeting")
+        # Without context, the order is not guaranteed, so we don't assert order here.
+
+        # Search with context for "Bob"
+        context = {"actors": ["Bob"]}
+        results_with_context = self.memory_manager.search_memories(session_id, "meeting", context=context)
+
+        # The memory with "Bob" should be ranked first
+        self.assertEqual(len(results_with_context), 2)
+        self.assertIn("Bob", results_with_context[0]['content'])
 
 if __name__ == '__main__':
     unittest.main()

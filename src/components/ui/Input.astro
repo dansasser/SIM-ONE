@@ -1,0 +1,132 @@
+---
+export interface Props {
+  type?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url' | 'search';
+  placeholder?: string;
+  value?: string;
+  disabled?: boolean;
+  required?: boolean;
+  readonly?: boolean;
+  autocomplete?: string;
+  maxlength?: number;
+  minlength?: number;
+  pattern?: string;
+  class?: string;
+  name?: string;
+  id?: string;
+  'data-testid'?: string;
+  error?: string;
+  label?: string;
+  helperText?: string;
+}
+
+const {
+  type = 'text',
+  placeholder,
+  value,
+  disabled = false,
+  required = false,
+  readonly = false,
+  autocomplete,
+  maxlength,
+  minlength,
+  pattern,
+  class: className = '',
+  name,
+  id,
+  'data-testid': testId,
+  error,
+  label,
+  helperText,
+  ...rest
+} = Astro.props;
+
+const inputId = id || name || `input-${Math.random().toString(36).substr(2, 9)}`;
+
+const baseClasses = 'input w-full px-3 py-2 text-sm border rounded-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1';
+
+const stateClasses = error
+  ? 'border-error text-text-primary bg-bg-surface focus:border-error focus:ring-error/20'
+  : 'border-border-primary text-text-primary bg-bg-surface focus:border-border-focus focus:ring-border-focus/20 hover:border-border-secondary';
+
+const disabledClasses = disabled
+  ? 'opacity-50 cursor-not-allowed bg-bg-secondary'
+  : '';
+
+const classes = [
+  baseClasses,
+  stateClasses,
+  disabledClasses,
+  className
+].filter(Boolean).join(' ');
+---
+
+<div class="input-group">
+  {label && (
+    <label 
+      for={inputId} 
+      class="block text-sm font-medium text-text-primary mb-1"
+    >
+      {label}
+      {required && <span class="text-error ml-1">*</span>}
+    </label>
+  )}
+  
+  <div class="relative">
+    <input
+      type={type}
+      id={inputId}
+      name={name}
+      class={classes}
+      placeholder={placeholder}
+      value={value}
+      disabled={disabled}
+      required={required}
+      readonly={readonly}
+      autocomplete={autocomplete}
+      maxlength={maxlength}
+      minlength={minlength}
+      pattern={pattern}
+      data-testid={testId}
+      {...rest}
+    />
+    
+    {error && (
+      <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+        <svg 
+          class="h-4 w-4 text-error" 
+          xmlns="http://www.w3.org/2000/svg" 
+          viewBox="0 0 20 20" 
+          fill="currentColor"
+        >
+          <path 
+            fill-rule="evenodd" 
+            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" 
+            clip-rule="evenodd" 
+          />
+        </svg>
+      </div>
+    )}
+  </div>
+  
+  {(error || helperText) && (
+    <div class="mt-1 text-xs">
+      {error && <p class="text-error">{error}</p>}
+      {!error && helperText && <p class="text-text-tertiary">{helperText}</p>}
+    </div>
+  )}
+</div>
+
+<style>
+  .input-group {
+    @apply space-y-1;
+  }
+  
+  .input::placeholder {
+    color: var(--color-text-tertiary);
+  }
+  
+  .input:disabled {
+    background-color: var(--color-bg-secondary);
+    color: var(--color-text-tertiary);
+  }
+</style>

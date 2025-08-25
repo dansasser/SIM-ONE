@@ -1,0 +1,207 @@
+---
+import Button from '../ui/Button.astro';
+
+// Mock current conversation data
+const currentConversation = {
+  id: '1',
+  title: 'Getting started with SIM-ONE',
+  agentCount: 5,
+  isProcessing: false
+};
+---
+
+<header class="chat-header bg-bg-primary border-b border-border-primary px-4 py-3">
+  <div class="flex items-center justify-between h-full">
+    <!-- Left Section - Mobile Menu + Title -->
+    <div class="flex items-center">
+      <!-- Mobile Sidebar Toggle -->
+      <Button 
+        variant="ghost" 
+        size="sm"
+        class="mr-3 md:hidden" 
+        id="sidebar-toggle"
+        data-testid="sidebar-toggle"
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="sr-only">Toggle sidebar</span>
+      </Button>
+      
+      <!-- Current Conversation Title -->
+      <div class="conversation-info">
+        <h2 class="text-sm font-medium text-text-primary truncate max-w-xs md:max-w-md">
+          {currentConversation?.title || 'New Chat'}
+        </h2>
+        {currentConversation && (
+          <div class="flex items-center mt-1">
+            <div class="flex items-center space-x-2">
+              <div class="flex items-center space-x-1">
+                <div class="w-2 h-2 bg-success rounded-full"></div>
+                <span class="text-xs text-text-tertiary">
+                  {currentConversation.agentCount} agents ready
+                </span>
+              </div>
+              
+              {currentConversation.isProcessing && (
+                <div class="flex items-center space-x-1">
+                  <div class="w-2 h-2 bg-accent-primary rounded-full animate-pulse"></div>
+                  <span class="text-xs text-accent-primary">Processing...</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+    
+    <!-- Right Section - Controls -->
+    <div class="flex items-center space-x-2">
+      <!-- Model Indicator -->
+      <div class="hidden sm:flex items-center px-2 py-1 bg-bg-tertiary rounded-md">
+        <div class="w-2 h-2 bg-accent-primary rounded-full mr-2"></div>
+        <span class="text-xs text-text-secondary">SIM-ONE v1.2</span>
+      </div>
+      
+      <!-- Agent Pipeline Toggle -->
+      <Button 
+        variant="ghost" 
+        size="sm"
+        id="pipeline-toggle"
+        data-testid="pipeline-toggle"
+        title="Toggle Agent Pipeline View"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="sr-only">Toggle agent pipeline view</span>
+      </Button>
+      
+      <!-- Theme Toggle -->
+      <Button 
+        variant="ghost" 
+        size="sm"
+        id="theme-toggle"
+        data-testid="theme-toggle"
+        title="Toggle Theme"
+      >
+        <!-- Sun icon (for light theme) -->
+        <svg class="sun-icon w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+        </svg>
+        
+        <!-- Moon icon (for dark theme) -->
+        <svg class="moon-icon w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+        </svg>
+        <span class="sr-only">Toggle theme</span>
+      </Button>
+      
+      <!-- More Options -->
+      <Button 
+        variant="ghost" 
+        size="sm"
+        id="more-options"
+        data-testid="more-options"
+        title="More Options"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="1" stroke="currentColor" stroke-width="2"/>
+          <circle cx="19" cy="12" r="1" stroke="currentColor" stroke-width="2"/>
+          <circle cx="5" cy="12" r="1" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <span class="sr-only">More options</span>
+      </Button>
+    </div>
+  </div>
+</header>
+
+<style>
+  .chat-header {
+    height: 60px;
+    background-color: var(--color-bg-primary);
+    border-bottom: 1px solid var(--color-border-primary);
+  }
+  
+  .conversation-info {
+    max-width: 300px;
+  }
+  
+  @media (max-width: 640px) {
+    .conversation-info {
+      max-width: 200px;
+    }
+  }
+  
+  /* Theme toggle icon states */
+  .dark .sun-icon {
+    display: block;
+  }
+  
+  .dark .moon-icon {
+    display: none;
+  }
+  
+  .light .sun-icon {
+    display: none;
+  }
+  
+  .light .moon-icon {
+    display: block;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const themeToggle = document.getElementById('theme-toggle');
+    const pipelineToggle = document.getElementById('pipeline-toggle');
+    const moreOptions = document.getElementById('more-options');
+    
+    // Theme toggle functionality
+    themeToggle?.addEventListener('click', (e) => {
+      e.preventDefault();
+      
+      const html = document.documentElement;
+      const isDark = html.classList.contains('dark');
+      
+      if (isDark) {
+        html.classList.remove('dark');
+        html.classList.add('light');
+        localStorage.setItem('theme', 'light');
+      } else {
+        html.classList.remove('light');
+        html.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+      }
+    });
+    
+    // Pipeline toggle functionality
+    pipelineToggle?.addEventListener('click', (e) => {
+      e.preventDefault();
+      
+      // Dispatch custom event to toggle agent pipeline view
+      window.dispatchEvent(new CustomEvent('toggle-agent-pipeline'));
+      
+      // Add visual feedback
+      const button = e.currentTarget as HTMLElement;
+      button.style.backgroundColor = 'var(--color-accent-primary)';
+      button.style.color = 'white';
+      
+      setTimeout(() => {
+        button.style.backgroundColor = '';
+        button.style.color = '';
+      }, 150);
+    });
+    
+    // More options functionality
+    moreOptions?.addEventListener('click', (e) => {
+      e.preventDefault();
+      
+      // This could open a dropdown menu or context menu
+      console.log('More options clicked');
+      
+      // For now, dispatch an event that could be handled elsewhere
+      window.dispatchEvent(new CustomEvent('show-chat-options'));
+    });
+  });
+</script>

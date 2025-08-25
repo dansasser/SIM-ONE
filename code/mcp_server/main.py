@@ -1,5 +1,6 @@
 import logging
 import time
+import asyncio
 from fastapi import FastAPI, Depends, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
@@ -20,6 +21,7 @@ from mcp_server.middleware.auth_middleware import get_api_key
 from mcp_server.middleware.security_headers_middleware import SecurityHeadersMiddleware
 from mcp_server.security.advanced_validator import advanced_validate_input
 from mcp_server.security.error_handler import add_exception_handlers
+from mcp_server.memory_manager.memory_consolidation import MemoryConsolidationEngine
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -41,6 +43,29 @@ app.add_middleware(
     allow_methods=["GET", "POST"],
     allow_headers=["X-API-Key", "Content-Type"],
 )
+
+# --- Background Tasks ---
+async def run_memory_consolidation():
+    consolidation_engine = MemoryConsolidationEngine()
+    while True:
+        logger.info("Starting periodic memory consolidation...")
+        try:
+            # In a real multi-tenant system, you'd get all active sessions
+            # For now, we don't have a central session list, so this is a placeholder.
+            # A better approach would be to get sessions from the session_manager.
+            all_sessions = session_manager.get_all_session_ids()
+            for session_id in all_sessions:
+                # remove "session:" prefix
+                session_id = session_id.replace("session:", "")
+                consolidation_engine.run_consolidation_cycle(session_id)
+        except Exception as e:
+            logger.error(f"Error during memory consolidation: {e}", exc_info=True)
+
+        await asyncio.sleep(3600) # Run every hour
+
+@app.on_event("startup")
+async def startup_event():
+    asyncio.create_task(run_memory_consolidation())
 
 # --- Initialization of Managers ---
 protocol_manager = ProtocolManager()

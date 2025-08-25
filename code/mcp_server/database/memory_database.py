@@ -104,6 +104,19 @@ def initialize_database():
             )
         """)
 
+        # --- Contradictions Table ---
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS memory_contradictions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                memory_id_1 INTEGER,
+                memory_id_2 INTEGER,
+                reason TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (memory_id_1) REFERENCES memories (id),
+                FOREIGN KEY (memory_id_2) REFERENCES memories (id)
+            )
+        """)
+
         # Upgrade schema for the memories table
         _upgrade_schema(cursor)
 

@@ -22,8 +22,9 @@ from mcp_server.middleware.security_headers_middleware import SecurityHeadersMid
 from mcp_server.security.advanced_validator import advanced_validate_input
 from mcp_server.security.error_handler import add_exception_handlers
 from mcp_server.memory_manager.memory_consolidation import MemoryConsolidationEngine
+from mcp_server.logging_config import setup_logging
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+setup_logging()
 logger = logging.getLogger(__name__)
 
 # --- Rate Limiting Setup ---
@@ -174,3 +175,44 @@ async def get_session_history(session_id: str, user: dict = Depends(get_api_key)
 
     history = session_manager.get_history(session_id)
     return {"session_id": session_id, "history": history or []}
+
+# --- Health Check Endpoints ---
+class HealthStatus(BaseModel):
+    status: str
+    services: Dict[str, str]
+
+@app.get("/health", tags=["Health"])
+async def health_check():
+    return {"status": "ok"}
+
+@app.get("/health/detailed", response_model=HealthStatus, tags=["Health"])
+async def health_check_detailed():
+    services = {
+        "database": "ok",
+        "redis": "ok"
+    }
+    status = "ok"
+
+    # Check database connection
+    try:
+        from mcp_server.database.memory_database import get_db_connection
+        conn = get_db_connection()
+        if conn:
+            conn.close()
+        else:
+            raise Exception("Failed to connect to database.")
+    except Exception as e:
+        logger.error(f"Health check failed for database: {e}")
+        services["database"] = "error"
+        status = "error"
+
+    # Check Redis connection
+    try:
+        if not session_manager.redis_client or not session_manager.redis_client.ping():
+            raise Exception("Failed to ping Redis.")
+    except Exception as e:
+        logger.error(f"Health check failed for Redis: {e}")
+        services["redis"] = "error"
+        status = "error"
+
+    return HealthStatus(status=status, services=services)

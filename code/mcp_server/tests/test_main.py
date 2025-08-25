@@ -1,5 +1,6 @@
 import unittest
 import os
+from unittest.mock import patch
 from fastapi.testclient import TestClient
 from mcp_server.main import app
 
@@ -68,8 +69,13 @@ class TestApi(unittest.TestCase):
                     else:
                         self.assertEqual(response.status_code, 403, f"{role} should not have access to {endpoint}")
 
-    def test_03_advanced_input_validation(self):
+    @patch('mcp_server.neural_engine.neural_engine.OpenAI')
+    def test_03_advanced_input_validation(self, MockOpenAI):
         """Tests that the advanced input validator blocks various injection attacks."""
+        # This test shouldn't hit the API, but we patch it just in case
+        mock_instance = MockOpenAI.return_value
+        mock_instance.chat.completions.create.return_value.choices[0].message.content = "This should not be called"
+
         malicious_payloads = {
             "sql_injection": "' OR '1'='1'",
             "command_injection": "; ls -la",
@@ -90,8 +96,13 @@ class TestApi(unittest.TestCase):
         # ... (same as before)
         pass
 
-    def test_05_simple_sequential_workflow(self):
+    @patch('mcp_server.neural_engine.neural_engine.OpenAI')
+    def test_05_simple_sequential_workflow(self, MockOpenAI):
         """Tests a simple sequential workflow with authentication."""
+        # Configure the mock to return a value
+        mock_instance = MockOpenAI.return_value
+        mock_instance.chat.completions.create.return_value.choices[0].message.content = "Mocked AI response"
+
         test_request = {
             "protocol_names": ["ReasoningAndExplanationProtocol"],
             "initial_data": {"facts": ["a"], "rules": [[["a"], "b"]]}
@@ -102,8 +113,12 @@ class TestApi(unittest.TestCase):
         self.assertIsNone(response_json.get("error"))
         self.assertIn("ReasoningAndExplanationProtocol", response_json["results"])
 
-    def test_06_session_authorization(self):
+    @patch('mcp_server.neural_engine.neural_engine.OpenAI')
+    def test_06_session_authorization(self, MockOpenAI):
         """Tests that users can only access their own sessions."""
+        mock_instance = MockOpenAI.return_value
+        mock_instance.chat.completions.create.return_value.choices[0].message.content = "Session auth test response"
+
         # Create a session with the 'user' role
         create_session_request = {
             "protocol_names": ["ReasoningAndExplanationProtocol"],

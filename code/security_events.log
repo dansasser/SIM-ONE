@@ -219,3 +219,18 @@ NameError: name 'HTTPException' is not defined. Did you mean: 'BaseException'?
 2025-08-25 15:09:32,336 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential SQL Injection
 2025-08-25 15:09:32,341 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential XSS
 2025-08-25 15:09:32,368 - security_logger - WARNING - Client error for request GET http://testserver/session/07a75a08-2871-48d7-b4f1-2826ff637d8b: Not authorized to view this session.
+2025-08-25 15:18:48,288 - security_logger - WARNING - Client error for request POST http://testserver/execute: Not authorized.
+2025-08-25 15:18:48,306 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential SQL Injection
+2025-08-25 15:18:48,312 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential SQL Injection
+2025-08-25 15:18:48,318 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential XSS
+2025-08-25 15:18:48,347 - security_logger - WARNING - Client error for request GET http://testserver/session/99670029-291d-41d0-85c9-ae01a533d0a6: Not authorized to view this session.
+2025-08-25 15:20:11,070 - security_logger - WARNING - Client error for request POST http://testserver/execute: Not authorized.
+2025-08-25 15:20:11,079 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential SQL Injection
+2025-08-25 15:20:11,084 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential SQL Injection
+2025-08-25 15:20:11,091 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential XSS
+2025-08-25 15:20:11,118 - security_logger - WARNING - Client error for request GET http://testserver/session/20ac79f1-8397-46e5-938e-08dd290ce010: Not authorized to view this session.
+2025-08-25 15:26:42,738 - security_logger - WARNING - Client error for request POST http://testserver/execute: Not authorized.
+2025-08-25 15:26:42,747 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential SQL Injection
+2025-08-25 15:26:42,752 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential SQL Injection
+2025-08-25 15:26:42,758 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential XSS
+2025-08-25 15:26:42,785 - security_logger - WARNING - Client error for request GET http://testserver/session/bc654e35-aebb-49b5-989a-c1656881d4ec: Not authorized to view this session.

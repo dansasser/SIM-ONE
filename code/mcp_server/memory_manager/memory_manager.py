@@ -6,6 +6,7 @@ import os
 
 from mcp_server.config import settings
 from mcp_server.database.memory_database import get_db_connection
+from mcp_server.protocols.esl.esl import ESL
 
 logger = logging.getLogger(__name__)
 
@@ -13,6 +14,8 @@ class MemoryManager:
     """
     Manages the storage and retrieval of memories, with a placeholder for semantic search.
     """
+    def __init__(self):
+        self.esl_protocol = ESL()
 
     def _execute_db_query(self, query: str, params: tuple = (), fetch: str = None):
         # ... (same as before) ...
@@ -41,7 +44,7 @@ class MemoryManager:
             new_entity = self._execute_db_query("SELECT id FROM entities WHERE name = ?", (entity_name,), fetch='one')
             return new_entity['id'] if new_entity else None
 
-    def add_memories(self, memories: List[Dict[str, Any]]):
+    def add_memories(self, session_id: str, memories: List[Dict[str, Any]]):
         # ... (same as before) ...
         if not memories: return
         for memory in memories:
@@ -50,24 +53,28 @@ class MemoryManager:
             entity_id = self.get_or_create_entity(entity_name)
             if not entity_id: continue
 
-            # Prepare data for new schema, using defaults for now
+            # Analyze emotional content with ESL Protocol
+            esl_result = self.esl_protocol.execute({"user_input": memory.get("source_input", "")})
+
+            # Prepare data for new schema
             self._execute_db_query(
                 """
                 INSERT INTO memories (
-                    entity_id, content, emotional_state, source_protocol,
+                    session_id, entity_id, content, emotional_state, source_protocol,
                     emotional_salience, rehearsal_count, last_accessed,
                     confidence_score, memory_type, actors, context_tags
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
+                    session_id,
                     entity_id,
                     memory.get("source_input", ""),
-                    memory.get("emotional_state"),
+                    json.dumps(esl_result), # Store the full ESL analysis
                     memory.get("source_protocol", "MTP"),
-                    memory.get("emotional_salience", 0.5),
+                    esl_result.get("salience", 0.5), # Use salience from ESL
                     memory.get("rehearsal_count", 0),
                     memory.get("last_accessed"),
-                    memory.get("confidence_score", 1.0),
+                    esl_result.get("confidence", 1.0), # Use confidence from ESL
                     memory.get("memory_type", "episodic"),
                     json.dumps(memory.get("actors", [])),
                     json.dumps(memory.get("context_tags", {}))
@@ -75,9 +82,10 @@ class MemoryManager:
             )
         logger.info(f"Persisted {len(memories)} new memories to SQLite.")
 
-    def get_all_memories(self) -> List[Dict[str, Any]]:
+    def get_all_memories(self, session_id: str) -> List[Dict[str, Any]]:
         # ... (same as before) ...
-        rows = self._execute_db_query("SELECT m.*, e.name as entity FROM memories m JOIN entities e ON m.entity_id = e.id ORDER BY m.timestamp DESC", fetch='all')
+        query = "SELECT m.*, e.name as entity FROM memories m JOIN entities e ON m.entity_id = e.id WHERE m.session_id = ? ORDER BY m.timestamp DESC"
+        rows = self._execute_db_query(query, (session_id,), fetch='all')
         if not rows: return []
 
         memories = []
@@ -91,21 +99,26 @@ class MemoryManager:
             memories.append(memory)
         return memories
 
-    def search_memories(self, query_text: str, top_k: int = 3) -> List[Dict[str, Any]]:
+    def search_memories(self, session_id: str, query_text: str, top_k: int = 3) -> List[Dict[str, Any]]:
         """
         Performs a mock semantic search using simple keyword matching.
         """
-        logger.info(f"Performing mock semantic search for: '{query_text}'")
-        all_memories = self.get_all_memories()
+        logger.info(f"Performing mock semantic search for: '{query_text}' in session {session_id}")
+        all_memories = self.get_all_memories(session_id)
 
         query_words = set(query_text.lower().split())
 
         scored_memories = []
         for mem in all_memories:
             content_words = set(mem.get("content", "").lower().split())
-            score = len(query_words.intersection(content_words))
-            if score > 0:
-                scored_memories.append({"score": score, "memory": mem})
+            keyword_score = len(query_words.intersection(content_words))
+
+            # Factor in emotional salience
+            emotional_salience = mem.get("emotional_salience", 0.5)
+            final_score = keyword_score * (1 + emotional_salience)
+
+            if final_score > 0:
+                scored_memories.append({"score": final_score, "memory": mem})
 
         scored_memories.sort(key=lambda x: x['score'], reverse=True)
 

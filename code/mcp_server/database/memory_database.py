@@ -36,6 +36,7 @@ def _upgrade_schema(cursor):
 
     # Now, add the new columns if they are missing
     new_columns = {
+        "session_id": "TEXT",
         "emotional_salience": "REAL DEFAULT 0.5",
         "rehearsal_count": "INTEGER DEFAULT 0",
         "last_accessed": "TIMESTAMP",

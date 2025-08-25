@@ -1,0 +1,219 @@
+---
+// For now this is a placeholder - will be replaced with dynamic content
+const messages = [
+  {
+    id: '1',
+    type: 'user' as const,
+    content: 'Hello SIM-ONE! Can you explain how your cognitive governance system works?',
+    timestamp: new Date('2024-01-15T10:30:00'),
+  },
+  {
+    id: '2', 
+    type: 'assistant' as const,
+    content: 'Hello! I\'m SIM-ONE, and I\'d be happy to explain our cognitive governance system. \n\nOur framework employs five specialized agents working in sequence:\n\n**1. Ideator** 💡 - Generates initial concepts and creative ideas\n**2. Drafter** ✏️ - Creates structured content drafts\n**3. Reviser** 🔄 - Refines and improves content quality  \n**4. Critic** 🔍 - Evaluates quality and coherence\n**5. Summarizer** ✨ - Produces final polished output\n\nThis governed approach ensures consistent, high-quality responses rather than relying on probabilistic generation. Each agent has a specific role and validates the work of previous agents, creating a reliable cognitive pipeline.',
+    timestamp: new Date('2024-01-15T10:30:15'),
+    metadata: {
+      agentsUsed: ['ideator', 'drafter', 'reviser', 'critic', 'summarizer'] as const,
+      processingTime: 8500,
+      style: 'universal_chat' as const,
+      priority: 'balanced' as const,
+      qualityMetrics: {
+        coherence: 0.95,
+        creativity: 0.88,
+        accuracy: 0.92,
+        relevance: 0.94,
+        overall: 0.92
+      }
+    }
+  }
+];
+---
+
+<div class="message-list space-y-4 py-4">
+  {messages.map((message) => (
+    <div 
+      class={`message-bubble ${message.type === 'user' ? 'user-message' : 'assistant-message'}`}
+      data-message-id={message.id}
+    >
+      <div class="message-content">
+        <!-- User Message -->
+        {message.type === 'user' && (
+          <div class="user-message-wrapper flex justify-end">
+            <div class="bg-accent-primary text-white rounded-2xl px-4 py-3 max-w-xs md:max-w-md lg:max-w-lg">
+              <div class="text-sm whitespace-pre-wrap">{message.content}</div>
+              <div class="text-xs opacity-75 mt-1">
+                {message.timestamp.toLocaleTimeString()}
+              </div>
+            </div>
+          </div>
+        )}
+
+        <!-- Assistant Message -->
+        {message.type === 'assistant' && (
+          <div class="assistant-message-wrapper">
+            <div class="flex items-start space-x-3">
+              <!-- SIM-ONE Avatar -->
+              <div class="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-accent-primary to-accent-secondary rounded-full flex items-center justify-center">
+                <span class="text-white text-xs font-bold">S1</span>
+              </div>
+              
+              <!-- Message Content -->
+              <div class="flex-1 min-w-0">
+                <div class="bg-bg-surface border border-border-primary rounded-2xl px-4 py-3">
+                  <div class="text-sm text-text-primary whitespace-pre-wrap prose prose-sm max-w-none">
+                    {message.content}
+                  </div>
+                  
+                  {/* Processing Info */}
+                  {message.metadata && (
+                    <div class="mt-3 pt-3 border-t border-border-primary">
+                      <div class="flex flex-wrap items-center gap-2 text-xs text-text-tertiary">
+                        <!-- Agents Used -->
+                        <div class="flex items-center space-x-1">
+                          <span>Agents:</span>
+                          <div class="flex space-x-1">
+                            {message.metadata.agentsUsed?.map((agent) => (
+                              <span class={`px-1.5 py-0.5 rounded text-xs ${
+                                agent === 'ideator' ? 'bg-blue-500/20 text-blue-400' :
+                                agent === 'drafter' ? 'bg-green-500/20 text-green-400' :
+                                agent === 'reviser' ? 'bg-yellow-500/20 text-yellow-400' :
+                                agent === 'critic' ? 'bg-red-500/20 text-red-400' :
+                                'bg-purple-500/20 text-purple-400'
+                              }`}>
+                                {agent}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                        
+                        <!-- Processing Time -->
+                        {message.metadata.processingTime && (
+                          <span>• {(message.metadata.processingTime / 1000).toFixed(1)}s</span>
+                        )}
+                        
+                        <!-- Quality Score -->
+                        {message.metadata.qualityMetrics?.overall && (
+                          <span>• Quality: {(message.metadata.qualityMetrics.overall * 100).toFixed(0)}%</span>
+                        )}
+                        
+                        <!-- Style and Priority -->
+                        <span>• {message.metadata.style?.replace('_', ' ')} • {message.metadata.priority}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
+                <!-- Timestamp -->
+                <div class="text-xs text-text-tertiary mt-1 ml-1">
+                  {message.timestamp.toLocaleTimeString()}
+                </div>
+                
+                <!-- Message Actions -->
+                <div class="flex items-center space-x-2 mt-2 ml-1">
+                  <button class="message-action-btn" title="Copy message">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                  </button>
+                  
+                  <button class="message-action-btn" title="Share message">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+                      <polyline points="16,6 12,2 8,6"></polyline>
+                      <line x1="12" y1="2" x2="12" y2="15"></line>
+                    </svg>
+                  </button>
+                  
+                  <button class="message-action-btn" title="React to message">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                      <line x1="9" y1="9" x2="9.01" y2="9"></line>
+                      <line x1="15" y1="9" x2="15.01" y2="9"></line>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  ))}
+</div>
+
+<style>
+  .message-list {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  
+  .message-action-btn {
+    padding: 4px;
+    color: var(--color-text-tertiary);
+    border-radius: var(--radius-sm);
+    transition: all var(--duration-fast) var(--ease-out);
+  }
+  
+  .message-action-btn:hover {
+    color: var(--color-text-primary);
+    background-color: var(--color-bg-tertiary);
+  }
+  
+  /* Markdown-like styling for assistant messages */
+  .prose {
+    color: var(--color-text-primary);
+  }
+  
+  .prose strong {
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+  
+  .prose p {
+    margin: 0.5rem 0;
+  }
+  
+  .prose p:first-child {
+    margin-top: 0;
+  }
+  
+  .prose p:last-child {
+    margin-bottom: 0;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const messageActionBtns = document.querySelectorAll('.message-action-btn');
+    
+    messageActionBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        const title = btn.getAttribute('title');
+        const messageElement = btn.closest('.message-bubble');
+        const messageId = messageElement?.getAttribute('data-message-id');
+        
+        // Handle different actions
+        if (title?.includes('Copy')) {
+          // Copy message content
+          const messageContent = messageElement?.querySelector('.prose, .text-sm')?.textContent;
+          if (messageContent) {
+            navigator.clipboard.writeText(messageContent).then(() => {
+              console.log('Message copied to clipboard');
+              // Could show a toast notification here
+            });
+          }
+        } else if (title?.includes('Share')) {
+          console.log('Share message:', messageId);
+          // Implement sharing functionality
+        } else if (title?.includes('React')) {
+          console.log('React to message:', messageId);
+          // Implement reaction functionality
+        }
+      });
+    });
+  });
+</script>

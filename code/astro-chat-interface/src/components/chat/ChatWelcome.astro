@@ -1,0 +1,185 @@
+---
+// Welcome screen for new chats
+const examplePrompts = [
+  {
+    title: "Explain cognitive governance",
+    prompt: "How does SIM-ONE's five-agent cognitive governance system work?",
+    icon: "🧠"
+  },
+  {
+    title: "Creative writing help", 
+    prompt: "Help me write a compelling story about artificial intelligence and humanity",
+    icon: "✨"
+  },
+  {
+    title: "Technical analysis",
+    prompt: "Analyze the benefits and challenges of implementing AI in healthcare systems",
+    icon: "📊"
+  },
+  {
+    title: "Business strategy",
+    prompt: "Create a comprehensive marketing strategy for a new AI product launch",
+    icon: "📈"
+  }
+];
+---
+
+<div class="chat-welcome flex flex-col items-center justify-center h-full px-4 py-8">
+  <div class="welcome-content max-w-2xl mx-auto text-center">
+    <!-- SIM-ONE Logo/Brand -->
+    <div class="sim-one-logo mb-8">
+      <div class="logo-container relative">
+        <div class="logo-bg absolute inset-0 bg-gradient-to-br from-accent-primary/20 to-accent-tertiary/20 rounded-full blur-xl"></div>
+        <div class="logo-text relative bg-gradient-to-br from-accent-primary to-accent-secondary bg-clip-text text-transparent">
+          <h1 class="text-4xl md:text-5xl font-bold tracking-tight">SIM-ONE</h1>
+          <div class="text-sm md:text-base font-medium text-text-secondary mt-2">
+            Governed Cognition Framework
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Welcome Message -->
+    <div class="welcome-message mb-8">
+      <h2 class="text-xl md:text-2xl font-semibold text-text-primary mb-3">
+        Welcome to the Future of AI
+      </h2>
+      <p class="text-text-secondary leading-relaxed">
+        Experience governed cognition with our five-agent system: <strong>Ideator</strong>, <strong>Drafter</strong>, <strong>Reviser</strong>, <strong>Critic</strong>, and <strong>Summarizer</strong> working in harmony to deliver unprecedented quality and reliability.
+      </p>
+    </div>
+    
+    <!-- Agent Pipeline Preview -->
+    <div class="agent-preview mb-8">
+      <div class="flex justify-center space-x-2 md:space-x-4">
+        <div class="agent-badge bg-blue-500/20 text-blue-400 px-2 py-1 rounded-full text-xs font-medium">
+          Ideator
+        </div>
+        <div class="agent-arrow text-text-tertiary">→</div>
+        <div class="agent-badge bg-green-500/20 text-green-400 px-2 py-1 rounded-full text-xs font-medium">
+          Drafter
+        </div>
+        <div class="agent-arrow text-text-tertiary">→</div>
+        <div class="agent-badge bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded-full text-xs font-medium">
+          Reviser
+        </div>
+        <div class="agent-arrow text-text-tertiary">→</div>
+        <div class="agent-badge bg-red-500/20 text-red-400 px-2 py-1 rounded-full text-xs font-medium">
+          Critic
+        </div>
+        <div class="agent-arrow text-text-tertiary">→</div>
+        <div class="agent-badge bg-purple-500/20 text-purple-400 px-2 py-1 rounded-full text-xs font-medium">
+          Summarizer
+        </div>
+      </div>
+    </div>
+    
+    <!-- Example Prompts -->
+    <div class="example-prompts">
+      <h3 class="text-lg font-medium text-text-primary mb-4">Try asking SIM-ONE about:</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-xl mx-auto">
+        {examplePrompts.map((example) => (
+          <button 
+            class="example-prompt-card group p-4 bg-bg-surface hover:bg-bg-tertiary border border-border-primary hover:border-border-secondary rounded-lg transition-all duration-200 text-left"
+            data-prompt={example.prompt}
+          >
+            <div class="flex items-start space-x-3">
+              <span class="text-lg">{example.icon}</span>
+              <div class="flex-1 min-w-0">
+                <div class="font-medium text-sm text-text-primary group-hover:text-accent-primary transition-colors">
+                  {example.title}
+                </div>
+                <div class="text-xs text-text-tertiary mt-1 line-clamp-2">
+                  {example.prompt}
+                </div>
+              </div>
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+    
+    <!-- Features Highlight -->
+    <div class="features-highlight mt-8 pt-6 border-t border-border-primary">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+        <div class="feature-item text-center">
+          <div class="text-success font-semibold">🎯 Governed</div>
+          <div class="text-text-tertiary">Quality-controlled processing</div>
+        </div>
+        <div class="feature-item text-center">
+          <div class="text-accent-primary font-semibold">⚡ Efficient</div>
+          <div class="text-text-tertiary">Architectural intelligence</div>
+        </div>
+        <div class="feature-item text-center">
+          <div class="text-warning font-semibold">🔒 Reliable</div>
+          <div class="text-text-tertiary">Deterministic outcomes</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .chat-welcome {
+    min-height: 500px;
+  }
+  
+  .logo-container {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
+  }
+  
+  .example-prompt-card {
+    cursor: pointer;
+    transform: translateY(0);
+    transition: transform 150ms ease-out, box-shadow 150ms ease-out;
+  }
+  
+  .example-prompt-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+  
+  .agent-arrow {
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+  }
+  
+  @media (max-width: 640px) {
+    .agent-preview {
+      overflow-x: auto;
+      padding: 0 1rem;
+    }
+    
+    .agent-preview > div {
+      min-width: max-content;
+    }
+  }
+  
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const examplePromptCards = document.querySelectorAll('.example-prompt-card');
+    
+    examplePromptCards.forEach(card => {
+      card.addEventListener('click', () => {
+        const prompt = card.getAttribute('data-prompt');
+        if (prompt) {
+          // Dispatch custom event with the selected prompt
+          window.dispatchEvent(new CustomEvent('use-example-prompt', {
+            detail: { prompt }
+          }));
+        }
+      });
+    });
+  });
+</script>

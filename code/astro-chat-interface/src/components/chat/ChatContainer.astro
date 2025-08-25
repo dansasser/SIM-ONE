@@ -1,0 +1,95 @@
+---
+import ChatWelcome from './ChatWelcome.astro';
+import MessageList from './MessageList.astro';
+import ChatInput from '../../islands/chat/ChatInput';
+import AgentPipeline from '../../islands/chat/AgentPipeline';
+
+// For now, we'll show the welcome screen. Later this will be conditional based on conversation state
+const hasMessages = false;
+const isProcessing = false;
+---
+
+<div class="chat-container flex flex-col h-full">
+  <!-- Agent Pipeline (Hidden by default, togglable) -->
+  <div id="agent-pipeline-container" class="hidden border-b border-border-primary">
+    <AgentPipeline 
+      client:load
+      jobId=""
+      isVisible={false}
+    />
+  </div>
+  
+  <!-- Chat Messages Area -->
+  <div class="chat-messages flex-1 overflow-y-auto">
+    {hasMessages ? (
+      <MessageList />
+    ) : (
+      <ChatWelcome />
+    )}
+  </div>
+  
+  <!-- Chat Input Area -->
+  <div class="chat-input-container border-t border-border-primary">
+    <ChatInput 
+      client:load
+      isProcessing={isProcessing}
+      placeholder="Message SIM-ONE..."
+    />
+  </div>
+</div>
+
+<style>
+  .chat-container {
+    height: 100%;
+    background-color: var(--color-bg-primary);
+  }
+  
+  .chat-messages {
+    padding: var(--space-4);
+    scroll-behavior: smooth;
+  }
+  
+  .chat-input-container {
+    padding: var(--space-4);
+    background-color: var(--color-bg-primary);
+  }
+  
+  /* Custom scrollbar */
+  .chat-messages::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .chat-messages::-webkit-scrollbar-track {
+    background: var(--color-bg-primary);
+  }
+  
+  .chat-messages::-webkit-scrollbar-thumb {
+    background: var(--color-bg-tertiary);
+    border-radius: var(--radius-full);
+  }
+  
+  .chat-messages::-webkit-scrollbar-thumb:hover {
+    background: var(--color-border-secondary);
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const pipelineContainer = document.getElementById('agent-pipeline-container');
+    
+    // Listen for agent pipeline toggle event from header
+    window.addEventListener('toggle-agent-pipeline', () => {
+      if (pipelineContainer) {
+        const isHidden = pipelineContainer.classList.contains('hidden');
+        
+        if (isHidden) {
+          pipelineContainer.classList.remove('hidden');
+          pipelineContainer.classList.add('animate-slide-up');
+        } else {
+          pipelineContainer.classList.add('hidden');
+          pipelineContainer.classList.remove('animate-slide-up');
+        }
+      }
+    });
+  });
+</script>

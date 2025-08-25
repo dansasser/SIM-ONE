@@ -113,7 +113,7 @@ class MTP:
         ]
 
         memory_tags = self._create_memory_tags(processed_entities, user_input, emotional_context)
-        if memory_tags: self.memory_manager.add_memories(memory_tags)
+        if memory_tags: self.memory_manager.add_memories(session_id, memory_tags)
 
         return {
             "extracted_entities": processed_entities, "entity_relationships": entity_relationships,

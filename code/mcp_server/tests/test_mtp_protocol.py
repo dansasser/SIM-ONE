@@ -15,7 +15,12 @@ class TestAdvancedMTPProtocol(unittest.TestCase):
         def __init__(self):
             self.memories_added = []
 
-        def add_memories(self, memories):
+        def add_memories(self, session_id, memories):
+            # Simulate the addition of salience for testing purposes
+            for mem in memories:
+                if 'emotional_salience' not in mem:
+                    mem['emotional_salience'] = 0.5 # Add a default salience
+                mem['session_id'] = session_id # Add session_id for realism
             self.memories_added.extend(memories)
 
     def setUp(self):

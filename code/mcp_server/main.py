@@ -1,5 +1,6 @@
 import logging
 import time
+import asyncio
 from fastapi import FastAPI, Depends, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
@@ -20,8 +21,10 @@ from mcp_server.middleware.auth_middleware import get_api_key
 from mcp_server.middleware.security_headers_middleware import SecurityHeadersMiddleware
 from mcp_server.security.advanced_validator import advanced_validate_input
 from mcp_server.security.error_handler import add_exception_handlers
+from mcp_server.memory_manager.memory_consolidation import MemoryConsolidationEngine
+from mcp_server.logging_config import setup_logging
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+setup_logging()
 logger = logging.getLogger(__name__)
 
 # --- Rate Limiting Setup ---
@@ -41,6 +44,29 @@ app.add_middleware(
     allow_methods=["GET", "POST"],
     allow_headers=["X-API-Key", "Content-Type"],
 )
+
+# --- Background Tasks ---
+async def run_memory_consolidation():
+    consolidation_engine = MemoryConsolidationEngine()
+    while True:
+        logger.info("Starting periodic memory consolidation...")
+        try:
+            # In a real multi-tenant system, you'd get all active sessions
+            # For now, we don't have a central session list, so this is a placeholder.
+            # A better approach would be to get sessions from the session_manager.
+            all_sessions = session_manager.get_all_session_ids()
+            for session_id in all_sessions:
+                # remove "session:" prefix
+                session_id = session_id.replace("session:", "")
+                consolidation_engine.run_consolidation_cycle(session_id)
+        except Exception as e:
+            logger.error(f"Error during memory consolidation: {e}", exc_info=True)
+
+        await asyncio.sleep(3600) # Run every hour
+
+@app.on_event("startup")
+async def startup_event():
+    asyncio.create_task(run_memory_consolidation())
 
 # --- Initialization of Managers ---
 protocol_manager = ProtocolManager()
@@ -149,3 +175,55 @@ async def get_session_history(session_id: str, user: dict = Depends(get_api_key)
 
     history = session_manager.get_history(session_id)
     return {"session_id": session_id, "history": history or []}
+
+# --- Health Check Endpoints ---
+class HealthStatus(BaseModel):
+    status: str
+    services: Dict[str, str]
+
+@app.get("/health", tags=["Health"])
+async def health_check():
+    return {"status": "ok"}
+
+from mcp_server.metrics.metrics_collector import MetricsCollector
+
+@app.get("/health/detailed", response_model=HealthStatus, tags=["Health"])
+async def health_check_detailed():
+    services = {
+        "database": "ok",
+        "redis": "ok"
+    }
+    status = "ok"
+
+    # Check database connection
+    try:
+        from mcp_server.database.memory_database import get_db_connection
+        conn = get_db_connection()
+        if conn:
+            conn.close()
+        else:
+            raise Exception("Failed to connect to database.")
+    except Exception as e:
+        logger.error(f"Health check failed for database: {e}")
+        services["database"] = "error"
+        status = "error"
+
+    # Check Redis connection
+    try:
+        if not session_manager.redis_client or not session_manager.redis_client.ping():
+            raise Exception("Failed to ping Redis.")
+    except Exception as e:
+        logger.error(f"Health check failed for Redis: {e}")
+        services["redis"] = "error"
+        status = "error"
+
+    return HealthStatus(status=status, services=services)
+
+@app.get("/metrics", tags=["Health"], dependencies=[Depends(RoleChecker(["admin"]))])
+async def get_metrics():
+    """
+    Returns a collection of system and application metrics.
+    Protected and only accessible by users with the 'admin' role.
+    """
+    collector = MetricsCollector()
+    return collector.get_all_metrics()

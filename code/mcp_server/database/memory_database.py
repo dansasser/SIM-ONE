@@ -16,9 +16,48 @@ def get_db_connection():
         logger.error(f"Database connection failed: {e}")
         return None
 
+def _upgrade_schema(cursor):
+    """Upgrades the database schema by adding new columns if they don't exist."""
+    logger.info("Checking database schema...")
+
+    cursor.execute("PRAGMA table_info(memories)")
+    columns = [row['name'] for row in cursor.fetchall()]
+
+    # Handle the salience -> emotional_salience rename first
+    if 'salience' in columns and 'emotional_salience' not in columns:
+        try:
+            cursor.execute("ALTER TABLE memories RENAME COLUMN salience TO emotional_salience")
+            logger.info("Renamed column 'salience' to 'emotional_salience'.")
+            # Refresh column list after rename
+            cursor.execute("PRAGMA table_info(memories)")
+            columns = [row['name'] for row in cursor.fetchall()]
+        except sqlite3.OperationalError as e:
+            logger.error(f"Could not rename 'salience' column: {e}")
+
+    # Now, add the new columns if they are missing
+    new_columns = {
+        "session_id": "TEXT",
+        "emotional_salience": "REAL DEFAULT 0.5",
+        "rehearsal_count": "INTEGER DEFAULT 0",
+        "last_accessed": "TIMESTAMP",
+        "confidence_score": "REAL DEFAULT 1.0",
+        "memory_type": "TEXT DEFAULT 'episodic'",
+        "actors": "TEXT",
+        "context_tags": "TEXT"
+    }
+
+    for col_name, col_type in new_columns.items():
+        if col_name not in columns:
+            try:
+                cursor.execute(f"ALTER TABLE memories ADD COLUMN {col_name} {col_type}")
+                logger.info(f"Added column '{col_name}' to 'memories' table.")
+            except sqlite3.OperationalError as e:
+                logger.error(f"Could not add column {col_name}: {e}")
+
+
 def initialize_database():
     """
-    Initializes the database and creates the necessary tables if they don't exist.
+    Initializes the database and creates/upgrades the necessary tables.
     """
     logger.info(f"Initializing database at: {DB_FILE}")
     conn = get_db_connection()
@@ -30,7 +69,6 @@ def initialize_database():
         cursor = conn.cursor()
 
         # --- Entities Table ---
-        # Stores unique entities (people, places, concepts)
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS entities (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -41,14 +79,12 @@ def initialize_database():
         """)
 
         # --- Memories Table ---
-        # Stores episodic and semantic memories associated with entities
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS memories (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 entity_id INTEGER,
                 content TEXT NOT NULL,
                 emotional_state TEXT,
-                salience REAL,
                 source_protocol TEXT,
                 timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (entity_id) REFERENCES entities (id)
@@ -56,7 +92,6 @@ def initialize_database():
         """)
 
         # --- Relationships Table ---
-        # Stores relationships between entities
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS relationships (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -68,6 +103,22 @@ def initialize_database():
                 FOREIGN KEY (target_entity_id) REFERENCES entities (id)
             )
         """)
+
+        # --- Contradictions Table ---
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS memory_contradictions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                memory_id_1 INTEGER,
+                memory_id_2 INTEGER,
+                reason TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (memory_id_1) REFERENCES memories (id),
+                FOREIGN KEY (memory_id_2) REFERENCES memories (id)
+            )
+        """)
+
+        # Upgrade schema for the memories table
+        _upgrade_schema(cursor)
 
         conn.commit()
         logger.info("Database initialized successfully.")

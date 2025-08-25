@@ -1,0 +1,16 @@
+# Environment variables
+.env
+
+# Security files
+api_keys.json
+
+# Database files
+*.db
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Logs
+*.log

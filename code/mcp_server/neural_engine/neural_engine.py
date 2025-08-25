@@ -20,7 +20,8 @@ class OpenAIEngine:
 
     def generate_text(self, prompt: str, model: str = "gpt-3.5-turbo") -> str:
         if not self.client:
-            return f"[Mock OpenAI Response]: This is a mock summary."
+            logger.error("OpenAI client not initialized. Please set OPENAI_API_KEY.")
+            raise ValueError("OpenAI client not initialized. API key is missing.")
         try:
             response = self.client.chat.completions.create(
                 model=model,

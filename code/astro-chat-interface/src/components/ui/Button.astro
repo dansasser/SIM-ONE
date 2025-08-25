@@ -1,0 +1,84 @@
+---
+export interface Props {
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
+  size?: 'sm' | 'md' | 'lg';
+  disabled?: boolean;
+  loading?: boolean;
+  type?: 'button' | 'submit' | 'reset';
+  href?: string;
+  class?: string;
+  'data-testid'?: string;
+}
+
+const {
+  variant = 'primary',
+  size = 'md',
+  disabled = false,
+  loading = false,
+  type = 'button',
+  href,
+  class: className = '',
+  'data-testid': testId,
+  ...rest
+} = Astro.props;
+
+const baseClasses = 'btn inline-flex items-center justify-center font-medium transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2';
+
+const variantClasses = {
+  primary: 'btn-primary bg-accent-primary hover:bg-accent-secondary text-white focus:ring-accent-primary/50',
+  secondary: 'btn-secondary bg-bg-tertiary hover:bg-bg-secondary text-text-primary border border-border-primary focus:ring-border-focus/50',
+  ghost: 'bg-transparent hover:bg-bg-tertiary text-text-primary focus:ring-border-focus/50',
+  danger: 'bg-error hover:bg-red-600 text-white focus:ring-error/50'
+};
+
+const sizeClasses = {
+  sm: 'px-3 py-1.5 text-sm rounded-md',
+  md: 'px-4 py-2 text-sm rounded-md',
+  lg: 'px-6 py-3 text-base rounded-lg'
+};
+
+const classes = [
+  baseClasses,
+  variantClasses[variant],
+  sizeClasses[size],
+  disabled && 'opacity-50 cursor-not-allowed',
+  loading && 'cursor-not-allowed',
+  className
+].filter(Boolean).join(' ');
+
+const Tag = href ? 'a' : 'button';
+const buttonProps = href 
+  ? { href } 
+  : { type, disabled: disabled || loading };
+---
+
+<Tag
+  class={classes}
+  data-testid={testId}
+  {...buttonProps}
+  {...rest}
+>
+  {loading && (
+    <svg 
+      class="animate-spin -ml-1 mr-2 h-4 w-4" 
+      xmlns="http://www.w3.org/2000/svg" 
+      fill="none" 
+      viewBox="0 0 24 24"
+    >
+      <circle 
+        class="opacity-25" 
+        cx="12" 
+        cy="12" 
+        r="10" 
+        stroke="currentColor" 
+        stroke-width="4"
+      ></circle>
+      <path 
+        class="opacity-75" 
+        fill="currentColor" 
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+      ></path>
+    </svg>
+  )}
+  <slot />
+</Tag>

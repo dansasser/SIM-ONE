@@ -1,0 +1,236 @@
+---
+import ChatIcon from '../icons/ChatIcon.astro';
+import SettingsIcon from '../icons/SettingsIcon.astro';
+import UserIcon from '../icons/UserIcon.astro';
+import Button from '../ui/Button.astro';
+
+export interface Props {
+  currentConversationId?: string;
+}
+
+const { currentConversationId } = Astro.props;
+
+// Mock conversations for now - will be replaced with real data
+const conversations = [
+  {
+    id: '1',
+    title: 'Getting started with SIM-ONE',
+    lastMessage: 'How does the five-agent system work?',
+    timestamp: new Date('2024-01-15T10:30:00'),
+    isPinned: true
+  },
+  {
+    id: '2', 
+    title: 'Cognitive governance explained',
+    lastMessage: 'Tell me about the ideator agent',
+    timestamp: new Date('2024-01-14T15:45:00'),
+    isPinned: false
+  },
+  {
+    id: '3',
+    title: 'Creative writing assistance',
+    lastMessage: 'Help me write a story about AI',
+    timestamp: new Date('2024-01-13T09:15:00'),
+    isPinned: false
+  }
+];
+---
+
+<aside class="sidebar bg-bg-secondary border-r border-border-primary flex flex-col h-full">
+  <!-- Sidebar Header -->
+  <div class="sidebar-header p-4 border-b border-border-primary">
+    <div class="flex items-center justify-between mb-4">
+      <h1 class="text-lg font-semibold text-text-primary">SIM-ONE Chat</h1>
+      <Button 
+        variant="ghost" 
+        size="sm"
+        class="md:hidden" 
+        id="sidebar-close"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </Button>
+    </div>
+    
+    <Button 
+      variant="primary" 
+      class="w-full"
+      href="/chat"
+    >
+      <ChatIcon size="16" class="mr-2" />
+      New Chat
+    </Button>
+  </div>
+  
+  <!-- Chat History -->
+  <div class="chat-history flex-1 overflow-y-auto">
+    <div class="p-2">
+      <h3 class="text-xs font-medium text-text-tertiary uppercase tracking-wider px-2 py-1 mb-2">
+        Recent Chats
+      </h3>
+      
+      <div class="space-y-1">
+        {conversations.map((conversation) => (
+          <a
+            href={`/chat/${conversation.id}`}
+            class={`conversation-item block p-2 rounded-md transition-colors duration-150 hover:bg-bg-tertiary ${
+              currentConversationId === conversation.id 
+                ? 'bg-bg-tertiary text-text-primary' 
+                : 'text-text-secondary hover:text-text-primary'
+            }`}
+            data-conversation-id={conversation.id}
+          >
+            <div class="flex items-start justify-between mb-1">
+              <h4 class="text-sm font-medium truncate flex-1 mr-2">
+                {conversation.title}
+              </h4>
+              {conversation.isPinned && (
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" class="text-accent-primary flex-shrink-0">
+                  <path d="M16 4v4h4l-4 4-4-4h4V4zm-4 12H8v-4H4l4-4 4 4h-4v4z"/>
+                </svg>
+              )}
+            </div>
+            <p class="text-xs text-text-tertiary truncate mb-1">
+              {conversation.lastMessage}
+            </p>
+            <time class="text-xs text-text-tertiary">
+              {conversation.timestamp.toLocaleDateString()}
+            </time>
+          </a>
+        ))}
+      </div>
+    </div>
+  </div>
+  
+  <!-- Sidebar Footer -->
+  <div class="sidebar-footer border-t border-border-primary p-4 space-y-2">
+    <!-- User Profile Section -->
+    <div class="user-section">
+      <Button 
+        variant="ghost" 
+        class="w-full justify-start text-left"
+        id="user-profile-btn"
+      >
+        <UserIcon size="16" class="mr-3" />
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-medium text-text-primary truncate">Guest User</div>
+          <div class="text-xs text-text-tertiary">Click to sign in</div>
+        </div>
+      </Button>
+    </div>
+    
+    <!-- Settings Link -->
+    <Button 
+      variant="ghost" 
+      class="w-full justify-start"
+      id="settings-btn"
+    >
+      <SettingsIcon size="16" class="mr-3" />
+      Settings
+    </Button>
+  </div>
+</aside>
+
+<style>
+  .sidebar {
+    width: 260px;
+    background-color: var(--color-bg-secondary);
+  }
+  
+  .conversation-item {
+    display: block;
+    position: relative;
+  }
+  
+  .conversation-item:hover {
+    background-color: var(--color-bg-tertiary);
+  }
+  
+  .conversation-item.active {
+    background-color: var(--color-bg-tertiary);
+  }
+  
+  /* Custom scrollbar for chat history */
+  .chat-history {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-bg-tertiary) var(--color-bg-secondary);
+  }
+  
+  .chat-history::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .chat-history::-webkit-scrollbar-track {
+    background: var(--color-bg-secondary);
+  }
+  
+  .chat-history::-webkit-scrollbar-thumb {
+    background: var(--color-bg-tertiary);
+    border-radius: var(--radius-full);
+  }
+  
+  .chat-history::-webkit-scrollbar-thumb:hover {
+    background: var(--color-border-secondary);
+  }
+  
+  @media (max-width: 768px) {
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      transform: translateX(-100%);
+      transition: transform var(--duration-normal) var(--ease-out);
+      z-index: 50;
+    }
+    
+    .sidebar.open {
+      transform: translateX(0);
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const userProfileBtn = document.getElementById('user-profile-btn');
+    const settingsBtn = document.getElementById('settings-btn');
+    const sidebarCloseBtn = document.getElementById('sidebar-close');
+    
+    // User profile click handler
+    userProfileBtn?.addEventListener('click', (e) => {
+      e.preventDefault();
+      // This will open the login modal or user profile
+      // For now, just log the action
+      console.log('User profile clicked');
+      
+      // Dispatch custom event that can be handled by islands
+      window.dispatchEvent(new CustomEvent('open-auth-modal', { 
+        detail: { type: 'login' } 
+      }));
+    });
+    
+    // Settings button click handler
+    settingsBtn?.addEventListener('click', (e) => {
+      e.preventDefault();
+      console.log('Settings clicked');
+      
+      // Dispatch custom event for settings modal
+      window.dispatchEvent(new CustomEvent('open-settings-modal'));
+    });
+    
+    // Close sidebar on mobile
+    sidebarCloseBtn?.addEventListener('click', (e) => {
+      e.preventDefault();
+      const sidebar = document.querySelector('.sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      
+      if (sidebar && overlay) {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('visible');
+        overlay.classList.add('hidden');
+        document.body.style.overflow = '';
+      }
+    });
+  });
+</script>

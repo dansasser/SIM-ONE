@@ -1,0 +1,125 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Sidebar from '../components/layout/Sidebar.astro';
+import Header from '../components/layout/Header.astro';
+
+export interface Props {
+  title?: string;
+  description?: string;
+  showSidebar?: boolean;
+  currentConversationId?: string;
+}
+
+const { 
+  title = "Chat - SIM-ONE",
+  description = "Experience governed cognition with SIM-ONE's five-agent AI system",
+  showSidebar = true,
+  currentConversationId
+} = Astro.props;
+---
+
+<BaseLayout title={title} description={description}>
+  <div class="app-layout">
+    {showSidebar && (
+      <Sidebar currentConversationId={currentConversationId} />
+    )}
+    
+    <main class="chat-layout">
+      <Header />
+      
+      <div class="chat-content">
+        <slot />
+      </div>
+    </main>
+  </div>
+  
+  <!-- Mobile Sidebar Overlay -->
+  <div id="sidebar-overlay" class="sidebar-overlay hidden"></div>
+</BaseLayout>
+
+<style>
+  .chat-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  
+  .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--color-bg-overlay);
+    z-index: 40;
+    transition: opacity var(--duration-normal) var(--ease-out);
+  }
+  
+  .sidebar-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+  
+  .sidebar-overlay.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  
+  @media (min-width: 769px) {
+    .sidebar-overlay {
+      display: none !important;
+    }
+  }
+</style>
+
+<script>
+  // Mobile sidebar toggle functionality
+  document.addEventListener('DOMContentLoaded', () => {
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    const toggleButton = document.getElementById('sidebar-toggle');
+    
+    if (!sidebar || !overlay || !toggleButton) return;
+    
+    const openSidebar = () => {
+      sidebar.classList.add('open');
+      overlay.classList.remove('hidden');
+      overlay.classList.add('visible');
+      document.body.style.overflow = 'hidden';
+    };
+    
+    const closeSidebar = () => {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('visible');
+      overlay.classList.add('hidden');
+      document.body.style.overflow = '';
+    };
+    
+    toggleButton.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (sidebar.classList.contains('open')) {
+        closeSidebar();
+      } else {
+        openSidebar();
+      }
+    });
+    
+    // Close sidebar when clicking overlay
+    overlay.addEventListener('click', closeSidebar);
+    
+    // Close sidebar on escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && sidebar.classList.contains('open')) {
+        closeSidebar();
+      }
+    });
+    
+    // Close sidebar when window is resized to desktop
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 768) {
+        closeSidebar();
+      }
+    });
+  });
+</script>

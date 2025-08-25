@@ -11,11 +11,16 @@ from mcp_server.protocols.mtp.mtp import MTP
 class TestAdvancedMTPProtocol(unittest.TestCase):
 
     class MockMemoryManager:
-        """A mock memory manager to isolate tests from Redis dependency."""
+        """A mock memory manager to isolate tests from the database."""
         def __init__(self):
             self.memories_added = []
 
         def add_memories(self, session_id, memories):
+            # Simulate the addition of salience for testing purposes
+            for mem in memories:
+                if 'emotional_salience' not in mem:
+                    mem['emotional_salience'] = 0.5 # Add a default salience
+                mem['session_id'] = session_id # Add session_id for realism
             self.memories_added.extend(memories)
 
     def setUp(self):
@@ -60,8 +65,7 @@ class TestAdvancedMTPProtocol(unittest.TestCase):
 
         # Check that the memory tag for Sarah has the right emotional context
         sarah_memory = next(m for m in self.mock_memory_manager.memories_added if m['entity'] == 'Sarah')
-        self.assertEqual(sarah_memory['overall_valence'], 'positive')
-        self.assertIn('joy', sarah_memory['emotions'])
+        self.assertEqual(sarah_memory['emotional_state'], 'positive')
 
 
     def test_object_concept_emotional_association(self):

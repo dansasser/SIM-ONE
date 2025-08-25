@@ -1,0 +1,246 @@
+2025-08-16 21:53:06,974 - security_logger - WARNING - Client error for request POST http://testserver/execute: Invalid API Key.
+2025-08-16 21:53:07,040 - security_logger - WARNING - Client error for request POST http://testserver/execute: Invalid API Key.
+2025-08-16 21:55:50,560 - security_logger - WARNING - Client error for request GET http://testserver/protocols: Not authenticated
+2025-08-16 21:55:50,565 - security_logger - WARNING - Client error for request GET http://testserver/protocols: Invalid API Key.
+2025-08-16 21:55:50,576 - security_logger - WARNING - Client error for request POST http://testserver/execute: Potentially malicious input detected.
+2025-08-16 21:55:50,582 - security_logger - ERROR - Unhandled exception for request POST http://testserver/execute: 'MemoryManager' object has no attribute 'redis_client'
+Traceback (most recent call last):
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/middleware/cors.py", line 85, in __call__
+    await self.app(scope, receive, send)
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/routing.py", line 78, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/routing.py", line 75, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/fastapi/routing.py", line 302, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/fastapi/routing.py", line 213, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/slowapi/extension.py", line 734, in async_wrapper
+    response = await func(*args, **kwargs)  # type: ignore
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/code/mcp_server/main.py", line 101, in execute_workflow
+    final_context = await orchestration_engine.execute_workflow(workflow_def, workflow_context)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/code/mcp_server/orchestration_engine/orchestration_engine.py", line 30, in execute_workflow
+    if session_id and self.memory_manager.redis_client:
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MemoryManager' object has no attribute 'redis_client'
+2025-08-16 21:57:30,053 - security_logger - WARNING - Client error for request GET http://testserver/protocols: Not authenticated
+2025-08-16 21:57:30,058 - security_logger - WARNING - Client error for request GET http://testserver/protocols: Invalid API Key.
+2025-08-16 21:57:30,070 - security_logger - WARNING - Client error for request POST http://testserver/execute: Potentially malicious input detected.
+2025-08-24 12:58:57,269 - security_logger - WARNING - Client error for request GET http://testserver/protocols: Not authenticated
+2025-08-24 12:58:57,273 - security_logger - WARNING - Client error for request GET http://testserver/protocols: Invalid API Key.
+2025-08-24 12:58:57,287 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential SQL Injection
+2025-08-24 12:58:57,291 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential SQL Injection
+2025-08-24 12:58:57,295 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential XSS
+2025-08-24 13:05:17,553 - security_logger - ERROR - Unhandled exception for request GET http://testserver/session/58606059-9b13-4a8c-b400-754f9f864b7f: name 'HTTPException' is not defined
+  + Exception Group Traceback (most recent call last):
+  |   File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/_utils.py", line 77, in collapse_excgroups
+  |     yield
+  |   File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/middleware/base.py", line 183, in __call__
+  |     async with anyio.create_task_group() as task_group:
+  |                ^^^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 772, in __aexit__
+  |     raise BaseExceptionGroup(
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    |     await self.app(scope, receive, _send)
+    |   File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/middleware/cors.py", line 85, in __call__
+    |     await self.app(scope, receive, send)
+    |   File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/middleware/base.py", line 182, in __call__
+    |     with recv_stream, send_stream, collapse_excgroups():
+    |                                    ^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/contextlib.py", line 158, in __exit__
+    |     self.gen.throw(value)
+    |   File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/_utils.py", line 83, in collapse_excgroups
+    |     raise exc
+    |   File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/middleware/base.py", line 184, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/app/code/mcp_server/middleware/security_headers_middleware.py", line 7, in dispatch
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/middleware/base.py", line 159, in call_next
+    |     raise app_exc
+    |   File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/middleware/base.py", line 144, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    |     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+    |   File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/routing.py", line 716, in __call__
+    |     await self.middleware_stack(scope, receive, send)
+    |   File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/routing.py", line 736, in app
+    |     await route.handle(scope, receive, send)
+    |   File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/routing.py", line 290, in handle
+    |     await self.app(scope, receive, send)
+    |   File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/routing.py", line 78, in app
+    |     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+    |   File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/routing.py", line 75, in app
+    |     response = await f(request)
+    |                ^^^^^^^^^^^^^^^^
+    |   File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/fastapi/routing.py", line 302, in app
+    |     raw_response = await run_endpoint_function(
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/fastapi/routing.py", line 213, in run_endpoint_function
+    |     return await dependant.call(**values)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/app/code/mcp_server/main.py", line 142, in get_session_history
+    |     raise HTTPException(status_code=404, detail="Session not found.")
+    |           ^^^^^^^^^^^^^
+    | NameError: name 'HTTPException' is not defined. Did you mean: 'BaseException'?
+    +------------------------------------
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/middleware/cors.py", line 85, in __call__
+    await self.app(scope, receive, send)
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/middleware/base.py", line 182, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/_utils.py", line 83, in collapse_excgroups
+    raise exc
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/middleware/base.py", line 184, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/code/mcp_server/middleware/security_headers_middleware.py", line 7, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/middleware/base.py", line 159, in call_next
+    raise app_exc
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/routing.py", line 78, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/starlette/routing.py", line 75, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/fastapi/routing.py", line 302, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/fastapi/routing.py", line 213, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/code/mcp_server/main.py", line 142, in get_session_history
+    raise HTTPException(status_code=404, detail="Session not found.")
+          ^^^^^^^^^^^^^
+NameError: name 'HTTPException' is not defined. Did you mean: 'BaseException'?
+2025-08-24 13:08:21,684 - security_logger - WARNING - Client error for request POST http://testserver/execute: Not authorized.
+2025-08-24 13:08:21,690 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential SQL Injection
+2025-08-24 13:08:21,694 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential SQL Injection
+2025-08-24 13:08:21,699 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential XSS
+2025-08-24 13:08:21,719 - security_logger - WARNING - Client error for request GET http://testserver/session/e16816be-99ba-47c6-b959-65f5f1c726ce: Session not found.
+2025-08-24 13:10:07,075 - security_logger - WARNING - Client error for request POST http://testserver/execute: Not authorized.
+2025-08-24 13:10:07,083 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential SQL Injection
+2025-08-24 13:10:07,088 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential SQL Injection
+2025-08-24 13:10:07,092 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential XSS
+2025-08-24 13:10:07,112 - security_logger - WARNING - Client error for request GET http://testserver/session/26bdb6e7-b3c8-4c75-a0d6-0955d18f4428: Not authorized to view this session.
+2025-08-24 13:10:07,121 - security_logger - WARNING - Client error for request GET http://testserver/session/26bdb6e7-b3c8-4c75-a0d6-0955d18f4428: Not authorized to view this session.
+2025-08-24 13:38:41,656 - security_logger - WARNING - Client error for request POST http://testserver/execute: Not authorized.
+2025-08-24 13:38:41,664 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential SQL Injection
+2025-08-24 13:38:41,669 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential SQL Injection
+2025-08-24 13:38:41,674 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential XSS
+2025-08-24 13:38:41,695 - security_logger - WARNING - Client error for request GET http://testserver/session/6ab5ef7b-1902-4e8d-ba3f-70e856ef5edc: Not authorized to view this session.
+2025-08-24 13:38:41,704 - security_logger - WARNING - Client error for request GET http://testserver/session/6ab5ef7b-1902-4e8d-ba3f-70e856ef5edc: Not authorized to view this session.
+2025-08-24 13:40:09,929 - security_logger - WARNING - Client error for request POST http://testserver/execute: Not authorized.
+2025-08-24 13:40:09,937 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential SQL Injection
+2025-08-24 13:40:09,942 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential SQL Injection
+2025-08-24 13:40:09,947 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential XSS
+2025-08-24 13:40:09,967 - security_logger - WARNING - Client error for request GET http://testserver/session/592e0db6-ba7c-41f5-b2b3-5672de5b9d96: Not authorized to view this session.
+2025-08-24 13:40:09,976 - security_logger - WARNING - Client error for request GET http://testserver/session/592e0db6-ba7c-41f5-b2b3-5672de5b9d96: Not authorized to view this session.
+2025-08-24 13:41:34,420 - security_logger - WARNING - Client error for request POST http://testserver/execute: Not authorized.
+2025-08-24 13:41:34,428 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential SQL Injection
+2025-08-24 13:41:34,433 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential SQL Injection
+2025-08-24 13:41:34,438 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential XSS
+2025-08-24 13:41:34,462 - security_logger - WARNING - Client error for request GET http://testserver/session/74e83bdd-9e81-46e4-a027-1b8078e75b65: Not authorized to view this session.
+2025-08-24 13:41:34,472 - security_logger - WARNING - Client error for request GET http://testserver/session/74e83bdd-9e81-46e4-a027-1b8078e75b65: Not authorized to view this session.
+2025-08-24 13:43:57,841 - security_logger - WARNING - Client error for request POST http://testserver/execute: Not authorized.
+2025-08-24 13:43:57,848 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential SQL Injection
+2025-08-24 13:43:57,853 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential SQL Injection
+2025-08-24 13:43:57,859 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential XSS
+2025-08-24 13:43:57,885 - security_logger - WARNING - Client error for request GET http://testserver/session/f8e22b53-75df-4f8f-b566-0c45ab92a4b7: Not authorized to view this session.
+2025-08-25 15:07:16,509 - security_logger - WARNING - Client error for request POST http://testserver/execute: Not authorized.
+2025-08-25 15:07:16,517 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential SQL Injection
+2025-08-25 15:07:16,522 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential SQL Injection
+2025-08-25 15:07:16,528 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential XSS
+2025-08-25 15:07:16,557 - security_logger - WARNING - Client error for request GET http://testserver/session/cf2dca2f-33fd-4ed8-9280-067dc69021cd: Not authorized to view this session.
+2025-08-25 15:09:32,320 - security_logger - WARNING - Client error for request POST http://testserver/execute: Not authorized.
+2025-08-25 15:09:32,330 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential SQL Injection
+2025-08-25 15:09:32,336 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential SQL Injection
+2025-08-25 15:09:32,341 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential XSS
+2025-08-25 15:09:32,368 - security_logger - WARNING - Client error for request GET http://testserver/session/07a75a08-2871-48d7-b4f1-2826ff637d8b: Not authorized to view this session.
+2025-08-25 15:18:48,288 - security_logger - WARNING - Client error for request POST http://testserver/execute: Not authorized.
+2025-08-25 15:18:48,306 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential SQL Injection
+2025-08-25 15:18:48,312 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential SQL Injection
+2025-08-25 15:18:48,318 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential XSS
+2025-08-25 15:18:48,347 - security_logger - WARNING - Client error for request GET http://testserver/session/99670029-291d-41d0-85c9-ae01a533d0a6: Not authorized to view this session.
+2025-08-25 15:20:11,070 - security_logger - WARNING - Client error for request POST http://testserver/execute: Not authorized.
+2025-08-25 15:20:11,079 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential SQL Injection
+2025-08-25 15:20:11,084 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential SQL Injection
+2025-08-25 15:20:11,091 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential XSS
+2025-08-25 15:20:11,118 - security_logger - WARNING - Client error for request GET http://testserver/session/20ac79f1-8397-46e5-938e-08dd290ce010: Not authorized to view this session.
+2025-08-25 15:26:42,738 - security_logger - WARNING - Client error for request POST http://testserver/execute: Not authorized.
+2025-08-25 15:26:42,747 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential SQL Injection
+2025-08-25 15:26:42,752 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential SQL Injection
+2025-08-25 15:26:42,758 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential XSS
+2025-08-25 15:26:42,785 - security_logger - WARNING - Client error for request GET http://testserver/session/bc654e35-aebb-49b5-989a-c1656881d4ec: Not authorized to view this session.
+2025-08-25 15:35:38,921 - security_logger - WARNING - Client error for request POST http://testserver/execute: Not authorized.
+2025-08-25 15:35:38,930 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential SQL Injection
+2025-08-25 15:35:38,936 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential SQL Injection
+2025-08-25 15:35:38,941 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential XSS
+2025-08-25 15:35:38,966 - security_logger - WARNING - Client error for request GET http://testserver/session/773308a0-efab-4f14-814d-fef0692396b0: Not authorized to view this session.
+2025-08-25 15:36:57,377 - security_logger - WARNING - Client error for request POST http://testserver/execute: Not authorized.
+2025-08-25 15:36:57,387 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential SQL Injection
+2025-08-25 15:36:57,393 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential SQL Injection
+2025-08-25 15:36:57,398 - security_logger - WARNING - Client error for request POST http://testserver/execute: Malicious input detected: Potential XSS
+2025-08-25 15:36:57,425 - security_logger - WARNING - Client error for request GET http://testserver/session/7b8a2660-251c-4129-802b-d9b7565ef05a: Not authorized to view this session.

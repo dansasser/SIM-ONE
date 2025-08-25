@@ -40,7 +40,9 @@ pip install -r requirements.txt
 **4. Configure environment variables:**
 Create a `.env` file in the root directory and add the required variables. See the [Configuration Guide](./docs/CONFIGURATION.md) for details. A minimal example:
 ```
-MCP_API_KEY="your-secret-api-key"
+VALID_API_KEYS="admin-key,user-key"
+NEURAL_ENGINE_BACKEND="openai"
+OPENAI_API_KEY="sk-proj-your-openai-key"
 ```
 
 **5. Run the server:**
@@ -79,12 +81,12 @@ The server exposes a powerful API for executing cognitive workflows. For detaile
 Here is a quick example of how to execute a workflow using `curl`:
 
 ```bash
-curl -X POST "http://localhost:8000/v1/execute" \
--H "Authorization: Bearer your-secret-api-key" \
+curl -X POST "http://localhost:8000/execute" \
+-H "X-API-Key: your-user-key" \
 -H "Content-Type: application/json" \
 -d '{
-    "workflow": "StandardReasoningWorkflow",
-    "data": {
+    "template_name": "analyze_only",
+    "initial_data": {
         "user_input": "John works at Microsoft and lives in Seattle."
     }
 }'

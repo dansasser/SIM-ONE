@@ -113,7 +113,7 @@ class MTP:
         ]
 
         memory_tags = self._create_memory_tags(processed_entities, user_input, emotional_context)
-        if memory_tags: self.memory_manager.add_memories(session_id, memory_tags)
+        if memory_tags: self.memory_manager.add_memories(memory_tags)
 
         return {
             "extracted_entities": processed_entities, "entity_relationships": entity_relationships,
@@ -125,9 +125,12 @@ class MTP:
     def _create_memory_tags(self, entities: List[Dict], user_input: str, emotional_context: Dict) -> List[Dict]:
         return [
             {
-                "entity": e['entity'], "emotions": json.dumps(emotional_context.get('detected_emotions', [])),
-                "overall_valence": emotional_context.get('valence', 'neutral'), "source_input": user_input,
-                "salience": e['salience'], "source_protocol": "MTP"
+                "entity": e['entity'],
+                "emotions": json.dumps(emotional_context.get('detected_emotions', [])),
+                "emotional_state": emotional_context.get('valence', 'neutral'),
+                "source_input": user_input,
+                "emotional_salience": e['salience'],
+                "source_protocol": "MTP"
             } for e in entities
         ]
 

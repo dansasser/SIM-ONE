@@ -12,3 +12,10 @@ slowapi
 pydantic-settings
 python-dotenv==1.0.0
 gunicorn
+# PostgreSQL production database support
+asyncpg
+aiopg
+sqlalchemy[asyncio]
+alembic
+# Database connection pooling
+asyncio-pool

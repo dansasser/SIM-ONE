@@ -22,6 +22,7 @@ from mcp_server.middleware.security_headers_middleware import SecurityHeadersMid
 from mcp_server.security.advanced_validator import advanced_validate_input
 from mcp_server.security.error_handler import add_exception_handlers
 from mcp_server.memory_manager.memory_consolidation import MemoryConsolidationEngine
+from mcp_server.database.database_manager import initialize_database_manager, db_manager
 from mcp_server.logging_config import setup_logging
 
 setup_logging()
@@ -66,7 +67,18 @@ async def run_memory_consolidation():
 
 @app.on_event("startup")
 async def startup_event():
+    # Initialize database system
+    await initialize_database_manager()
+    logger.info(f"Database initialized: {db_manager.get_database_type().value}")
+    
+    # Start background tasks
     asyncio.create_task(run_memory_consolidation())
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    # Close database connections
+    await db_manager.close()
+    logger.info("Database connections closed")
 
 # --- Initialization of Managers ---
 protocol_manager = ProtocolManager()
@@ -195,14 +207,14 @@ async def health_check_detailed():
     }
     status = "ok"
 
-    # Check database connection
+    # Check database connection using new database manager
     try:
-        from mcp_server.database.memory_database import get_db_connection
-        conn = get_db_connection()
-        if conn:
-            conn.close()
+        db_health = await db_manager.health_check()
+        if db_health["status"] == "healthy":
+            services["database"] = f"ok ({db_manager.get_database_type().value})"
         else:
-            raise Exception("Failed to connect to database.")
+            services["database"] = f"error ({db_health.get('message', 'unknown')})"
+            status = "error"
     except Exception as e:
         logger.error(f"Health check failed for database: {e}")
         services["database"] = "error"
@@ -227,3 +239,78 @@ async def get_metrics():
     """
     collector = MetricsCollector()
     return collector.get_all_metrics()
+
+# --- Database Management Endpoints ---
+from mcp_server.database.backup_manager import backup_manager
+
+@app.get("/database/info", tags=["Database"], dependencies=[Depends(RoleChecker(["admin"]))])
+async def get_database_info():
+    """Get database configuration and status information."""
+    health = await db_manager.health_check()
+    return {
+        "database_type": db_manager.get_database_type().value,
+        "health": health,
+        "features": {
+            "connection_pooling": db_manager.is_postgresql(),
+            "full_text_search": db_manager.is_postgresql(),
+            "json_support": db_manager.is_postgresql(),
+            "uuid_support": db_manager.is_postgresql(),
+            "async_support": db_manager.is_postgresql()
+        }
+    }
+
+@app.post("/database/backup", tags=["Database"], dependencies=[Depends(RoleChecker(["admin"]))])
+async def create_database_backup():
+    """Create a manual database backup."""
+    try:
+        backup_info = await backup_manager.create_backup("manual")
+        return {
+            "success": True,
+            "backup": backup_info,
+            "message": f"Backup created successfully: {backup_info['filename']}"
+        }
+    except Exception as e:
+        logger.error(f"Backup creation failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Backup failed: {str(e)}")
+
+@app.get("/database/backups", tags=["Database"], dependencies=[Depends(RoleChecker(["admin"]))])
+async def list_database_backups():
+    """List all available database backups."""
+    try:
+        backups = backup_manager.list_backups()
+        return {
+            "backups": backups,
+            "count": len(backups),
+            "total_size": sum(b["size_bytes"] for b in backups)
+        }
+    except Exception as e:
+        logger.error(f"Failed to list backups: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to list backups: {str(e)}")
+
+@app.post("/database/restore/{backup_filename}", tags=["Database"], dependencies=[Depends(RoleChecker(["admin"]))])
+async def restore_database_backup(backup_filename: str):
+    """Restore database from a backup file. USE WITH CAUTION - this will replace current data."""
+    try:
+        restore_info = await backup_manager.restore_backup(backup_filename)
+        return {
+            "success": True,
+            "restore": restore_info,
+            "message": f"Database restored successfully from: {backup_filename}"
+        }
+    except Exception as e:
+        logger.error(f"Restore failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Restore failed: {str(e)}")
+
+@app.delete("/database/backups/cleanup", tags=["Database"], dependencies=[Depends(RoleChecker(["admin"]))])
+async def cleanup_old_backups():
+    """Clean up old backups according to retention policy."""
+    try:
+        cleanup_result = backup_manager.cleanup_old_backups()
+        return {
+            "success": True,
+            "cleanup": cleanup_result,
+            "message": f"Cleanup completed: {cleanup_result['removed_count']} backups removed"
+        }
+    except Exception as e:
+        logger.error(f"Backup cleanup failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Cleanup failed: {str(e)}")

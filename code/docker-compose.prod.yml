@@ -4,6 +4,64 @@
 version: '3.8'
 
 services:
+  # PostgreSQL Master Database
+  postgres-master:
+    image: postgres:15-alpine
+    container_name: simone-postgres-master
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-simone_mcp}
+      - POSTGRES_USER=${POSTGRES_USER:-simone}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=en_US.UTF-8 --lc-ctype=en_US.UTF-8
+    volumes:
+      - postgres-master-data:/var/lib/postgresql/data
+      - ./config/postgres-master.conf:/etc/postgresql/postgresql.conf
+      - ./backups:/var/backups
+    command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-simone} -d ${POSTGRES_DB:-simone_mcp}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - simone-network
+
+  # PostgreSQL Read Replica (optional for read scaling)
+  postgres-replica:
+    image: postgres:15-alpine
+    container_name: simone-postgres-replica
+    restart: always
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-simone_mcp}
+      - POSTGRES_USER=${POSTGRES_USER:-simone}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - PGUSER=postgres
+    volumes:
+      - postgres-replica-data:/var/lib/postgresql/data
+    command: |
+      bash -c "
+      until pg_basebackup --pgdata=/var/lib/postgresql/data -R --slot=replication_slot --host=postgres-master --port=5432 --username=replicator
+      do
+      echo 'Waiting for primary to connect...'
+      sleep 1s
+      done
+      echo 'Backup done, starting replica...'
+      chmod 0700 /var/lib/postgresql/data
+      postgres
+      "
+    depends_on:
+      - postgres-master
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-simone} -d ${POSTGRES_DB:-simone_mcp}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - simone-network
+
   # Redis Cluster for production session management
   redis-master:
     image: redis:7-alpine
@@ -66,6 +124,13 @@ services:
       - REDIS_HOST=redis-master
       - REDIS_PORT=6379
       - NEURAL_ENGINE_BACKEND=${NEURAL_ENGINE_BACKEND:-openai}
+      
+      # PostgreSQL configuration
+      - POSTGRES_HOST=postgres-master
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=${POSTGRES_DB:-simone_mcp}
+      - POSTGRES_USER=${POSTGRES_USER:-simone}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       
       # Security configuration
       - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
@@ -187,6 +252,10 @@ services:
       - simone-network
 
 volumes:
+  postgres-master-data:
+    driver: local
+  postgres-replica-data:
+    driver: local
   redis-master-data:
     driver: local
   redis-replica-data:

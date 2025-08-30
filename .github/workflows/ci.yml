@@ -1,0 +1,295 @@
+# Continuous Integration Workflow for SIM-ONE Framework MCP Server
+# Comprehensive testing across multiple Python versions and platforms
+
+name: CI
+
+on:
+  push:
+    branches: [ main, genspark_ai_developer ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.11', '3.12']
+    
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-${{ matrix.python-version }}-
+          ${{ runner.os }}-pip-
+    
+    - name: Install dependencies
+      run: |
+        cd code
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-asyncio pytest-cov
+    
+    - name: Set up test environment
+      run: |
+        cd code
+        cp mcp_server/.env.example mcp_server/.env
+      shell: bash
+    
+    - name: Configure test environment (Unix)
+      if: runner.os != 'Windows'
+      run: |
+        cd code
+        echo "REDIS_HOST=localhost" >> mcp_server/.env
+        echo "VALID_API_KEYS=ci-admin-key,ci-user-key,ci-readonly-key" >> mcp_server/.env
+        echo "ALLOWED_ORIGINS=http://localhost:3000" >> mcp_server/.env
+        echo "LOG_LEVEL=DEBUG" >> mcp_server/.env
+    
+    - name: Configure test environment (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        cd code
+        echo REDIS_HOST=localhost >> mcp_server/.env
+        echo VALID_API_KEYS=ci-admin-key,ci-user-key,ci-readonly-key >> mcp_server/.env
+        echo ALLOWED_ORIGINS=http://localhost:3000 >> mcp_server/.env
+        echo LOG_LEVEL=DEBUG >> mcp_server/.env
+      shell: cmd
+    
+    - name: Initialize application database
+      run: |
+        cd code
+        python -c "
+        try:
+            from mcp_server.database.memory_database import get_db_connection
+            conn = get_db_connection()
+            if conn:
+                print('✅ Database initialization successful')
+                conn.close()
+            else:
+                print('❌ Database initialization failed')
+        except Exception as e:
+            print(f'Database setup error: {e}')
+        "
+    
+    - name: Test core functionality
+      run: |
+        cd code
+        python -m unittest discover mcp_server/tests/ -v -k "not security"
+    
+    - name: Test security functionality
+      run: |
+        cd code
+        python -m unittest discover mcp_server/tests/security/ -v
+    
+    - name: Test cognitive protocols
+      run: |
+        cd code
+        python -m unittest mcp_server.tests.test_esl_protocol -v
+        python -m unittest mcp_server.tests.test_mtp_protocol -v
+    
+    - name: Test memory management
+      run: |
+        cd code
+        python -m unittest mcp_server.tests.test_memory_manager -v
+        python -m unittest mcp_server.tests.test_memory_consolidation -v
+    
+    - name: Test production configuration
+      run: |
+        cd code
+        python -m unittest mcp_server.tests.test_production_setup -v
+
+  lint:
+    runs-on: ubuntu-latest
+    name: Code Quality & Linting
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install linting dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 black isort mypy
+    
+    - name: Run Black code formatter check
+      run: |
+        cd code
+        black --check --diff mcp_server/
+    
+    - name: Run isort import sorting check
+      run: |
+        cd code
+        isort --check-only --diff mcp_server/
+    
+    - name: Run flake8 linter
+      run: |
+        cd code
+        flake8 mcp_server/ --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 mcp_server/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    
+    - name: Run mypy type checker
+      run: |
+        cd code
+        mypy mcp_server/ --ignore-missing-imports || true
+
+  build-and-test-docker:
+    runs-on: ubuntu-latest
+    name: Docker Build & Test
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Build Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./code
+        file: ./code/Dockerfile
+        push: false
+        tags: simone-mcp-server:ci-test
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+    
+    - name: Test Docker image
+      run: |
+        # Start services for testing
+        docker run -d --name redis-test redis:7-alpine
+        sleep 5
+        
+        # Run the application container
+        docker run -d --name mcp-server-test \
+          --link redis-test:redis \
+          -e REDIS_HOST=redis \
+          -e VALID_API_KEYS=docker-test-key \
+          -e ALLOWED_ORIGINS=http://localhost:3000 \
+          simone-mcp-server:ci-test
+        
+        sleep 10
+        
+        # Test health endpoint
+        if docker exec mcp-server-test curl -f http://localhost:8000/health; then
+          echo "✅ Docker container health check passed"
+        else
+          echo "❌ Docker container health check failed"
+          docker logs mcp-server-test
+          exit 1
+        fi
+    
+    - name: Test Docker Compose development setup
+      run: |
+        cd code
+        # Copy environment template
+        cp .env.production.example .env.test
+        sed -i 's/your-.*-here/test-value/g' .env.test
+        
+        # Start development environment
+        docker-compose -f docker-compose.dev.yml up -d
+        
+        # Wait for services to be ready
+        sleep 30
+        
+        # Test health endpoint
+        if curl -f http://localhost:8000/health; then
+          echo "✅ Docker Compose development setup working"
+        else
+          echo "❌ Docker Compose development setup failed"
+          docker-compose -f docker-compose.dev.yml logs
+          exit 1
+        fi
+        
+        # Cleanup
+        docker-compose -f docker-compose.dev.yml down
+
+  integration-tests:
+    runs-on: ubuntu-latest
+    name: Integration Tests
+    needs: [test, build-and-test-docker]
+    
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        cd code
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install httpx pytest-asyncio
+    
+    - name: Set up integration test environment
+      run: |
+        cd code
+        cp mcp_server/.env.example mcp_server/.env
+        echo "REDIS_HOST=localhost" >> mcp_server/.env
+        echo "VALID_API_KEYS=integration-admin-key,integration-user-key" >> mcp_server/.env
+        echo "ALLOWED_ORIGINS=http://localhost:3000" >> mcp_server/.env
+    
+    - name: Start MCP Server
+      run: |
+        cd code
+        python -m uvicorn mcp_server.main:app --host 0.0.0.0 --port 8000 &
+        sleep 10
+    
+    - name: Run integration tests
+      run: |
+        cd code
+        
+        # Test health endpoint
+        curl -f http://localhost:8000/health
+        
+        # Test protocol discovery with authentication
+        curl -f -H "X-API-Key: integration-admin-key" http://localhost:8000/protocols
+        
+        # Test workflow templates
+        curl -f -H "X-API-Key: integration-admin-key" http://localhost:8000/templates
+        
+        # Test cognitive protocol execution
+        curl -f -X POST \
+          -H "X-API-Key: integration-user-key" \
+          -H "Content-Type: application/json" \
+          -d '{"protocol_names": ["ReasoningAndExplanationProtocol"], "initial_data": {"facts": ["CI integration test"]}}' \
+          http://localhost:8000/execute
+        
+        echo "✅ All integration tests passed"

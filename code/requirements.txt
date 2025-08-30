@@ -19,3 +19,7 @@ sqlalchemy[asyncio]
 alembic
 # Database connection pooling
 asyncio-pool
+# Advanced database features
+numpy
+# For text processing and search
+scikit-learn

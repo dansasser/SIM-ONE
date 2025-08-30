@@ -1,0 +1,113 @@
+# Development Docker Compose Configuration
+# For local development and testing of the SIM-ONE MCP Server
+
+version: '3.8'
+
+services:
+  # PostgreSQL database for development
+  postgres:
+    image: postgres:15-alpine
+    container_name: simone-postgres-dev
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=simone_mcp_dev
+      - POSTGRES_USER=simone
+      - POSTGRES_PASSWORD=simone_dev_password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U simone -d simone_mcp_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis service for session management and caching
+  redis:
+    image: redis:7-alpine
+    container_name: simone-redis-dev
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MCP Server application
+  mcp-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: simone-mcp-server-dev
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      # Application configuration
+      - APP_VERSION=1.5.0-dev
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - NEURAL_ENGINE_BACKEND=openai
+      
+      # PostgreSQL configuration (development)
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=simone_mcp_dev
+      - POSTGRES_USER=simone
+      - POSTGRES_PASSWORD=simone_dev_password
+      
+      # Security configuration (development values)
+      - ALLOWED_ORIGINS=http://localhost:3000,http://localhost:8080,http://127.0.0.1:3000
+      - LOG_LEVEL=DEBUG
+      
+      # API Keys (development - use secure keys in production)
+      - VALID_API_KEYS=dev-admin-key,dev-user-key,dev-readonly-key
+      
+      # External service keys (set these in .env file)
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - SERPER_API_KEY=${SERPER_API_KEY:-}
+    volumes:
+      # Mount source code for development (hot reload)
+      - ./mcp_server:/app/mcp_server
+      - ./logs:/app/logs
+      - ./data:/app/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    command: ["uvicorn", "mcp_server.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+  # Optional: Database management tool
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: simone-redis-ui-dev
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    depends_on:
+      - redis
+
+volumes:
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+
+networks:
+  default:
+    name: simone-dev-network

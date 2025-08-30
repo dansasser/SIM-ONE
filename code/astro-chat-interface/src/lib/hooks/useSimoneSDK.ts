@@ -7,6 +7,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { SimoneSDK, SDKUtils } from '../sdk/simone-sdk';
+const SERVER_MODE = (import.meta as any).env?.PUBLIC_SDK_MODE === 'server';
 import type { 
   User, 
   Conversation, 
@@ -116,8 +117,25 @@ export function useConversations() {
     setIsLoading(true);
     setError(null);
     try {
-      const convs = await SimoneSDK.chat.getConversations();
-      setConversations(convs);
+      if (SERVER_MODE) {
+        const res = await fetch('/api/chat/conversations');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        const convs = (data.conversations || []).map((c: any) => ({
+          ...c,
+          createdAt: c.createdAt ? new Date(c.createdAt) : new Date(),
+          updatedAt: c.updatedAt ? new Date(c.updatedAt) : new Date(),
+          lastMessageAt: c.lastMessageAt ? new Date(c.lastMessageAt) : new Date(),
+          isArchived: !!c.isArchived,
+          isPinned: !!c.isPinned,
+          tags: c.tags || [],
+          metadata: c.metadata || { totalProcessingTime: 0, averageQuality: 0, topAgents: [], lastStyle: 'universal_chat', lastPriority: 'balanced' }
+        }));
+        setConversations(convs);
+      } else {
+        const convs = await SimoneSDK.chat.getConversations();
+        setConversations(convs);
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load conversations';
       setError(errorMessage);
@@ -128,9 +146,31 @@ export function useConversations() {
 
   const createConversation = useCallback(async (title?: string) => {
     try {
-      const newConv = await SimoneSDK.chat.createConversation(title);
-      setConversations(prev => [newConv, ...prev]);
-      return newConv;
+      if (SERVER_MODE) {
+        const res = await fetch('/api/chat/conversations', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title })
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const c = await res.json();
+        const newConv = {
+          ...c,
+          createdAt: c.createdAt ? new Date(c.createdAt) : new Date(),
+          updatedAt: c.updatedAt ? new Date(c.updatedAt) : new Date(),
+          lastMessageAt: c.lastMessageAt ? new Date(c.lastMessageAt) : new Date(),
+          isArchived: !!c.isArchived,
+          isPinned: !!c.isPinned,
+          tags: c.tags || [],
+          metadata: c.metadata || { totalProcessingTime: 0, averageQuality: 0, topAgents: [], lastStyle: 'universal_chat', lastPriority: 'balanced' }
+        } as Conversation;
+        setConversations(prev => [newConv, ...prev]);
+        return newConv;
+      } else {
+        const newConv = await SimoneSDK.chat.createConversation(title);
+        setConversations(prev => [newConv, ...prev]);
+        return newConv;
+      }
     } catch (err) {
       console.error('Create conversation error:', err);
       throw err;
@@ -139,8 +179,14 @@ export function useConversations() {
 
   const deleteConversation = useCallback(async (id: string) => {
     try {
-      await SimoneSDK.chat.deleteConversation(id);
-      setConversations(prev => prev.filter(conv => conv.id !== id));
+      if (SERVER_MODE) {
+        const res = await fetch(`/api/chat/conversations/${encodeURIComponent(id)}`, { method: 'DELETE' });
+        if (!res.ok && res.status !== 204) throw new Error(`HTTP ${res.status}`);
+        setConversations(prev => prev.filter(conv => conv.id !== id));
+      } else {
+        await SimoneSDK.chat.deleteConversation(id);
+        setConversations(prev => prev.filter(conv => conv.id !== id));
+      }
     } catch (err) {
       console.error('Delete conversation error:', err);
       throw err;
@@ -172,8 +218,15 @@ export function useMessages(conversationId: string | null) {
     setIsLoading(true);
     setError(null);
     try {
-      const msgs = await SimoneSDK.chat.getMessages(convId);
-      setMessages(msgs);
+      if (SERVER_MODE) {
+        const res = await fetch(`/api/chat/messages/${encodeURIComponent(convId)}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        setMessages(data.messages || []);
+      } else {
+        const msgs = await SimoneSDK.chat.getMessages(convId);
+        setMessages(msgs);
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load messages';
       setError(errorMessage);
@@ -184,14 +237,47 @@ export function useMessages(conversationId: string | null) {
 
   const sendMessage = useCallback(async (content: string, options: MessageOptions) => {
     if (!conversationId) throw new Error('No conversation selected');
-    
     try {
-      const result = await SimoneSDK.chat.sendMessage(conversationId, content, options);
-      
-      // Optimistically add user message
-      setMessages(prev => [...prev, result.message]);
-      
-      return result;
+      if (SERVER_MODE) {
+        // Optimistically add user message
+        const userMessage: Message = {
+          id: `msg-${Date.now()}`,
+          conversationId,
+          userId: undefined,
+          content,
+          type: 'user',
+          timestamp: new Date(),
+          status: 'sent',
+          attachments: options.attachments || [],
+          reactions: [],
+          metadata: { style: options.style, priority: options.priority }
+        };
+        setMessages(prev => [...prev, userMessage]);
+        const res = await fetch('/api/chat/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ conversationId, text: content, style: options.style, priority: options.priority })
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (data.assistant) setMessages(prev => [...prev, {
+          id: data.assistant.id,
+          conversationId,
+          userId: undefined,
+          content: data.assistant.content,
+          type: 'assistant',
+          timestamp: new Date(data.assistant.timestamp || Date.now()),
+          status: 'delivered',
+          attachments: [],
+          reactions: [],
+          metadata: data.assistant.metadata || {}
+        }]);
+        return { message: userMessage, jobId: data.assistant?.metadata?.jobId || '' };
+      } else {
+        const result = await SimoneSDK.chat.sendMessage(conversationId, content, options);
+        setMessages(prev => [...prev, result.message]);
+        return result;
+      }
     } catch (err) {
       console.error('Send message error:', err);
       throw err;

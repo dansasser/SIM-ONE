@@ -712,6 +712,8 @@ class MockSimoneSDK implements ISimoneSDK {
  * Singleton instance of the SIM-ONE SDK
  * Replace MockSimoneSDK with actual SDK when ready
  */
+// Using the mock implementation for UI demo purposes.
+// The production SSR path should use server routes powered by @simone-ai/mcp-sdk.
 export const SimoneSDK: ISimoneSDK = new MockSimoneSDK();
 
 // ===== SDK UTILITIES =====

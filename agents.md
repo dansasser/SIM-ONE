@@ -4,7 +4,7 @@
 
 The SIM-ONE Framework implements the Five Laws of Cognitive Governance through a sophisticated multi-agent cognitive architecture. This MCP (Cognitive Control Protocol) Server provides the backbone for autonomous AI agents performing complex cognitive tasks.
 
-**Current Status:** 60% production ready - critical security vulnerabilities require immediate remediation.
+**Current Status:** 75% production ready - See [project_status.md](/code/mcp_server/project_status.md) for details on project status of the backend project.
 
 **Framework Principles:**
 - **Law 1: Architectural Intelligence** - Intelligence emerges from coordination and governance
@@ -14,6 +14,11 @@ The SIM-ONE Framework implements the Five Laws of Cognitive Governance through a
 - **Law 5: Deterministic Reliability** - Governed systems must produce consistent, predictable outcomes
 
 ## Architecture Overview
+
+**Code Base Location**
+- `/code/` (code root)
+- `/code/mcp_server/` (backend)
+- `/code/astro-chat-interface/` (frontend)
 
 **Core Components:**
 - **FastAPI Backend** with cognitive protocol orchestration

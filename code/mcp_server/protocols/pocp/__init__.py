@@ -11,7 +11,7 @@ from .pocp import (
     OutputQuality,
     OutputSpecification,
     FormattingRule,
-    ConstitutionalConstraint,
+    GovernanceConstraint,
     OutputMetrics
 )
 
@@ -23,6 +23,6 @@ __all__ = [
     'OutputQuality',
     'OutputSpecification',
     'FormattingRule',
-    'ConstitutionalConstraint',
+    'GovernanceConstraint',
     'OutputMetrics'
 ]

@@ -2,7 +2,7 @@
 POCP (Procedural Output Control Protocol)
 Output formatting and presentation control - stackable output governance for SIM-ONE Framework
 
-This protocol implements deterministic output formatting, constitutional constraint application,
+This protocol implements deterministic output formatting, Five Laws governance constraint application,
 and consistent presentation layer governance across all protocol outputs.
 """
 import logging
@@ -32,7 +32,7 @@ class OutputFormat(Enum):
     STRUCTURED = "structured"
 
 class OutputConstraint(Enum):
-    """Constitutional output constraints"""
+    """Five Laws governance output constraints"""
     CONTENT_SAFETY = "content_safety"
     FACTUAL_ACCURACY = "factual_accuracy"
     LOGICAL_CONSISTENCY = "logical_consistency"
@@ -85,8 +85,8 @@ class FormattingRule:
     constraint_type: OutputConstraint
 
 @dataclass
-class ConstitutionalConstraint:
-    """Constitutional constraint for output control"""
+class GovernanceConstraint:
+    """Five Laws governance constraint for output control"""
     name: str
     description: str
     validator_function: str
@@ -112,7 +112,7 @@ class ProceduralOutputControlProtocol:
     """
     Stackable protocol implementing Procedural Output Control
     
-    Provides deterministic output formatting, constitutional constraint application,
+    Provides deterministic output formatting, Five Laws governance constraint application,
     and consistent presentation layer governance that can be stacked onto any
     cognitive workflow to ensure consistent, high-quality outputs.
     """
@@ -121,7 +121,7 @@ class ProceduralOutputControlProtocol:
         """Initialize Procedural Output Control Protocol"""
         self.config = config or {}
         self.formatting_rules = {}  # rule_name -> FormattingRule
-        self.constitutional_constraints = {}  # constraint_name -> ConstitutionalConstraint
+        self.governance_constraints = {}  # constraint_name -> GovernanceConstraint
         self.output_templates = {}  # template_name -> template
         self.quality_validators = {}  # quality_level -> validator_function
         self.presentation_adapters = {}  # layer -> adapter_function
@@ -130,7 +130,7 @@ class ProceduralOutputControlProtocol:
         
         # Initialize core components
         self._initialize_formatting_rules()
-        self._initialize_constitutional_constraints()
+        self._initialize_governance_constraints()
         self._initialize_output_templates()
         self._initialize_quality_validators()
         self._initialize_presentation_adapters()
@@ -157,7 +157,7 @@ class ProceduralOutputControlProtocol:
             output_spec = self._extract_output_specification(data)
             
             # Apply output control phases
-            constraint_result = await self._apply_constitutional_constraints(protocol_outputs, output_spec)
+            constraint_result = await self._apply_governance_constraints(protocol_outputs, output_spec)
             formatting_result = await self._apply_formatting_rules(constraint_result, output_spec)
             presentation_result = await self._apply_presentation_layer(formatting_result, output_spec)
             quality_result = await self._apply_quality_control(presentation_result, output_spec)
@@ -234,9 +234,9 @@ class ProceduralOutputControlProtocol:
                 target_audience="general"
             )
     
-    async def _apply_constitutional_constraints(self, protocol_outputs: Dict[str, Any], 
+    async def _apply_governance_constraints(self, protocol_outputs: Dict[str, Any], 
                                               output_spec: OutputSpecification) -> Dict[str, Any]:
-        """Apply constitutional constraints to all protocol outputs"""
+        """Apply Five Laws governance constraints to all protocol outputs"""
         try:
             compliance_results = {}
             corrected_outputs = {}
@@ -575,9 +575,9 @@ class ProceduralOutputControlProtocol:
             )
         }
     
-    def _initialize_constitutional_constraints(self):
-        """Initialize constitutional constraints"""
-        self.constitutional_constraints = {
+    def _initialize_governance_constraints(self):
+        """Initialize Five Laws governance constraints"""
+        self.governance_constraints = {
             'content_safety': ConstitutionalConstraint(
                 name='content_safety',
                 description='Ensure content is safe and appropriate',

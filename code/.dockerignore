@@ -1,0 +1,96 @@
+# Docker ignore file for SIM-ONE MCP Server
+# Exclude unnecessary files from Docker build context
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.pytest_cache/
+
+# Virtual environments
+bin/
+include/
+lib/
+lib64/
+share/
+pyvenv.cfg
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Documentation
+*.md
+docs/
+
+# Configuration files with secrets
+.env
+.env.local
+.env.production
+*.pem
+*.key
+*.crt
+
+# Logs and data
+logs/
+*.log
+data/
+*.db
+*.sqlite
+
+# Test files
+tests/
+*_test.py
+test_*.py
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Node.js (if any frontend assets)
+node_modules/
+npm-debug.log*
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Security files
+api_keys.json
+security_events.log
+
+# Development tools
+.coverage
+.tox/
+.cache
+.pytest_cache/

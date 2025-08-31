@@ -14,7 +14,7 @@ class DrafterProtocol:
         self.neural_engine = NeuralEngine()
         # No longer instantiates MemoryManager
 
-    def execute(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    async def execute(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Executes the drafting workflow.
         """
@@ -51,7 +51,7 @@ class DrafterProtocol:
         )
 
         # 3. Generate the draft
-        draft_text = self.neural_engine.generate_text(prompt)
+        draft_text = await self.neural_engine.async_generate_text(prompt)
 
         return {"draft_text": draft_text}
 

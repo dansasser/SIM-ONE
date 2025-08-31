@@ -29,7 +29,8 @@ class OrchestrationEngine:
         session_id = context.get('session_id')
         if session_id:
             logger.info(f"Performing batch memory pull for session {session_id}")
-            context['batch_memory'] = self.memory_manager.get_all_memories(session_id)
+            loop = asyncio.get_running_loop()
+            context['batch_memory'] = await loop.run_in_executor(None, self.memory_manager.get_all_memories, session_id)
         else:
             context['batch_memory'] = []
 

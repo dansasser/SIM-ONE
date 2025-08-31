@@ -44,7 +44,7 @@ class IdeatorProtocol:
         )
 
         # 4. Use the Neural Engine to generate ideas
-        generated_text = self.neural_engine.generate_text(prompt)
+        generated_text = await self.neural_engine.async_generate_text(prompt)
 
         if "[Mock Summary]" in generated_text:
             ideas = ["1. Mock idea considering memory.", "2. Mock idea considering research."]

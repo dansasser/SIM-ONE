@@ -67,11 +67,22 @@ class SessionManager:
             logger.error(f"Error updating history for session {session_id}: {e}")
 
     def get_all_session_ids(self) -> List[str]:
+        """
+        Return a list of known session IDs (UUID strings).
+        Supports both plain UUID keys and keys with a 'session:' prefix.
+        """
         if not self.redis_client:
             return []
         try:
-            # Use scan_iter to avoid blocking the server with a large number of keys
-            return [key for key in self.redis_client.scan_iter("session:*")]
+            session_ids: List[str] = []
+            for key in self.redis_client.scan_iter("*"):
+                sid = key
+                if key.startswith("session:"):
+                    sid = key[len("session:"):]
+                # Heuristic: UUID v4 style with hyphens, length 36
+                if len(sid) == 36 and sid.count('-') == 4:
+                    session_ids.append(sid)
+            return session_ids
         except Exception as e:
             logger.error(f"Error getting all session IDs from Redis: {e}")
             return []

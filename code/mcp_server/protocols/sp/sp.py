@@ -13,7 +13,7 @@ class SP:
     def __init__(self):
         self.neural_engine = NeuralEngine()
 
-    def execute(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    async def execute(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Executes the summarization logic on the final draft.
 
@@ -46,7 +46,7 @@ class SP:
             "The summary should be a single, well-written paragraph."
         )
 
-        summary = self.neural_engine.generate_text(prompt)
+        summary = await self.neural_engine.async_generate_text(prompt)
 
         return {
             "summary": summary,

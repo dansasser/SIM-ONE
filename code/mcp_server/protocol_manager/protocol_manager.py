@@ -14,6 +14,7 @@ class ProtocolManager:
     def __init__(self, protocol_dir: str = "mcp_server/protocols"):
         self.protocol_dir = protocol_dir
         self.protocols: Dict[str, Any] = {}
+        self._instances: Dict[str, Any] = {}
         self.scan_protocols()
 
     def scan_protocols(self):
@@ -41,6 +42,10 @@ class ProtocolManager:
         Returns:
             An instance of the protocol class, or None if not found.
         """
+        # Return cached instance if available to avoid repeated construction cost
+        if name in self._instances:
+            return self._instances[name]
+
         manifest = self.protocols.get(name)
         if not manifest:
             logger.error(f"Protocol '{name}' not found.")
@@ -56,7 +61,9 @@ class ProtocolManager:
             module = importlib.import_module(module_path)
             protocol_class = getattr(module, class_name)
             logger.info(f"Loading protocol '{name}' from {entry_point}")
-            return protocol_class()
+            instance = protocol_class()
+            self._instances[name] = instance
+            return instance
         except (ImportError, AttributeError) as e:
             logger.error(f"Error loading protocol '{name}': {e}")
             return None

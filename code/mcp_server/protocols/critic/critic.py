@@ -4,6 +4,7 @@ from typing import Dict, Any, List
 
 from mcp_server.neural_engine.neural_engine import NeuralEngine
 from mcp_server.rag_manager.rag_manager import RAGManager
+from mcp_server.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -16,6 +17,8 @@ class CriticProtocol:
     def __init__(self):
         self.neural_engine = NeuralEngine()
         self.rag_manager = RAGManager()
+        # Limit concurrent fact-check research calls to keep tail latency stable
+        self._sem = asyncio.Semaphore(settings.CRITIC_FACTCHECK_MAX_CONCURRENCY)
 
     async def execute(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -46,7 +49,7 @@ class CriticProtocol:
             "You are an expert critical reviewer..." # Abbreviated for this change
         )
 
-        feedback_text = self.neural_engine.generate_text(critique_prompt)
+        feedback_text = await self.neural_engine.async_generate_text(critique_prompt)
 
         if "[Mock Summary]" in feedback_text:
             feedback_list = ["1. Mock critique based on memory.", "2. Mock fact-check passed."]
@@ -56,12 +59,24 @@ class CriticProtocol:
         return {"feedback": feedback_list}
 
     async def _fact_check_claims(self, claims: List[str], latency_info: Dict) -> Dict[str, str]:
-        logger.info(f"Critic: Fact-checking {len(claims)} claims.")
-        fact_check_results = {}
-        for claim in claims:
-            # Pass latency_info to the RAGManager
-            research_context = await self.rag_manager.perform_research(f"fact check: {claim}", latency_info, num_sources=1)
-            fact_check_results[claim] = research_context
+        logger.info(f"Critic: Fact-checking {len(claims)} claims (cap {settings.CRITIC_FACTCHECK_MAX_CONCURRENCY}).")
+
+        async def check_one(claim: str) -> str:
+            async with self._sem:
+                return await self.rag_manager.perform_research(
+                    f"fact check: {claim}", latency_info, num_sources=1
+                )
+
+        tasks = [asyncio.create_task(check_one(c)) for c in claims]
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+
+        fact_check_results: Dict[str, str] = {}
+        for claim, res in zip(claims, results):
+            if isinstance(res, Exception):
+                logger.warning(f"Critic: Fact-checking failed for claim '{claim}': {res}")
+                fact_check_results[claim] = "Error performing research."
+            else:
+                fact_check_results[claim] = res
         return fact_check_results
 
 if __name__ == '__main__':

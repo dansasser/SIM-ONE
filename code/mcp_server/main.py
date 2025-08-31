@@ -79,27 +79,25 @@ async def startup_event():
     
     # Initialize advanced database features
     try:
-        # Initialize search engine and vector storage
-        search_engine = await get_search_engine()
-        await search_engine.initialize_search_indexes()
-        logger.info("Search engine initialized")
-        
-        vector_engine = await get_vector_engine()
-        await vector_engine.initialize_vector_storage()
-        logger.info("Vector search engine initialized")
-        
-        # Initialize schema manager
-        schema_manager = await get_schema_manager()
-        await schema_manager.initialize()
-        logger.info("Schema manager initialized")
-        
-        # Start connection monitoring
-        connection_monitor = await get_connection_monitor()
-        await connection_monitor.start_monitoring()
-        logger.info("Connection monitoring started")
-        
+        # Fetch managers concurrently
+        search_engine_coro = get_search_engine()
+        vector_engine_coro = get_vector_engine()
+        schema_manager_coro = get_schema_manager()
+        connection_monitor_coro = get_connection_monitor()
+
+        search_engine, vector_engine, schema_manager, connection_monitor = await asyncio.gather(
+            search_engine_coro, vector_engine_coro, schema_manager_coro, connection_monitor_coro
+        )
+
+        # Initialize services concurrently
+        await asyncio.gather(
+            search_engine.initialize_search_indexes(),
+            vector_engine.initialize_vector_storage(),
+            schema_manager.initialize(),
+            connection_monitor.start_monitoring(),
+        )
+
         logger.info("Advanced database features initialized successfully")
-        
     except Exception as e:
         logger.error(f"Failed to initialize advanced database features: {e}")
     
@@ -155,8 +153,6 @@ async def execute_workflow(
     advanced_validate_input(workflow_request.model_dump())
     start_time = time.time()
     sid = workflow_request.session_id or session_manager.create_session(user_id=user["user_id"])
-    workflow_context = workflow_request.initial_data.copy()
-    workflow_context['session_id'] = sid
     workflow_context = workflow_request.initial_data.copy()
     workflow_context['session_id'] = sid
 

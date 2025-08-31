@@ -1,7 +1,7 @@
-import requests
 import json
 import logging
 from bs4 import BeautifulSoup
+import httpx
 
 from mcp_server.config import settings # Import the settings object
 
@@ -17,13 +17,14 @@ async def google_search(query: str) -> str:
         raise ValueError("SERPER_API_KEY is not configured.")
 
     url = "https://google.serper.dev/search"
-    payload = json.dumps({"q": query})
-    headers = {'X-API-KEY': api_key, 'Content-Type': 'application/json'}
+    payload = {"q": query}
+    headers = {"X-API-KEY": api_key, "Content-Type": "application/json"}
 
     try:
-        response = requests.post(url, headers=headers, data=payload)
-        response.raise_for_status()
-        search_results = response.json()
+        async with httpx.AsyncClient(timeout=httpx.Timeout(10.0, read=15.0)) as client:
+            resp = await client.post(url, headers=headers, json=payload)
+            resp.raise_for_status()
+            search_results = resp.json()
 
         output = ""
         if "organic" in search_results:
@@ -39,19 +40,20 @@ async def view_text_website(url: str) -> str:
     Fetches the content of a website and returns it as plain text.
     """
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
     }
     try:
-        response = requests.get(url, headers=headers, timeout=10)
-        response.raise_for_status()
+        async with httpx.AsyncClient(timeout=httpx.Timeout(10.0, read=20.0), follow_redirects=True) as client:
+            resp = await client.get(url, headers=headers)
+            resp.raise_for_status()
+            html_text = resp.text
 
-        soup = BeautifulSoup(response.text, 'html.parser')
-
+        soup = BeautifulSoup(html_text, "html.parser")
         for script_or_style in soup(["script", "style"]):
             script_or_style.decompose()
 
-        text = soup.get_text(separator=' ', strip=True)
-        return ' '.join(text.split())
+        text = soup.get_text(separator=" ", strip=True)
+        return " ".join(text.split())
     except Exception as e:
         logger.error(f"Error viewing website {url}: {e}")
         return f"Error retrieving content from {url}."

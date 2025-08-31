@@ -1,7 +1,5 @@
 import logging
-from typing import Dict, Any, List
-
-import logging
+import asyncio
 from typing import Dict, Any, List
 from llama_cpp import Llama
 
@@ -44,6 +42,11 @@ class LocalModelEngine:
         except Exception as e:
             logger.error(f"Error during local model generation: {e}")
             return f"[Error]: Could not generate text from local model."
+
+    async def async_generate_text(self, prompt: str, model: str = None) -> str:
+        """Async wrapper to avoid blocking the event loop for local models."""
+        loop = asyncio.get_running_loop()
+        return await loop.run_in_executor(None, self.generate_text, prompt, model)
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)

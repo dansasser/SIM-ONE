@@ -20,6 +20,10 @@ class Settings(BaseSettings):
     LOCAL_MODEL_PATH: str = "models/llama-3.1-8b.gguf"
     SERPER_API_KEY: Optional[str] = os.getenv("SERPER_API_KEY")
     ALLOWED_ORIGINS: List[str] = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(',')
+    # RAG concurrency control
+    RAG_MAX_CONCURRENCY: int = int(os.getenv("RAG_MAX_CONCURRENCY", 8))
+    # Critic fact-check concurrency cap
+    CRITIC_FACTCHECK_MAX_CONCURRENCY: int = int(os.getenv("CRITIC_FACTCHECK_MAX_CONCURRENCY", 3))
 
 settings = Settings()
 

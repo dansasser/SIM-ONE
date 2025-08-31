@@ -60,7 +60,7 @@ class RevisorProtocol:
         )
 
         # 4. Generate the revised draft
-        revised_draft = self.neural_engine.generate_text(revision_prompt)
+        revised_draft = await self.neural_engine.async_generate_text(revision_prompt)
 
         return {"revised_draft_text": revised_draft}
 

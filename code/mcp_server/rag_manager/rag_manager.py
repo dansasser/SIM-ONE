@@ -7,6 +7,7 @@ from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 from mcp_server.protocols.hip.hip import HIPProtocol
 from mcp_server.tools import google_search, view_text_website # Import the real tools
+from mcp_server.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +20,8 @@ class RAGManager:
     def __init__(self):
         self.hip_protocol = HIPProtocol()
         self.cache: Dict[str, str] = {}
+        # Concurrency limiter for outbound fetches
+        self._sem = asyncio.Semaphore(settings.RAG_MAX_CONCURRENCY)
 
     def _get_adaptive_depth(self, latency_info: Dict) -> int:
         # ... (same as before)
@@ -63,7 +66,7 @@ class RAGManager:
                 tasks[url] = future
             else:
                 logger.info(f"RAGManager: Cache MISS for {url}. Fetching...")
-                tasks[url] = asyncio.create_task(view_text_website(url))
+                tasks[url] = asyncio.create_task(self._fetch_with_limit(url))
         await asyncio.wait(tasks.values())
         current_level_context = ""
         next_level_urls: List[str] = []
@@ -83,6 +86,10 @@ class RAGManager:
                 logger.warning(f"RAGManager: Failed to process URL {url}: {e}")
         deeper_context = await self._recursive_fetch(next_level_urls, depth - 1, visited_urls)
         return current_level_context + deeper_context
+
+    async def _fetch_with_limit(self, url: str) -> str:
+        async with self._sem:
+            return await view_text_website(url)
 
 if __name__ == '__main__':
     pass

@@ -4,7 +4,7 @@
 [![Implementation](https://img.shields.io/badge/Implementation-Working_Code-brightgreen.svg)](./code/)
 [![Python](https://img.shields.io/badge/Python-32k+_Lines-blue.svg)](./code/)
 [![Protocols](https://img.shields.io/badge/Protocols-18+_Implemented-purple.svg)](./code/mcp_server/protocols/)
-[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE.md)
+[![License: Dual](https://img.shields.io/badge/License-AGPL_v3_|_Commercial-blue.svg)](LICENSE)
 [![Commercial: Available](https://img.shields.io/badge/Commercial-Available-brightgreen.svg)](LICENSE.md#6-how-to-obtain-a-commercial-license)
 [![Security Policy](https://img.shields.io/badge/Security-Policy-important.svg)](SECURITY.md)
 [![Author: Daniel T. Sasser II](https://img.shields.io/badge/Author-Daniel_T._Sasser_II-orange.svg)](https://dansasser.me/)
@@ -299,8 +299,31 @@ We welcome:
 
 ## License
 
-This project is licensed under the terms of the **MIT License**.  
-See the [`LICENSE`](./LICENSE) file for full details.
+The SIM-ONE Framework is provided under a **dual-license model**:
+
+### 🆓 **Non-Commercial Use (AGPL v3)**
+- **FREE** for research, education, personal projects, and non-profit use
+- Strong copyleft requirements - modifications must be shared
+- Network services must provide source code to users
+- Perfect for academic research and open-source projects
+
+### 💼 **Commercial Use (Paid License)**
+- Required for any revenue-generating use including:
+  - SaaS or hosted services
+  - Integration into commercial products
+  - Any use resulting in monetary compensation
+- Proprietary modifications allowed (no copyleft)
+- Includes support, updates, and training services
+- Annual fees based on company size + 10% revenue share
+
+### 📋 **License Summary**
+- **Startups** (<$1M revenue): $5,000/year + 10% revenue share
+- **SME** (<$10M revenue): $25,000/year + 10% revenue share  
+- **Enterprise** (≥$10M revenue): $100,000/year + 10% revenue share
+
+**📄 See the complete [`LICENSE`](./LICENSE) file for full terms and conditions.**
+
+**❓ Questions about licensing?** Contact: **Daniel T. Sasser II** via [dansasser.me](https://dansasser.me)
 
 ---
 

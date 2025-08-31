@@ -1,0 +1,30 @@
+{
+  "name": "RealTimeMonitoringProtocol",
+  "version": "1.0.0",
+  "entryPoint": "mcp_server.protocols.monitoring.real_time_monitor.RealTimeMonitorProtocol",
+  "type": "Monitoring",
+  "description": "Comprehensive real-time monitoring and compliance stack for the SIM-ONE Framework",
+  "dependencies": [
+    "psutil>=5.8.0",
+    "numpy>=1.21.0"
+  ],
+  "resourceRequirements": {
+    "cpu": "100m",
+    "memory": "128Mi"
+  },
+  "capabilities": [
+    "real_time_monitoring",
+    "system_health_tracking",
+    "performance_analysis", 
+    "five_laws_compliance",
+    "alert_management",
+    "predictive_analysis"
+  ],
+  "configuration": {
+    "monitoring_level": "standard",
+    "collection_interval": 1.0,
+    "data_retention_hours": 24,
+    "enable_predictive_analysis": true,
+    "enable_auto_recovery": true
+  }
+}

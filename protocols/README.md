@@ -22,7 +22,8 @@ They are intentionally designed to be **transparent about what each protocol doe
 | 7  | **REP — Reasoning and Explanation Protocol** | [`REP_PROTOCOL.md`](./REP_PROTOCOL.md) | Governs structured reasoning and transparent explanation generation for traceable decision‑making. |
 | 8  | **VVP — Verification and Validation Protocol** | [`VVP_PROTOCOL.md`](./VVP_PROTOCOL.md) | Acts as the final quality assurance gate, verifying factual, logical, and stylistic integrity. |
 | 9  | **MTP — Memory Tagger Protocol** | [`MTP_PROTOCOL.md`](./MTP_PROTOCOL.md) | Manages governed memory storage, retrieval, and context preservation for long‑term system learning. |
-| 10 | **SP — Summarizer Protocol** | [`SP_PROTOCOL.md`](./SP_PROTOCOL.md) | Produces final, polished, and audience‑ready outputs from all preceding governance processes. |
+| 10 | **SEP — Semantic Encoding Protocol** | [`SEP_PROTOCOL.md`](./SEP_PROTOCOL.md) | Provides lightweight semantic embeddings for enhanced RAG capabilities while maintaining architectural purity. |
+| 11 | **SP — Summarizer Protocol** | [`SP_PROTOCOL.md`](./SP_PROTOCOL.md) | Produces final, polished, and audience‑ready outputs from all preceding governance processes. |
 
 ---
 

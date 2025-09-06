@@ -16,7 +16,7 @@ import asyncio
 import json
 from pathlib import Path
 
-from mcp_server.protocols.base_protocol import BaseProtocol
+from .base_protocol import BaseProtocol
 from .embedding_cache import EmbeddingCache
 from .encoder_models import EncoderModelManager
 

@@ -1,0 +1,39 @@
+# SIM-ONE Framework Development Requirements
+# Phase 0: Baseline Infrastructure and Development Environment
+
+# Benchmarking and profiling
+psutil>=5.9.0
+numpy>=1.24.0
+pytest-benchmark>=4.0.0
+py-spy>=0.3.14
+scalene>=1.5.26
+memory-profiler>=0.60.0
+
+# Rust integration
+maturin>=1.3.0
+setuptools-rust>=1.7.0
+
+# Data analysis
+pandas>=2.0.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Async support
+asyncio-throttle>=1.0.2
+aiofiles>=23.2.1
+
+# Optional GPU acceleration (install manually if needed)
+# cupy-cuda12x>=12.2.0
+# torch>=2.1.0
+
+# Testing and quality
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.1.0
+black>=23.7.0
+isort>=5.12.0
+flake8>=6.0.0
+
+# Documentation
+mkdocs>=1.5.0
+mkdocs-material>=9.2.0

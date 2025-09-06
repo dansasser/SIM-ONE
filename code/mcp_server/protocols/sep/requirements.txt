@@ -1,0 +1,25 @@
+# Semantic Encoding Protocol (SEP) Dependencies
+# Core dependencies for lightweight transformer-based semantic embeddings
+
+# Primary embedding models (lightweight transformers)
+sentence-transformers>=2.2.0,<3.0.0
+
+# Scientific computing and vector operations
+numpy>=1.21.0,<2.0.0
+scipy>=1.7.0,<2.0.0
+
+# Machine learning utilities
+scikit-learn>=1.0.0,<2.0.0
+
+# Database and caching
+aiosqlite>=0.17.0,<1.0.0
+
+# Optional: Advanced model support
+# torch>=1.9.0,<3.0.0  # Uncomment if using PyTorch models
+# transformers>=4.20.0,<5.0.0  # Uncomment for Hugging Face transformers
+
+# Development and testing (optional)
+# pytest>=7.0.0
+# pytest-asyncio>=0.21.0
+# pytest-cov>=4.0.0
+

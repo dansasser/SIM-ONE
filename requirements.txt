@@ -1,0 +1,7 @@
+# SIM-ONE Framework Production Requirements
+# Core dependencies for deployed system
+
+numpy>=1.24.0
+psutil>=5.9.0
+
+# Add production-specific requirements here

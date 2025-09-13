@@ -139,12 +139,13 @@ class WorkflowResponse(BaseModel):
     results: Dict[str, Any]
     error: Optional[str] = None
     execution_time_ms: float
+    governance_summary: Optional[Dict[str, Any]] = None
 
 # --- API Endpoints ---
 from mcp_server.middleware.auth_middleware import get_api_key, RoleChecker
 
 @app.post("/execute", response_model=WorkflowResponse, tags=["Orchestration"], dependencies=[Depends(RoleChecker(["admin", "user"]))])
-@limiter.limit("20/minute") # Increased limit slightly
+@limiter.limit(settings.RATE_LIMIT_EXECUTE)
 async def execute_workflow(
     request: Request,
     workflow_request: WorkflowRequest,
@@ -181,6 +182,20 @@ async def execute_workflow(
 
     final_context = await orchestration_engine.execute_workflow(workflow_def, workflow_context)
 
+    # Prepare summarized governance diagnostics (non-sensitive)
+    governance = final_context.get("governance") or {}
+    quality = governance.get("quality") or {}
+    quality_scores = {}
+    if isinstance(quality, dict):
+        for p, q in quality.items():
+            if isinstance(q, dict) and "quality_score" in q:
+                quality_scores[p] = q.get("quality_score")
+    coherence = governance.get("coherence")
+    is_coherent = None
+    if isinstance(coherence, dict) and "is_coherent" in coherence:
+        is_coherent = bool(coherence.get("is_coherent"))
+    governance_summary = {"quality_scores": quality_scores, "is_coherent": is_coherent}
+
     if "error" in final_context:
         # Handle errors returned from the orchestration engine
         error_detail = final_context.pop("error")
@@ -188,7 +203,15 @@ async def execute_workflow(
         # For now, we'll return it in the response, but not as a 500 error
         end_time = time.time()
         execution_time_ms = (end_time - start_time) * 1000
-        return WorkflowResponse(session_id=sid, results=final_context, error=error_detail, execution_time_ms=execution_time_ms)
+        # Audit summary on error
+        logging.getLogger("audit").info({
+            "event": "execute_completed",
+            "user_id": user.get("user_id"),
+            "session_id": sid,
+            "governance_summary": governance_summary,
+            "error": error_detail
+        })
+        return WorkflowResponse(session_id=sid, results=final_context, error=error_detail, execution_time_ms=execution_time_ms, governance_summary=governance_summary)
 
     if session_manager.redis_client:
         history = session_manager.get_history(sid) or []
@@ -197,19 +220,30 @@ async def execute_workflow(
 
     end_time = time.time()
     execution_time_ms = (end_time - start_time) * 1000
-    return WorkflowResponse(session_id=sid, results=final_context, error=None, execution_time_ms=execution_time_ms)
+    # Audit successful execution summary
+    logging.getLogger("audit").info({
+        "event": "execute_completed",
+        "user_id": user.get("user_id"),
+        "session_id": sid,
+        "governance_summary": governance_summary,
+        "error": None
+    })
+    return WorkflowResponse(session_id=sid, results=final_context, error=None, execution_time_ms=execution_time_ms, governance_summary=governance_summary)
 
 # ... (other endpoints are the same) ...
 @app.get("/", tags=["Status"])
 async def root(): return {"message": "mCP Server is running."}
 
 @app.get("/protocols", tags=["Protocols"], dependencies=[Depends(RoleChecker(["admin", "user", "read-only"]))])
+@limiter.limit(settings.RATE_LIMIT_PROTOCOLS)
 async def list_protocols(): return protocol_manager.protocols
 
 @app.get("/templates", tags=["Workflows"], dependencies=[Depends(RoleChecker(["admin", "user", "read-only"]))])
+@limiter.limit(settings.RATE_LIMIT_TEMPLATES)
 async def list_templates(): return workflow_template_manager.templates
 
 @app.get("/session/{session_id}", tags=["Sessions"], dependencies=[Depends(RoleChecker(["admin", "user"]))])
+@limiter.limit(settings.RATE_LIMIT_SESSION)
 async def get_session_history(session_id: str, user: dict = Depends(get_api_key)):
     session_owner = session_manager.get_session_owner(session_id)
 
@@ -268,6 +302,7 @@ async def health_check_detailed():
     return HealthStatus(status=status, services=services)
 
 @app.get("/metrics", tags=["Health"], dependencies=[Depends(RoleChecker(["admin"]))])
+@limiter.limit(settings.RATE_LIMIT_METRICS)
 async def get_metrics():
     """
     Returns a collection of system and application metrics.
@@ -275,6 +310,39 @@ async def get_metrics():
     """
     collector = MetricsCollector()
     return collector.get_all_metrics()
+
+# --- Admin: API Key Lifecycle ---
+from pydantic import BaseModel
+
+class CreateApiKeyRequest(BaseModel):
+    api_key: str
+    role: Literal['admin','user','read-only'] = 'user'
+    user_id: Optional[str] = None
+
+@app.get("/admin/api-keys", tags=["Admin"], dependencies=[Depends(RoleChecker(["admin"]))])
+@limiter.limit("20/minute")
+async def list_api_keys():
+    from mcp_server.security.key_manager import load_api_keys
+    # Return without hashes for safety
+    keys = load_api_keys()
+    return [{"role": k.get("role"), "user_id": k.get("user_id") } for k in keys]
+
+@app.post("/admin/api-keys", tags=["Admin"], dependencies=[Depends(RoleChecker(["admin"]))])
+@limiter.limit("10/minute")
+async def create_api_key(req: CreateApiKeyRequest):
+    from mcp_server.security import key_manager
+    user_id = req.user_id or f"user_{hash(req.api_key) & 0xffffffff:08x}"  # stable synthetic id
+    key_manager.add_api_key(req.api_key, req.role, user_id)
+    return {"success": True, "role": req.role, "user_id": user_id}
+
+@app.delete("/admin/api-keys/{user_id}", tags=["Admin"], dependencies=[Depends(RoleChecker(["admin"]))])
+@limiter.limit("10/minute")
+async def delete_api_key(user_id: str):
+    from mcp_server.security.key_manager import remove_api_key_by_user_id
+    removed = remove_api_key_by_user_id(user_id)
+    if not removed:
+        raise HTTPException(status_code=404, detail="API key not found")
+    return {"success": True, "user_id": user_id}
 
 # --- Database Management Endpoints ---
 from mcp_server.database.backup_manager import backup_manager

@@ -6,6 +6,7 @@ try:
 except Exception:  # pragma: no cover - older clients may not have AsyncOpenAI
     AsyncOpenAI = None
 from .local_engine import LocalModelEngine
+from .mvlm_engine import MVLMEngine
 from mcp_server.config import settings # Import the settings object
 
 logger = logging.getLogger(__name__)
@@ -109,6 +110,17 @@ def NeuralEngine():
             logger.warning("Local model probe failed; falling back to MockEngine.")
             return MockEngine()
         return engine
+
+    if backend == "mvlm":
+        logger.info("Using MVLMEngine backend.")
+        try:
+            engine = MVLMEngine(model_path=settings.LOCAL_MODEL_PATH)
+            # Lightweight probe
+            _ = engine.generate_text("ping")
+            return engine
+        except Exception as e:
+            logger.warning(f"MVLMEngine initialization failed; using MockEngine. Error: {e}")
+            return MockEngine()
 
     # Default: OpenAI, but fall back to mock if API key missing
     if not settings.OPENAI_API_KEY:

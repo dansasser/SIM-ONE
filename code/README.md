@@ -70,6 +70,30 @@ For detailed, step-by-step installation instructions for various platforms and p
 
 The server is configured entirely through environment variables. For a full list of all required and optional variables, their purpose, and example values, please see the [Configuration Guide](./docs/CONFIGURATION.md).
 
+## Security & Governance
+
+The mCP Server includes a governance layer and structured audit logging. Enable and tune these with environment flags:
+
+- Governance
+  - `GOV_ENABLE` (default: `true`): Toggles governance evaluation.
+  - `GOV_MIN_QUALITY` (default: `0.6`): Minimum acceptable protocol quality score; lower values are flagged.
+  - `GOV_REQUIRE_COHERENCE` (default: `false`): If `true`, incoherence triggers a single retry of the step; persistent incoherence aborts the workflow with an error.
+- Rate limiting (per endpoint)
+  - `RATE_LIMIT_EXECUTE` (default: `20/minute`)
+  - `RATE_LIMIT_PROTOCOLS` (default: `60/minute`)
+  - `RATE_LIMIT_TEMPLATES` (default: `60/minute`)
+  - `RATE_LIMIT_SESSION` (default: `30/minute`)
+  - `RATE_LIMIT_METRICS` (default: `10/minute`)
+
+Audit logs are emitted in JSON format by a dedicated `audit` logger:
+
+- File: `security_events.log` (rotated daily; 14 backups)
+- Location: server working directory (when running from this repo, see `code/security_events.log`)
+- Event examples: `recovery_decision`, `governance_incoherence_detected`, `governance_abort`, `execute_completed`
+- No sensitive content is logged; governance summaries include aggregate scores and booleans only.
+
+Tip: Responses from `/execute` include a `governance_summary` field with `quality_scores` and `is_coherent` for quick inspection.
+
 ## API Documentation
 
 The server exposes a powerful API for executing cognitive workflows. For detailed information on all available endpoints, request/response formats, authentication, and usage examples, please refer to our full [API Documentation](./docs/API_DOCUMENTATION.md).

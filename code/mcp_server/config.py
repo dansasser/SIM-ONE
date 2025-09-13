@@ -25,6 +25,18 @@ class Settings(BaseSettings):
     # Critic fact-check concurrency cap
     CRITIC_FACTCHECK_MAX_CONCURRENCY: int = int(os.getenv("CRITIC_FACTCHECK_MAX_CONCURRENCY", 3))
 
+    # Governance controls
+    GOV_ENABLE: bool = os.getenv("GOV_ENABLE", "true").lower() in ("1", "true", "yes")
+    GOV_MIN_QUALITY: float = float(os.getenv("GOV_MIN_QUALITY", 0.6))
+    GOV_REQUIRE_COHERENCE: bool = os.getenv("GOV_REQUIRE_COHERENCE", "false").lower() in ("1", "true", "yes")
+
+    # Rate limits (per endpoint)
+    RATE_LIMIT_EXECUTE: str = os.getenv("RATE_LIMIT_EXECUTE", "20/minute")
+    RATE_LIMIT_PROTOCOLS: str = os.getenv("RATE_LIMIT_PROTOCOLS", "60/minute")
+    RATE_LIMIT_TEMPLATES: str = os.getenv("RATE_LIMIT_TEMPLATES", "60/minute")
+    RATE_LIMIT_SESSION: str = os.getenv("RATE_LIMIT_SESSION", "30/minute")
+    RATE_LIMIT_METRICS: str = os.getenv("RATE_LIMIT_METRICS", "10/minute")
+
 settings = Settings()
 
 if __name__ == '__main__':

@@ -2,6 +2,7 @@ import os
 import json
 import hashlib
 from typing import List, Dict, Optional
+from datetime import datetime
 
 API_KEYS_FILE = "api_keys.json"
 SALT = os.urandom(16).hex()  # Generate a random salt
@@ -32,8 +33,24 @@ def add_api_key(api_key: str, role: str, user_id: str) -> None:
     """Adds a new API key to the store."""
     keys = load_api_keys()
     hashed_key = hash_api_key(api_key, SALT)
-    keys.append({"hash": hashed_key, "role": role, "user_id": user_id, "salt": SALT})
+    keys.append({
+        "hash": hashed_key,
+        "role": role,
+        "user_id": user_id,
+        "salt": SALT,
+        "created_at": datetime.utcnow().isoformat() + "Z"
+    })
     save_api_keys(keys)
+
+def remove_api_key_by_user_id(user_id: str) -> bool:
+    """Removes API key(s) for a given user_id. Returns True if any removed."""
+    keys = load_api_keys()
+    before = len(keys)
+    keys = [k for k in keys if k.get("user_id") != user_id]
+    if len(keys) < before:
+        save_api_keys(keys)
+        return True
+    return False
 
 def validate_api_key(api_key: str) -> Optional[Dict[str, str]]:
     """

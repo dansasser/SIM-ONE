@@ -88,3 +88,40 @@ If you discover a vulnerability in our build or release process, report it throu
 security@gorombo.com
 
 For commercial customers with support contracts, use your support channel in addition to the email above.
+
+## Audit Logging
+
+The backend emits structured JSON logs for security‑relevant events.
+
+- Audit destination: `security_events.log` (daily rotation, 14 backups)
+- App logs: `code/mcp_server/mcp_server.log` (daily rotation, 7 backups)
+- Format: JSON with common fields (`timestamp`, `level`, `logger`, `module`, `funcName`, `lineNo`) plus event payload.
+- Event types (non‑exhaustive):
+  - `recovery_decision`: protocol recovery action chosen (`action`, `retry_count`, `reason`).
+  - `governance_incoherence_detected`: incoherence found; may trigger a retry.
+  - `governance_abort`: workflow aborted due to incoherence after retry.
+  - `execute_completed`: summary of `/execute` including `user_id`, `session_id`, and `governance_summary`.
+
+Personally identifiable or sensitive content is not logged; summaries include aggregate governance scores and booleans only.
+
+## Security Configuration Flags
+
+Environment flags can strengthen or tune runtime protections. Update `code/mcp_server/.env` accordingly.
+
+- Governance
+  - `GOV_ENABLE` (default: `true`): Toggle governance evaluation.
+  - `GOV_MIN_QUALITY` (default: `0.6`): Minimum acceptable quality score per protocol; below threshold is flagged.
+  - `GOV_REQUIRE_COHERENCE` (default: `false`): If `true`, incoherence triggers a single retry then aborts the workflow on persistent failure.
+
+- Rate Limiting (per endpoint)
+  - `RATE_LIMIT_EXECUTE` (default: `20/minute`)
+  - `RATE_LIMIT_PROTOCOLS` (default: `60/minute`)
+  - `RATE_LIMIT_TEMPLATES` (default: `60/minute`)
+  - `RATE_LIMIT_SESSION` (default: `30/minute`)
+  - `RATE_LIMIT_METRICS` (default: `10/minute`)
+
+- CORS & External Services
+  - `ALLOWED_ORIGINS`: Comma‑separated list of allowed origins (no wildcards in production).
+  - `OPENAI_API_KEY`, `SERPER_API_KEY`: External API credentials (omit in development if using mock engines).
+
+Changes to these flags should be reviewed for security impact prior to production rollout. In particular, enabling `GOV_REQUIRE_COHERENCE` can cause workflows to abort early by design; ensure clients handle non‑200 results and the `error` field in responses.

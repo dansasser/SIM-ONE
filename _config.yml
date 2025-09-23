@@ -1,0 +1,21 @@
+exclude:
+  - node_modules/
+  - .github/
+  - .gitignore
+  - .env*
+  - requirements*.txt
+  - Dockerfile
+  - docker-compose*.yml
+  - Makefile
+  - *.py
+  - *.pyc
+  - *.log
+  - code/astro-chat-interface/
+  - code/mcp_server/
+  - code/packages/
+  - code/config/
+  - code/__pycache__/
+  - code/*.py
+  - code/*.pyc
+  - code/*.env*
+  - code/*.log

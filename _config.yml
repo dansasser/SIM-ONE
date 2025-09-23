@@ -7,9 +7,9 @@ exclude:
   - Dockerfile
   - docker-compose*.yml
   - Makefile
-  - *.py
-  - *.pyc
-  - *.log
+  - "*.py"
+  - "*.pyc"
+  - "*.log"
   - code/astro-chat-interface/
   - code/mcp_server/
   - code/packages/

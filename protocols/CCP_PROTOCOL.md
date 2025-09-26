@@ -72,7 +72,7 @@ CCP operates as the **central nervous system** for cognitive governance in SIMâ€
 
 ## Notes on Implementation
 
-The detailed orchestration logic, data structures, and algorithmic selection processes are **not public** to protect proprietary methods.
-This documentation provides the **governance role and conceptual structure** of CCP without exposing implementation details.
+The detailed orchestration logic, data structures, and algorithmic selection processes are available in the repository's implementation under the dual-license model.
+This documentation provides the **governance role and conceptual structure** of CCP, with full implementation details available in the codebase.
 
 

@@ -73,5 +73,5 @@ EEP operates as a **cross‑cutting governance layer**:
 
 ## Notes on Implementation
 
-Specific algorithmic strategies, optimization formulas, and system‑level efficiency techniques are **not disclosed publicly** to protect proprietary intellectual property.
+Specific algorithmic strategies, optimization formulas, and system‑level efficiency techniques are available in the repository's implementation under the dual-license model.
 This documentation focuses on EEP’s **governance role, conceptual purpose, and integration philosophy** within SIM‑ONE.

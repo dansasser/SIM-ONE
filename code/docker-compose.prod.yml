@@ -123,7 +123,12 @@ services:
       - APP_VERSION=${VERSION:-1.5.0}
       - REDIS_HOST=redis-master
       - REDIS_PORT=6379
-      - NEURAL_ENGINE_BACKEND=${NEURAL_ENGINE_BACKEND:-openai}
+      - NEURAL_ENGINE_BACKEND=${NEURAL_ENGINE_BACKEND:-mvlm}
+      - MVLM_MODEL_DIRS=${MVLM_MODEL_DIRS:-main:/app/models/mvlm_gpt2/mvlm_final}
+      - ACTIVE_MVLM_MODEL=${ACTIVE_MVLM_MODEL:-main}
+      - METRICS_PUBLIC=${METRICS_PUBLIC:-true}
+      - PROTOCOL_TIMEOUT_MS=${PROTOCOL_TIMEOUT_MS:-10000}
+      - MAX_PARALLEL_PROTOCOLS=${MAX_PARALLEL_PROTOCOLS:-4}
       
       # PostgreSQL configuration
       - POSTGRES_HOST=postgres-master
@@ -145,6 +150,7 @@ services:
     volumes:
       - ./logs:/app/logs
       - ./data:/app/data
+      - ./models:/app/models:ro
     depends_on:
       redis-master:
         condition: service_healthy
@@ -154,6 +160,11 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
     networks:
       - simone-network
 
@@ -175,7 +186,12 @@ services:
       - APP_VERSION=${VERSION:-1.5.0}
       - REDIS_HOST=redis-master
       - REDIS_PORT=6379
-      - NEURAL_ENGINE_BACKEND=${NEURAL_ENGINE_BACKEND:-openai}
+      - NEURAL_ENGINE_BACKEND=${NEURAL_ENGINE_BACKEND:-mvlm}
+      - MVLM_MODEL_DIRS=${MVLM_MODEL_DIRS:-main:/app/models/mvlm_gpt2/mvlm_final}
+      - ACTIVE_MVLM_MODEL=${ACTIVE_MVLM_MODEL:-main}
+      - METRICS_PUBLIC=${METRICS_PUBLIC:-true}
+      - PROTOCOL_TIMEOUT_MS=${PROTOCOL_TIMEOUT_MS:-10000}
+      - MAX_PARALLEL_PROTOCOLS=${MAX_PARALLEL_PROTOCOLS:-4}
       - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - VALID_API_KEYS=${VALID_API_KEYS}
@@ -184,6 +200,7 @@ services:
     volumes:
       - ./logs:/app/logs
       - ./data:/app/data
+      - ./models:/app/models:ro
     depends_on:
       redis-master:
         condition: service_healthy
@@ -193,6 +210,11 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
     networks:
       - simone-network
 

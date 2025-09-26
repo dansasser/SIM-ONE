@@ -11,6 +11,7 @@ from mcp_server.cognitive_governance_engine.governance_orchestrator import Gover
 from mcp_server.cognitive_governance_engine.error_recovery.recovery_strategist import RecoveryStrategist
 from mcp_server.cognitive_governance_engine.error_recovery.resilience_monitor import ResilienceMonitor
 from mcp_server.config import settings
+from mcp_server.metrics import governance_metrics as govm
 
 logger = logging.getLogger(__name__)
 
@@ -24,9 +25,16 @@ class OrchestrationEngine:
         self.resource_manager = resource_manager
         self.memory_manager = memory_manager
         self.executor = ThreadPoolExecutor()
+        self.parallel_sem = asyncio.Semaphore(settings.MAX_PARALLEL_PROTOCOLS)
         self.governance = GovernanceOrchestrator()
         self.recovery = RecoveryStrategist(max_retries=2)
         self.resilience_monitor = ResilienceMonitor()
+        # Per-protocol timeout overrides
+        self._timeouts = {}
+        try:
+            self._timeouts = self._parse_protocol_timeouts(getattr(settings, 'PROTOCOL_TIMEOUTS_MS', ''))
+        except Exception:
+            self._timeouts = {}
 
     async def execute_workflow(self, workflow_def: List[Dict[str, Any]], context: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -73,6 +81,7 @@ class OrchestrationEngine:
                                 "protocol": protocol_name,
                                 "action": "retry_once",
                             })
+                            govm.inc("governance_coherence_failures")
                             # Single retry of this step
                             res_retry = await self._execute_protocol(protocol_name, context)
                             context[protocol_name] = res_retry
@@ -90,6 +99,7 @@ class OrchestrationEngine:
                                     "protocol": protocol_name,
                                     "reason": "incoherence_after_retry"
                                 })
+                                govm.inc("governance_aborts")
                                 context["error"] = msg
                                 break
                     except Exception as ge:
@@ -100,7 +110,10 @@ class OrchestrationEngine:
 
             elif "parallel" in item:
                 parallel_steps = item.get("parallel", [])
-                tasks = [self._execute_protocol(step["step"], context) for step in parallel_steps]
+                async def _guarded_exec(pname: str):
+                    async with self.parallel_sem:
+                        return await self._execute_protocol(pname, context)
+                tasks = [_guarded_exec(step["step"]) for step in parallel_steps]
                 results = await asyncio.gather(*tasks, return_exceptions=True)
                 for i, res in enumerate(results):
                     protocol_name = parallel_steps[i]["step"]
@@ -125,6 +138,7 @@ class OrchestrationEngine:
                                     "protocol": protocol_name,
                                     "reason": "incoherence_parallel"
                                 })
+                                govm.inc("governance_aborts")
                                 context["error"] = "Incoherent workflow output in parallel execution; aborted by policy"
                                 break
                         except Exception as ge:
@@ -156,12 +170,14 @@ class OrchestrationEngine:
         while True:
             try:
                 with self.resource_manager.profile(protocol_name) as metrics:
-                    execute_method = getattr(protocol, 'execute')
-                    if inspect.iscoroutinefunction(execute_method):
-                        result = await execute_method(data)
-                    else:
-                        loop = asyncio.get_running_loop()
-                        result = await loop.run_in_executor(self.executor, execute_method, data)
+            execute_method = getattr(protocol, 'execute')
+            timeout = self._get_timeout_seconds(protocol_name)
+            if inspect.iscoroutinefunction(execute_method):
+                result = await asyncio.wait_for(execute_method(data), timeout=timeout)
+            else:
+                loop = asyncio.get_running_loop()
+                fut = loop.run_in_executor(self.executor, execute_method, data)
+                result = await asyncio.wait_for(fut, timeout=timeout)
                 # mark retry success if we had previous failures
                 if retry_count > 0:
                     self.resilience_monitor.record_strategy(protocol_name, "retry", True)
@@ -179,11 +195,31 @@ class OrchestrationEngine:
                     "reason": strategy.get("reason")
                 })
                 if action == "retry":
+                    govm.inc("recovery_retries")
                     retry_count += 1
                     continue
                 if action == "use_fallback":
                     # Return fallback data as a valid result
                     fallback = strategy.get("data") or {"status": "fallback"}
+                    govm.inc("recovery_fallbacks")
                     return {"result": fallback, "resource_usage": {"recovery": "fallback"}, "note": strategy.get("reason")}
                 # abort or unknown -> re-raise to let caller handle
                 raise last_exception
+
+    def _parse_protocol_timeouts(self, spec: str) -> Dict[str, float]:
+        mapping: Dict[str, float] = {}
+        for pair in (spec or "").split(','):
+            pair = pair.strip()
+            if not pair or ':' not in pair:
+                continue
+            name, ms = pair.split(':', 1)
+            try:
+                mapping[name.strip()] = max(0.1, float(ms.strip()) / 1000.0)
+            except Exception:
+                continue
+        return mapping
+
+    def _get_timeout_seconds(self, protocol_name: str) -> float:
+        if protocol_name in self._timeouts:
+            return self._timeouts[protocol_name]
+        return max(0.1, getattr(settings, 'PROTOCOL_TIMEOUT_MS', 10000) / 1000.0)

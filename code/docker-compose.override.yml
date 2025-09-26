@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  mcp-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: simone-mcp-server
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_VERSION=${VERSION:-1.5.0}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - NEURAL_ENGINE_BACKEND=${NEURAL_ENGINE_BACKEND:-mvlm}
+      - MVLM_MODEL_DIRS=${MVLM_MODEL_DIRS:-main:/app/models/mvlm_gpt2/mvlm_final}
+      - ACTIVE_MVLM_MODEL=${ACTIVE_MVLM_MODEL:-main}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:3000}
+      - VALID_API_KEYS=${VALID_API_KEYS:-dev-admin-key,dev-user-key}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - PROTOCOL_TIMEOUT_MS=${PROTOCOL_TIMEOUT_MS:-10000}
+      - MAX_PARALLEL_PROTOCOLS=${MAX_PARALLEL_PROTOCOLS:-4}
+      - METRICS_PUBLIC=true
+    volumes:
+      - ./models:/app/models:ro
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7-alpine
+    container_name: simone-redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: simone-prometheus-local
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./config/prometheus-local.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    depends_on:
+      - mcp-server
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: simone-grafana-local
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+    depends_on:
+      - prometheus

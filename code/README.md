@@ -94,6 +94,65 @@ Audit logs are emitted in JSON format by a dedicated `audit` logger:
 
 Tip: Responses from `/execute` include a `governance_summary` field with `quality_scores` and `is_coherent` for quick inspection.
 
+Admin model management (MVLM local)
+- List available model aliases and show active alias (admin): `GET /admin/models`
+- Activate a model by alias (admin): `POST /admin/models/activate` with body `{ "alias": "main" }`
+- Configuration via `.env`:
+  - `MVLM_MODEL_DIRS=main:models/mvlm_gpt2/mvlm_final,enhanced:/opt/models/next`
+- `ACTIVE_MVLM_MODEL=main`
+
+Execution Controls
+- Timeouts and concurrency
+  - `PROTOCOL_TIMEOUT_MS` (default: 10000): Max time per protocol step.
+  - `MAX_PARALLEL_PROTOCOLS` (default: 4): Cap for parallel step execution.
+  - `PROTOCOL_TIMEOUTS_MS`: Optional per‑protocol overrides as `name:ms` pairs, comma‑separated (e.g., `ReasoningAndExplanationProtocol:15000,EmotionalStateLayerProtocol:8000`).
+- Quotas and rate limiting
+  - API/IP rate limiting configured via `RATE_LIMIT_*` envs.
+  - Optional per‑API‑key quota: `API_KEY_QUOTA_PER_MINUTE` (default: 0 disables).
+- Metrics
+  - JSON metrics: `GET /metrics` (admin)
+  - Prometheus metrics: `GET /metrics/prometheus` (admin unless `METRICS_PUBLIC=true`)
+  - Prometheus example config: see `code/config/prometheus.yml`.
+  - Grafana example dashboard: `code/mcp_server/docs/monitoring/grafana_governance_dashboard.json`.
+
+## Local Monitoring
+
+Run a local Prometheus + Grafana stack to visualize governance/recovery metrics.
+
+- Start services (single node app + Redis + Prometheus + Grafana):
+  - `docker-compose -f code/docker-compose.override.yml up`
+- Endpoints:
+  - App: `http://localhost:8000`
+  - Prometheus: `http://localhost:9090` (scrapes `/metrics/prometheus`)
+  - Grafana: `http://localhost:3000` (default admin password: `admin`)
+- Import dashboard:
+  - In Grafana, go to Dashboards → Import
+  - Upload `code/mcp_server/docs/monitoring/grafana_governance_dashboard.json`
+  - Select the Prometheus data source and save
+- Notes:
+  - The app exposes Prometheus metrics at `/metrics/prometheus`; set `METRICS_PUBLIC=true` for local testing (already set in override compose).
+  - Governance counters include coherence failures, governance aborts, recovery retries, and fallbacks.
+
+## Model Test CLI
+
+Quickly test a local GPT‑2–style MVLM without running the server.
+
+- Script: `code/tools/mvlm_textgen.py`
+- Requirements: included in `code/requirements.txt` (`transformers`, `torch`, `safetensors`).
+- Usage examples:
+  - Project MVLMEngine (simple defaults)
+    - `python code/tools/mvlm_textgen.py --model-dir models/mvlm_gpt2/mvlm_final --prompt "Give three bullet points on SIM-ONE governance:"`
+  - Raw Transformers (deterministic greedy)
+    - `python code/tools/mvlm_textgen.py --engine hf --greedy --max-new-tokens 96 --model-dir models/mvlm_gpt2/mvlm_final --prompt "Write a concise executive summary about SIM-ONE governance:"`
+  - From a file
+    - `python code/tools/mvlm_textgen.py --model-dir models/mvlm_gpt2/mvlm_final --prompt-file prompt.txt`
+  - From stdin
+    - `echo "Test prompt" | python code/tools/mvlm_textgen.py --model-dir models/mvlm_gpt2/mvlm_final`
+
+Notes
+- Force CPU if needed: set `CUDA_VISIBLE_DEVICES=""` or `PYTORCH_FORCE_CPU=1`.
+- The model directory must contain standard HF files (`config.json`, `model.safetensors`, tokenizer files).
+
 ## API Documentation
 
 The server exposes a powerful API for executing cognitive workflows. For detailed information on all available endpoints, request/response formats, authentication, and usage examples, please refer to our full [API Documentation](./docs/API_DOCUMENTATION.md).

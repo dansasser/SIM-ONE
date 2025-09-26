@@ -2,7 +2,7 @@ global:
   scrape_interval: 15s
 
 scrape_configs:
-  - job_name: 'simone-mcp'
+  - job_name: 'simone-mcp-local'
     static_configs:
-      - targets: ['mcp-server-1:8000', 'mcp-server-2:8000']
+      - targets: ['mcp-server:8000']
     metrics_path: /metrics/prometheus

@@ -73,5 +73,5 @@ MTP serves as the **governed knowledge backbone**:
 
 ## Notes on Implementation
 
-Specific tagging schemas, retrieval algorithms, and emotional‑memory scoring methods are **not disclosed publicly** to protect proprietary intellectual property.
+Specific tagging schemas, retrieval algorithms, and emotional‑memory scoring methods are available in the repository's implementation under the dual-license model.
 This documentation outlines MTP’s **governance purpose, operational role, and integration philosophy** within SIM‑ONE.

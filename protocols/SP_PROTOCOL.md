@@ -71,5 +71,5 @@ SP functions as the **final stage** in the governed cognition pipeline:
 
 ## Notes on Implementation
 
-The internal summarization strategies, style adaptation logic, and quality‑scoring algorithms are **not disclosed publicly** to protect proprietary intellectual property.
+The internal summarization strategies, style adaptation logic, and quality‑scoring algorithms are available in the repository's implementation under the dual-license model.
 This documentation focuses on SP’s **governance role, operational purpose, and integration philosophy** within SIM‑ONE.

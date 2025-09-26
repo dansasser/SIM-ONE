@@ -16,9 +16,23 @@ class SessionManager:
 
     def __init__(self):
         try:
-            self.redis_client = redis.Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=0, decode_responses=True)
-            self.redis_client.ping()
-            logger.info(f"SessionManager successfully connected to Redis at {settings.REDIS_HOST}:{settings.REDIS_PORT}")
+            # Prefer URL if provided
+            client = None
+            if getattr(settings, 'REDIS_MODE', 'standalone') == 'cluster':
+                try:
+                    from redis.cluster import RedisCluster  # type: ignore
+                    url = getattr(settings, 'REDIS_URL', None) or f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}"
+                    client = RedisCluster.from_url(url, decode_responses=True)
+                except Exception as ce:
+                    logger.warning(f"Redis cluster init failed, falling back to standalone: {ce}")
+            if client is None:
+                if getattr(settings, 'REDIS_URL', None):
+                    client = redis.Redis.from_url(settings.REDIS_URL, decode_responses=True)
+                else:
+                    client = redis.Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=0, decode_responses=True)
+            client.ping()
+            self.redis_client = client
+            logger.info("SessionManager connected to Redis (%s)", getattr(settings, 'REDIS_URL', None) or f"{settings.REDIS_HOST}:{settings.REDIS_PORT}")
         except redis.exceptions.ConnectionError as e:
             logger.warning(f"Could not connect to Redis for SessionManager. Using in-memory FakeRedis for sessions. Error: {e}")
             self.redis_client = FakeRedis(decode_responses=True)
@@ -30,7 +44,7 @@ class SessionManager:
                 "user_id": user_id,
                 "history": []
             }
-            self.redis_client.set(session_id, json.dumps(session_data), ex=86400)
+            self.redis_client.set(session_id, json.dumps(session_data), ex=settings.SESSION_TTL_SECONDS)
             logger.info(f"Created new session: {session_id} for user: {user_id}")
         return session_id
 
@@ -62,7 +76,7 @@ class SessionManager:
             if session_data:
                 session_data["history"] = history
                 history_json = json.dumps(session_data)
-                self.redis_client.set(session_id, history_json, ex=86400)
+                self.redis_client.set(session_id, history_json, ex=settings.SESSION_TTL_SECONDS)
         except Exception as e:
             logger.error(f"Error updating history for session {session_id}: {e}")
 

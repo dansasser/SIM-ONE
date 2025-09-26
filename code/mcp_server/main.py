@@ -18,6 +18,30 @@ from mcp_server.session_manager.session_manager import SessionManager
 from mcp_server.memory_manager.memory_manager import MemoryManager
 from mcp_server.workflow_template_manager.workflow_template_manager import WorkflowTemplateManager
 from mcp_server.middleware.auth_middleware import get_api_key, RoleChecker
+
+def enforce_api_key_quota_dependency(request: Request):
+    # Optional per-key quota: simple counter per minute
+    limit = getattr(settings, 'API_KEY_QUOTA_PER_MINUTE', 0)
+    if not limit:
+        return
+    api_key = request.headers.get("X-API-Key")
+    if not api_key:
+        return
+    rc = session_manager.redis_client
+    if not rc:
+        return
+    import time
+    bucket = int(time.time() // 60)
+    key = f"quota:{api_key}:{bucket}"
+    try:
+        current = rc.incr(key)
+        if current == 1:
+            rc.expire(key, 60)
+        if current > limit:
+            raise HTTPException(status_code=429, detail="Per-API-key quota exceeded")
+    except Exception:
+        # Fail-open on Redis issues
+        return
 from mcp_server.middleware.security_headers_middleware import SecurityHeadersMiddleware
 from mcp_server.security.advanced_validator import advanced_validate_input
 from mcp_server.security.error_handler import add_exception_handlers
@@ -35,7 +59,10 @@ setup_logging()
 logger = logging.getLogger(__name__)
 
 # --- Rate Limiting Setup ---
-limiter = Limiter(key_func=get_remote_address)
+def api_key_or_ip(request: Request):
+    return request.headers.get("X-API-Key") or get_remote_address(request)
+
+limiter = Limiter(key_func=api_key_or_ip)
 
 # --- App Initialization ---
 app = FastAPI(title="mCP Server", version=settings.APP_VERSION)
@@ -144,7 +171,7 @@ class WorkflowResponse(BaseModel):
 # --- API Endpoints ---
 from mcp_server.middleware.auth_middleware import get_api_key, RoleChecker
 
-@app.post("/execute", response_model=WorkflowResponse, tags=["Orchestration"], dependencies=[Depends(RoleChecker(["admin", "user"]))])
+@app.post("/execute", response_model=WorkflowResponse, tags=["Orchestration"], dependencies=[Depends(RoleChecker(["admin", "user"])), Depends(enforce_api_key_quota_dependency)])
 @limiter.limit(settings.RATE_LIMIT_EXECUTE)
 async def execute_workflow(
     request: Request,
@@ -268,6 +295,11 @@ async def health_check():
     return {"status": "ok"}
 
 from mcp_server.metrics.metrics_collector import MetricsCollector
+try:
+    from prometheus_client import generate_latest, CONTENT_TYPE_LATEST  # type: ignore
+except Exception:
+    generate_latest = None
+    CONTENT_TYPE_LATEST = 'text/plain; version=0.0.4; charset=utf-8'
 
 @app.get("/health/detailed", response_model=HealthStatus, tags=["Health"])
 async def health_check_detailed():
@@ -311,6 +343,14 @@ async def get_metrics():
     collector = MetricsCollector()
     return collector.get_all_metrics()
 
+@app.get("/metrics/prometheus", tags=["Health"])
+async def get_metrics_prometheus(user: dict = Depends(get_api_key) if not settings.METRICS_PUBLIC else (lambda: None)):
+    if generate_latest is None:
+        raise HTTPException(status_code=501, detail="prometheus_client not installed")
+    data = generate_latest()  # type: ignore
+    from fastapi import Response
+    return Response(content=data, media_type=CONTENT_TYPE_LATEST)
+
 # --- Admin: API Key Lifecycle ---
 from pydantic import BaseModel
 
@@ -343,6 +383,53 @@ async def delete_api_key(user_id: str):
     if not removed:
         raise HTTPException(status_code=404, detail="API key not found")
     return {"success": True, "user_id": user_id}
+
+# --- Admin: Runtime Model Switching (MVLM) ---
+class ActivateModelRequest(BaseModel):
+    alias: str
+
+@app.post("/admin/models/activate", tags=["Admin"], dependencies=[Depends(RoleChecker(["admin"]))])
+@limiter.limit("10/minute")
+async def activate_model(req: ActivateModelRequest):
+    from mcp_server.neural_engine import neural_engine as ne
+    # Validate alias against MVLM_MODEL_DIRS if provided
+    dirs_spec = getattr(settings, 'MVLM_MODEL_DIRS', '') or ''
+    valid_aliases = set()
+    for pair in dirs_spec.split(','):
+        pair = pair.strip()
+        if not pair:
+            continue
+        if ':' in pair:
+            a, _ = pair.split(':', 1)
+            valid_aliases.add(a.strip())
+    if valid_aliases and req.alias not in valid_aliases:
+        raise HTTPException(status_code=400, detail=f"Unknown model alias '{req.alias}'. Known: {sorted(valid_aliases)}")
+
+    # Update active alias in settings (process-local) and refresh engine
+    try:
+        setattr(settings, 'ACTIVE_MVLM_MODEL', req.alias)
+        ne.refresh_neural_engine()
+        logging.getLogger("audit").info({
+            "event": "model_activated",
+            "alias": req.alias
+        })
+        return {"success": True, "active_alias": req.alias}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to activate model: {e}")
+
+@app.get("/admin/models", tags=["Admin"], dependencies=[Depends(RoleChecker(["admin"]))])
+@limiter.limit("20/minute")
+async def list_models():
+    # Parse aliases from MVLM_MODEL_DIRS
+    dirs_spec = getattr(settings, 'MVLM_MODEL_DIRS', '') or ''
+    items = []
+    for pair in dirs_spec.split(','):
+        pair = pair.strip()
+        if not pair or ':' not in pair:
+            continue
+        a, p = pair.split(':', 1)
+        items.append({"alias": a.strip(), "path": p.strip()})
+    return {"active_alias": getattr(settings, 'ACTIVE_MVLM_MODEL', ''), "aliases": items}
 
 # --- Database Management Endpoints ---
 from mcp_server.database.backup_manager import backup_manager

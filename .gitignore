@@ -1,0 +1,12 @@
+node_modules/ 
+dist/ 
+*.log 
+__pycache__/ 
+models/ 
+code/.mvlm_venv/ 
+code/data/*.jsonl
+code/data/*.xlsx
+code/data/*.txt
+code/data/*.csv
+models
+

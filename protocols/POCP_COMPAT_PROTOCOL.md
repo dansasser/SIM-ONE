@@ -73,5 +73,5 @@ POCP‑Compat acts as a **final presentation quality gate**:
 
 ## Notes on Implementation
 
-Specific rule sets, parsing logic, and transformation methods are **not publicly disclosed** to protect proprietary intellectual property.
+Specific rule sets, parsing logic, and transformation methods are available in the repository's implementation under the dual-license model.
 This documentation outlines POCP‑Compat’s **role, governance purpose, and integration philosophy** within SIM‑ONE.

@@ -7,6 +7,9 @@ redis
 beautifulsoup4
 requests
 llama-cpp-python
+transformers
+torch
+safetensors
 python-jose[cryptography]
 slowapi
 pydantic-settings
@@ -23,3 +26,8 @@ asyncio-pool
 numpy
 # For text processing and search
 scikit-learn
+prometheus-client
+peft
+datasets
+accelerate
+pyyaml

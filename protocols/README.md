@@ -5,7 +5,7 @@ This directory contains the formal governance protocol documentation for the **S
 Each protocol defines a distinct **governed cognitive function** that works in coordination with the others to produce deterministic, reliable, and truth‑aligned outputs.
 
 These documents describe each protocol’s **purpose, governance role, and integration philosophy**.  
-They are intentionally designed to be **transparent about what each protocol does** while protecting the **private implementation details** that power SIM‑ONE.
+They are intentionally designed to be **transparent about what each protocol does**, with implementation details available under the AGPL v3 license.
 
 ---
 
@@ -33,7 +33,7 @@ Each SIM‑ONE protocol:
 
 - **Is governance‑driven** — Designed around the *Five Laws of Cognitive Governance* from the SIM‑ONE Manifesto.
 - **Is modular** — Can operate independently or in coordination with the other protocols.
-- **Is IP‑safe in public form** — This documentation describes **purpose and role** without exposing the proprietary implementation.
+- **Is openly documented** — This documentation describes **purpose and role**, with full implementation available under the dual-license model.
 - **Is interoperable** — Works in harmony through SIM‑ONE’s protocol orchestration model.
 
 ---
@@ -46,9 +46,12 @@ Each SIM‑ONE protocol:
 
 ---
 
-## 🛡️ Intellectual Property Notice
+## 📄 License Information
 
-The implementation details of these protocols are **confidential** and protected.  
-The public documentation provides **conceptual overviews only** and omits any proprietary algorithms, datasets, or technical execution details.
+The SIM-ONE Framework operates under a dual-license model:
+- **AGPL v3** for non-commercial use (full source code available)
+- **Commercial License** for commercial use (proprietary modifications allowed)
+
+Implementation details are available in the repository's `code/` directory under the specified license terms.
 
 ---

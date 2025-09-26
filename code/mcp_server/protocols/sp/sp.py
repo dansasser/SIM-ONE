@@ -1,7 +1,9 @@
 import logging
-from typing import Dict, Any
+from typing import Dict, Any, List
 
 from mcp_server.neural_engine.neural_engine import NeuralEngine
+from mcp_server.neural_engine.prompt_adapters import build_bullets_prompt
+from mcp_server.neural_engine.json_guard import ensure_json
 
 logger = logging.getLogger(__name__)
 
@@ -38,20 +40,45 @@ class SP:
                 "status": "skipped"
             }
 
-        prompt = (
-            "Please provide a concise, polished, and executive-level summary of the following document.\n\n"
-            f"--- Document ---\n"
-            f"{text_to_summarize}\n\n"
-            f"--- End of Document ---\n\n"
-            "The summary should be a single, well-written paragraph."
+        # Build strict JSON prompt for exactly 5 bullets summarizing the document
+        schema_hint = '{ "bullets": [string, string, string, string, string] }'
+        task_text = (
+            "Produce exactly 5 bullet points for this document.\n"
+            "--- Document ---\n"
+            f"{text_to_summarize}\n"
+            "--- End of Document ---"
         )
+        _, mvlm_prompt = build_bullets_prompt(5, task_text)
 
-        summary = await self.neural_engine.async_generate_text(prompt)
+        def call_primary() -> str:
+            return self.neural_engine.generate_text(mvlm_prompt)
+
+        def call_tight() -> str:
+            tight = mvlm_prompt + "\nReturn ONLY valid JSON with exactly 5 items in 'bullets'."
+            return self.neural_engine.generate_text(tight)
+
+        def default_json() -> dict:
+            return {"bullets": []}
+
+        bullets_json = await self._ensure_json_async(call_primary, call_tight, default_json)
+        bullets: List[str] = bullets_json.get("bullets", []) if isinstance(bullets_json, dict) else []
+        # Also provide a joined summary paragraph for backward compatibility consumers
+        summary_text = " ".join(bullets) if bullets else ""
 
         return {
-            "summary": summary,
-            "status": "success"
+            "summary": summary_text or "No summary produced.",
+            "bullets": bullets,
+            "status": "success" if bullets else "fallback"
         }
+
+    async def _ensure_json_async(self, primary, tight, default_factory):
+        # Async wrapper for the sync ensure_json to avoid blocking event loop excessively
+        # Run the blocking engine calls in a thread via the async engine API when available
+        def as_sync(callable_fn):
+            # Wrap the sync generate by delegating to sync method through proxy
+            return callable_fn()
+        # Use ensure_json directly since engine proxy routes to sync generate_text
+        return ensure_json(lambda: as_sync(primary), lambda: as_sync(tight), default_factory)
 
 if __name__ == '__main__':
     # Example Usage

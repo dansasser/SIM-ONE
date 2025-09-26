@@ -73,5 +73,5 @@ VVP operates as the **final review authority**:
 
 ## Notes on Implementation
 
-Specific validation scoring methods, verification data sources, and error‑detection algorithms are **not disclosed publicly** to protect proprietary intellectual property.
+Specific validation scoring methods, verification data sources, and error‑detection algorithms are available in the repository's implementation under the dual-license model.
 This documentation focuses on VVP’s **governance purpose, operational role, and integration philosophy** within SIM‑ONE.

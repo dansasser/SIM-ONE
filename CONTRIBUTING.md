@@ -24,7 +24,7 @@ We are actively seeking **like‑minded contributors** in any of the following a
   Thinkers who can contribute to the ethical, philosophical, and policy frameworks that guide governed cognition.
 
 - **Documentation & Technical Writing**  
-  Writers who can help communicate SIM‑ONE’s architecture and principles to a wider audience without exposing proprietary implementation.
+  Writers who can help communicate SIM‑ONE's architecture and principles to a wider audience.
 
 If you’re aligned with the **Five Laws of Cognitive Governance** in our [`MANIFESTO.md`](./MANIFESTO.md), we’d like to hear from you.
 
@@ -35,9 +35,9 @@ If you’re aligned with the **Five Laws of Cognitive Governance** in our [`MANI
 1. **Alignment with the Manifesto**  
    Contributions must be consistent with the philosophical and architectural principles outlined in the SIM‑ONE Manifesto.
 
-2. **IP Protection**  
-   We share conceptual frameworks publicly but keep proprietary implementation details private.  
-   Contributions should **not include private algorithms, datasets, or sensitive code** unless explicitly approved for public release.
+2. **IP Protection**
+   Implementation details are available under the AGPL v3 license, with commercial licensing available for proprietary use.
+   Contributions should align with the dual-license structure and maintain appropriate attribution.
 
 3. **Collaboration with Integrity**  
    We value constructive dialogue, evidence‑based reasoning, and respectful collaboration.
@@ -75,8 +75,8 @@ Before submitting significant changes:
 * **Protocol Documentation**
   Expand or refine the conceptual documentation for SIM‑ONE protocols.
 
-* **Reference Implementations** *(non‑proprietary)*
-  Provide public‑safe, minimal‑viable implementations or integrations demonstrating protocol concepts.
+* **Reference Implementations**
+  Provide minimal-viable implementations or integrations demonstrating protocol concepts.
 
 * **Testing & Validation Tools**
   Help develop tools to test governance compliance and protocol interoperability.
@@ -107,7 +107,7 @@ If you are aligned with SIM‑ONE’s mission and want to collaborate:
 
 ---
 
-> **Note:** The SIM‑ONE Framework operates under the MIT License for public documentation, with proprietary implementations managed privately. All contributions are subject to review for philosophical alignment, governance compliance, and IP protection.
+> **Note:** The SIM‑ONE Framework operates under a dual-license model: AGPL v3 for non-commercial use and Commercial License for commercial use. All contributions are subject to review for philosophical alignment and governance compliance.
 
 ---
 

@@ -73,5 +73,5 @@ REP serves as the **cognitive discipline layer**:
 
 ## Notes on Implementation
 
-The internal reasoning models, decision‑path weighting, and confidence‑calculation methods are **not disclosed publicly** to protect proprietary intellectual property.
+The internal reasoning models, decision‑path weighting, and confidence‑calculation methods are available in the repository's implementation under the dual-license model.
 This documentation focuses on REP’s **governance purpose, operational role, and integration philosophy** within SIM‑ONE.

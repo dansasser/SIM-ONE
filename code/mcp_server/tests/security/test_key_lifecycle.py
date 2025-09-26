@@ -46,7 +46,26 @@ class TestApiKeyLifecycle(unittest.TestCase):
         self.assertEqual(r.status_code, 200)
         self.assertTrue(r.json().get("success"))
 
+    def test_admin_model_activate_requires_admin(self):
+        # Non-admin should be denied
+        r = self.client.post("/admin/models/activate", headers=self.user_headers, json={"alias": "main"})
+        self.assertEqual(r.status_code, 403)
+
+        # Admin can attempt activation; may 200 or 400 depending on alias list
+        r = self.client.post("/admin/models/activate", headers=self.admin_headers, json={"alias": "main"})
+        self.assertIn(r.status_code, [200, 400])
+
+    def test_admin_list_models_requires_admin(self):
+        # Non-admin should be denied
+        r = self.client.get("/admin/models", headers=self.user_headers)
+        self.assertEqual(r.status_code, 403)
+        # Admin should get a structure with aliases
+        r = self.client.get("/admin/models", headers=self.admin_headers)
+        self.assertEqual(r.status_code, 200)
+        body = r.json()
+        self.assertIn("active_alias", body)
+        self.assertIn("aliases", body)
+
 
 if __name__ == '__main__':
     unittest.main()
-

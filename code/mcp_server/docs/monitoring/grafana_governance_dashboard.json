@@ -1,0 +1,37 @@
+{
+  "title": "SIM-ONE Governance & Recovery",
+  "schemaVersion": 36,
+  "version": 1,
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Coherence Failures",
+      "gridPos": {"x": 0, "y": 0, "w": 8, "h": 4},
+      "targets": [{"expr": "sum(simone_governance_coherence_failures_total)"}]
+    },
+    {
+      "type": "stat",
+      "title": "Governance Aborts",
+      "gridPos": {"x": 8, "y": 0, "w": 8, "h": 4},
+      "targets": [{"expr": "sum(simone_governance_aborts_total)"}]
+    },
+    {
+      "type": "stat",
+      "title": "Recovery Retries",
+      "gridPos": {"x": 16, "y": 0, "w": 8, "h": 4},
+      "targets": [{"expr": "sum(simone_recovery_retries_total)"}]
+    },
+    {
+      "type": "stat",
+      "title": "Recovery Fallbacks",
+      "gridPos": {"x": 0, "y": 4, "w": 8, "h": 4},
+      "targets": [{"expr": "sum(simone_recovery_fallbacks_total)"}]
+    },
+    {
+      "type": "graph",
+      "title": "Coherence Failures Over Time",
+      "gridPos": {"x": 0, "y": 8, "w": 24, "h": 8},
+      "targets": [{"expr": "rate(simone_governance_coherence_failures_total[5m])"}]
+    }
+  ]
+}

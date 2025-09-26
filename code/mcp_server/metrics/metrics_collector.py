@@ -2,6 +2,7 @@ import psutil
 import logging
 
 from mcp_server.database.memory_database import get_db_connection
+from mcp_server.metrics.governance_metrics import snapshot as governance_snapshot
 
 logger = logging.getLogger(__name__)
 
@@ -61,5 +62,6 @@ class MetricsCollector:
         metrics = {
             "system": self.get_system_metrics(),
             "application": self.get_application_metrics(),
+            "governance": governance_snapshot(),
         }
         return metrics

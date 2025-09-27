@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs ls:*)",
+      "Bash(sort:*)",
+      "Bash(git rev-list:*)",
+      "Bash(git cat-file:*)",
+      "Read(//c/**)",
+      "Bash(git show-branch:*)",
+      "Bash(git filter-branch:*)",
+      "Bash(git filter-repo:*)",
+      "Bash(if exist .gitrefsoriginal rmdir /s /q .gitrefsoriginal)",
+      "Bash(git reflog expire --expire=now --all)",
+      "Bash(set FILTER_BRANCH_SQUELCH_WARNING=1)",
+      "Bash(git gc:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

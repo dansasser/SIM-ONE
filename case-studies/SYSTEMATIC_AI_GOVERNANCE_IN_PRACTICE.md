@@ -7,7 +7,7 @@
 ---
 
 **Author:** Daniel T. Sasser II  
-_Independent AI Researcher & Cognition Architect  
+Independent AI Researcher & Cognition Architect  
 Sasser Development, LLC  
 **Date:** September 27th, 2025
 

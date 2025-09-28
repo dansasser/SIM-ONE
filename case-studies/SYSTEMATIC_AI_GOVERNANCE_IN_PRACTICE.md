@@ -28,7 +28,7 @@ LinkedIn: [linkedin.com/in/dansasser/](https://www.linkedin.com/in/dansasser/)
 
 **Objective**: This study presents a methodological framework for systematically measuring and implementing AI governance protocols through retrofitted integration with existing large language model systems. We develop and demonstrate a systematic compliance measurement approach for the SIM-ONE Five Laws of Cognitive Governance, addressing the critical gap between AI governance theory and practical implementation pathways for enterprise adoption.
 
-**Methods**: We employed a proof-of-concept case study design implementing a JavaScript-based compliance validation system for the Five Laws framework (Architectural Intelligence, Cognitive Governance, Truth Foundation, Energy Stewardship, and Deterministic Reliability) on Claude Sonnet 4 using a complex energy forecasting question. The study demonstrates Context7-based integration for framework access, systematic violation identification, and iterative refinement cycles with quantitative measurement of governance compliance improvements.
+**Methods**: We employed a proof-of-concept case study design implementing a Python-based compliance validation system for the Five Laws framework (Architectural Intelligence, Cognitive Governance, Truth Foundation, Energy Stewardship, and Deterministic Reliability) on Claude Sonnet 4 using a complex energy forecasting question. The study demonstrates Context7-based integration for framework access, systematic violation identification, and iterative refinement cycles with quantitative measurement of governance compliance improvements.
 
 **Results**: The systematic governance measurement framework successfully demonstrated quantifiable compliance progression from 40% baseline to 100% full compliance across all Five Laws. Implementation achieved measurable improvements including integration of 20+ authoritative sources (baseline: 0), systematic probability assessment with confidence intervals (baseline: deterministic assertions), and 4× expansion in analytical scope while maintaining information density. The framework enabled objective identification and remediation of specific governance violations through systematic iterative refinement.
 
@@ -217,7 +217,7 @@ The SIM-ONE Five Laws documentation was systematically retrieved using Context7 
 ```
 
 **Phase 2: Validator Implementation**
-A JavaScript-based validation system was constructed based on SIM-ONE specifications, implementing systematic compliance checking for each governance law. The validator included:
+A Python-based validation system was constructed based on SIM-ONE specifications, implementing systematic compliance checking for each governance law. The validator included:
 
 - **Structural Analysis**: Logical coherence, evidence integration, argumentative progression
 - **Content Evaluation**: Balanced perspective, ethical consideration, uncertainty acknowledgment
@@ -336,25 +336,23 @@ Systematic queries were executed using Context7 to retrieve comprehensive framew
 4. **Integration Guidelines**: Retrieved retrofit implementation strategies for existing systems
 
 **Validator System Architecture**
-A comprehensive JavaScript-based validation system was constructed implementing the Five Laws criteria:
+A comprehensive Python-based validation system was constructed implementing the Five Laws criteria:
 
-```javascript
-class FiveLawsValidator {
-    constructor() {
-        this.laws = {
+```Python
+class FiveLawsValidator:
+    def __init__(self):
+        self.laws = {
             "law1": "Architectural Intelligence - Coherent structure and logical consistency",
             "law2": "Cognitive Governance - Quality, reliability, and alignment",
             "law3": "Truth Foundation - Ethical reasoning and harm prevention", 
             "law4": "Energy Stewardship - Efficiency and anti-verbosity",
             "law5": "Deterministic Reliability - Adaptability and anti-rigidity"
-        };
-    }
+        }
     
-    validateResponse(content) {
-        // Systematic compliance checking across all five laws
-        // Returns violations, refinements, and compliance scores
-    }
-}
+    def validate_response(self, content):
+        # Systematic compliance checking across all five laws
+        # Returns violations, refinements, and compliance scores
+        pass
 ```
 
 **Validation Criteria Implementation**:
@@ -455,28 +453,26 @@ To demonstrate the governance framework's effectiveness in systematic decision-m
 **Statistical Implementation**
 A probability assessment system was constructed incorporating:
 
-```javascript
-class StatisticalAnalysis {
-    constructor() {
-        this.aiEnergyData = {
-            current2024: 415, // TWh globally
-            projected2030: 945, // TWh IEA Base Case
-            growthRate: 0.15 // 15% annual for data centers
-        };
+```Python
+class StatisticalAnalysis:
+    def __init__(self):
+        self.ai_energy_data = {
+            "current_2024": 415,  # TWh globally
+            "projected_2030": 945,  # TWh IEA Base Case
+            "growth_rate": 0.15  # 15% annual for data centers
+        }
         
-        this.renewableData = {
-            projected2030Generation: 17000, // TWh renewable generation
-            currentGrowthRate: 0.151, // 15.1% annually
-            renewableShareBy2030: 0.46 // 46% of total electricity
-        };
-    }
+        self.renewable_data = {
+            "projected_2030_generation": 17000,  # TWh renewable generation
+            "current_growth_rate": 0.151,  # 15.1% annually
+            "renewable_share_by_2030": 0.46  # 46% of total electricity
+        }
     
-    calculateProbability() {
-        // Systematic probability assessment based on supply/demand ratios
-        // Regional concentration risk analysis
-        // Infrastructure readiness evaluation
-    }
-}
+    def calculate_probability(self):
+        # Systematic probability assessment based on supply/demand ratios
+        # Regional concentration risk analysis
+        # Infrastructure readiness evaluation
+        pass
 ```
 
 **Final Statistical Assessment**

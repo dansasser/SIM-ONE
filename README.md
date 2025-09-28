@@ -25,6 +25,7 @@ The project is intentionally designed to be **transparent about the "why"** and 
 
 ## Table of Contents
 - [🚀 Working Implementation](#-working-implementation)
+- [Case Studies](#case-studies)
 - [Core Philosophy](#core-philosophy)
 - [The MANIFESTO](#the-manifesto)
 - [The Five Laws of Cognitive Governance](#the-five-laws-of-cognitive-governance)
@@ -83,6 +84,15 @@ code/
 ```
 
 **➡️ [Explore the Implementation](./code/) | [View Protocol Documentation](./code/mcp_server/protocols/)**
+
+---
+
+## Case Studies
+
+SIM-ONE governance is being exercised in applied scenarios that demonstrate how the framework behaves in real deployments.
+
+- **Systematic AI Governance in Practice** — Shows how Five Laws compliance can be quantified and iteratively improved when retrofitting Claude Sonnet 4, lifting measured adherence from 40% to 100% while staying enterprise-ready. [Read the case study](https://dansasser.github.io/SIM-ONE/case-studies/SYSTEMATIC_AI_GOVERNANCE_IN_PRACTICE)
+- **Dual-Channel Semantic Fingerprint Shaping** — Explores a dual-ingestion strategy that shapes AI knowledge graphs, reducing semantic association latency from roughly 60 days to 7 days and highlighting governance implications for narrative control. [Read the case study](https://dansasser.github.io/SIM-ONE/case-studies/DUEL_CHANNEL_SEMANTIC_FINGERPRINT_SHAPING)
 
 ---
 

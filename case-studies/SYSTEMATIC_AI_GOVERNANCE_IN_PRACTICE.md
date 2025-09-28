@@ -1124,5 +1124,5 @@ Future research building on these foundations could establish AI governance as a
 
 [12] SIM-ONE Framework Documentation. (2024). GitHub Repository: dansasser/SIM-ONE. Retrieved from [https://github.com/dansasser/SIM-ONE](https://github.com/dansasser/SIM-ONE)
 
-[13] Context7 Integration Platform. (2024). Upstash Context7 - AI Context for Developers. Retrieved from (https://github.com/upstash/context7)[https://github.com/upstash/context7]
+[13] Context7 Integration Platform. (2024). Upstash Context7 - AI Context for Developers. Retrieved from [https://github.com/upstash/context7](https://github.com/upstash/context7)
 

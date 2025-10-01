@@ -8,5 +8,7 @@ code/data/*.jsonl
 code/data/*.xlsx
 code/data/*.txt
 code/data/*.csv
-models
+models/
+.claude/
+.continue/
 

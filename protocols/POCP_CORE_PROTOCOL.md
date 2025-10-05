@@ -73,5 +73,5 @@ POCP‑Core operates as the **first protocol in the governance sequence**:
 
 ## Notes on Implementation
 
-The procedural pattern libraries, coordination strategies, and validation algorithms used by POCP‑Core are **not publicly disclosed** to protect proprietary intellectual property.
+The procedural pattern libraries, coordination strategies, and validation algorithms used by POCP‑Core are available in the repository's implementation under the dual-license model.
 This documentation focuses on POCP‑Core’s **governance role, operational purpose, and integration philosophy** within SIM‑ONE.

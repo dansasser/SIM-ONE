@@ -73,5 +73,5 @@ ESL operates as a **specialized interpretive layer**:
 
 ## Notes on Implementation
 
-Details on emotional classification models, salience scoring algorithms, and contextual weighting formulas are **not disclosed publicly** to protect proprietary intellectual property.
+Details on emotional classification models, salience scoring algorithms, and contextual weighting formulas are available in the repository's implementation under the dual-license model.
 This documentation outlines ESL’s **governance purpose, operational role, and integration philosophy** without exposing implementation specifics.

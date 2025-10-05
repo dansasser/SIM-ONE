@@ -73,5 +73,5 @@ HIP functions as the **research intelligence layer**:
 
 ## Notes on Implementation
 
-Details of the search integration logic, relevance scoring methods, and content synthesis techniques are **not disclosed publicly** to protect proprietary intellectual property.
+Details of the search integration logic, relevance scoring methods, and content synthesis techniques are available in the repository's implementation under the dual-license model.
 This documentation focuses on HIP’s **governance role, operational purpose, and integration philosophy** within SIM‑ONE.

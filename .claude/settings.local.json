@@ -15,7 +15,8 @@
       "Bash(git gc:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(dir /b \"C:\\Users\\admin\\OneDrive\\Desktop\\SIM-ONE\\repo 10-05-2025 before update for paper2agent\\code\")"
     ],
     "deny": [],
     "ask": []

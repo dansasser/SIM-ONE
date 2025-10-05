@@ -20,7 +20,7 @@ seaborn>=0.12.0
 
 # Async support
 asyncio-throttle>=1.0.2
-aiofiles>=23.2.1
+aiofiles>=23.2.1 
 
 # Optional GPU acceleration (install manually if needed)
 # cupy-cuda12x>=12.2.0

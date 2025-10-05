@@ -1,5 +1,9 @@
 # SIM-ONE Cognitive Control Protocol (mCP) Server
 
+⚠️ **Important Naming Note**: The `mcp_server` directory predates the industry-standard "Model Context Protocol" (MCP). In this codebase, "mcp_server" refers to SIM-ONE's **"Multi-Protocol Cognitive Platform"** or **"Modular Cognitive Platform"** - the core orchestrator and agent system. This is NOT an MCP tool registry in the modern sense. See [../MIGRATION_PLAN.md](../MIGRATION_PLAN.md) for future renaming strategy.
+
+---
+
 ## Project Overview
 
 Welcome to the SIM-ONE mCP Server, a sophisticated, multi-protocol cognitive architecture designed to simulate advanced reasoning, emotional intelligence, and metacognitive governance. This server is the backbone of the SIM-ONE framework, providing a powerful platform for developing and orchestrating autonomous AI agents that can perform complex cognitive tasks.
@@ -48,6 +52,46 @@ MCP_API_KEY="your-secret-api-key"
 uvicorn mcp_server.main:app --host 0.0.0.0 --port 8000
 ```
 The server is now running and accessible at `http://localhost:8000`.
+
+---
+
+## Using SIM-ONE Protocols as Standalone Tools
+
+**Each protocol is available as a CLI tool in `/tools/` for integration with autonomous agents:**
+
+### Individual Protocol Tools
+- `run_rep_tool.py` - Reasoning & Explanation (deductive, inductive, abductive, analogical, causal)
+- `run_esl_tool.py` - Emotional State Analysis (multi-dimensional emotion detection)
+- `run_vvp_tool.py` - Validation & Verification (input validation and logical checking)
+- (see [tools/README.md](tools/README.md) for complete list)
+
+### Governance Tools
+- `run_five_laws_validator.py` - **Validate any response against Five Laws** ⭐
+- `run_governed_response.py` - Generate governed AI responses (planned)
+- `run_cognitive_workflow.py` - Multi-step governed processing (planned)
+
+### Example Usage
+
+```bash
+# Validate AI response against Five Laws
+python tools/run_five_laws_validator.py --text "response to check"
+
+# Use REP for reasoning
+python tools/run_rep_tool.py --reasoning-type deductive \
+  --facts "Socrates is a man" "All men are mortal" \
+  --rules '[["Socrates is a man", "All men are mortal"], "Socrates is mortal"]'
+
+# Chain protocols for governed workflow
+python tools/run_rep_tool.py --json '{...}' | \
+  python tools/run_vvp_tool.py | \
+  python tools/run_five_laws_validator.py
+```
+
+**📖 Full Tool Documentation**: [tools/README.md](tools/README.md)
+**🔧 Integration Guide**: [../PAPER2AGENT_INTEGRATION.md](../PAPER2AGENT_INTEGRATION.md)
+**📋 Tool Manifest**: [tools/tools_manifest.json](tools/tools_manifest.json)
+
+---
 
 ## Architecture Overview
 

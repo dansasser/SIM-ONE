@@ -11,6 +11,10 @@
 [![Governed Cognition](https://img.shields.io/badge/Focus-Governed_Cognition-blue.svg)](./)
 [![Energy Efficiency](https://img.shields.io/badge/Principle-Energy_Efficient_Architecture-lightgrey.svg)](./)
 
+⚠️ **Important Naming Note**: The `mcp_server` directory in this repository predates the industry-standard "Model Context Protocol" (MCP). In SIM-ONE, "mcp_server" refers to the **"Multi-Protocol Cognitive Platform"** or **"Modular Cognitive Platform"** - the core orchestrator and agent system. This is NOT an MCP tool registry in the modern sense. Directory renaming is planned for future compatibility (see [MIGRATION_PLAN.md](MIGRATION_PLAN.md)), but remains unchanged now to preserve link/SEO integrity.
+
+---
+
 **SIM‑ONE is the first open framework to formalize *governed cognition*, moving beyond brute‑force scaling to establish a principled, efficient, and reliable approach to AI architecture.**
 <img width="1536" height="1024" alt="sim_one_image_2_five_laws_pillars" src="https://github.com/user-attachments/assets/f4aa7a02-d454-4658-80be-f3abe24ccb8c" />
 
@@ -84,6 +88,63 @@ code/
 ```
 
 **➡️ [Explore the Implementation](./code/) | [View Protocol Documentation](./code/mcp_server/protocols/)**
+
+---
+
+## 🛠️ Tool Entrypoints for AI Agent Integration
+
+**SIM-ONE protocols are now available as standalone CLI tools for integration with autonomous agents like Paper2Agent.**
+
+### Five Laws Governance for Any AI Response
+
+Validate any AI-generated response against the Five Laws of Cognitive Governance:
+
+```bash
+# Validate a response
+echo "AI response text" | python code/tools/run_five_laws_validator.py
+
+# Generate a governed response
+python code/tools/run_governed_response.py --prompt "Explain quantum mechanics"
+
+# Run complete governed workflow
+python code/tools/run_cognitive_workflow.py --input query.txt --workflow full_governance
+```
+
+### Available Tools
+
+- **Governance**: Five Laws Validator, Governed Response Generator
+- **Protocols**: REP (Reasoning), ESL (Emotional Intelligence), VVP (Validation), CCP (Cognitive Control)
+- **Workflows**: Writing Team, Reasoning Pipeline, Analysis Workflow
+
+**📖 Full Integration Guide**: [PAPER2AGENT_INTEGRATION.md](PAPER2AGENT_INTEGRATION.md)
+**🔧 Tool Catalog**: [code/tools/README.md](code/tools/README.md)
+**📋 Tool Manifest**: [code/tools/tools_manifest.json](code/tools/tools_manifest.json)
+
+### Why This Matters for Paper2Agent
+
+Enable autonomous AI systems to:
+- ✅ **Self-govern** their outputs before returning to users
+- ✅ **Validate** responses against all Five Laws of Cognitive Governance
+- ✅ **Detect** truth foundation violations and probabilistic drift
+- ✅ **Ensure** consistent, governed reasoning processes
+- ✅ **Optimize** resource efficiency and energy stewardship
+
+**Quick Start for Paper2Agent:**
+```python
+import subprocess, json
+
+# Validate your AI response
+result = subprocess.run(
+    ["python", "code/tools/run_five_laws_validator.py", "--text", "your response"],
+    capture_output=True, text=True
+)
+validation = json.loads(result.stdout)
+
+if validation["pass_fail_status"] == "PASS":
+    print(f"✅ Governed response (Score: {validation['scores']['overall_compliance']:.1f}%)")
+else:
+    print("❌ Apply recommendations:", validation["recommendations"])
+```
 
 ---
 

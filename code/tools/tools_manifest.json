@@ -1,0 +1,258 @@
+{
+  "version": "1.0.0",
+  "framework": "SIM-ONE",
+  "description": "Cognitive Governance Tools for Paper2Agent Integration",
+  "last_updated": "2025-01-10",
+
+  "governance_tools": {
+    "five_laws_validator": {
+      "name": "Five Laws Cognitive Governance Validator",
+      "wrapper": "run_five_laws_validator.py",
+      "category": "governance",
+      "priority": "highest",
+      "description": "Evaluate any AI-generated text against the Five Laws of Cognitive Governance",
+      "input": {
+        "type": "text",
+        "methods": ["--text", "--file", "stdin"],
+        "required": true,
+        "format": "plain text or JSON"
+      },
+      "output": {
+        "type": "json",
+        "structure": {
+          "scores": {
+            "law1_architectural_intelligence": "float (0-100)",
+            "law2_cognitive_governance": "float (0-100)",
+            "law3_truth_foundation": "float (0-100)",
+            "law4_energy_stewardship": "float (0-100)",
+            "law5_deterministic_reliability": "float (0-100)",
+            "overall_compliance": "float (0-100)"
+          },
+          "pass_fail_status": "string (PASS|CONDITIONAL|FAIL)",
+          "violations": "array of strings",
+          "recommendations": "array of strings",
+          "strengths": "array of strings",
+          "detailed_results": "object"
+        }
+      },
+      "use_cases": [
+        "Validate Paper2Agent's own responses before returning to user",
+        "Check compliance of responses from other AI systems",
+        "Quality assurance in AI content generation pipelines",
+        "Governance auditing for multi-agent systems"
+      ],
+      "parameters": {
+        "strictness": {
+          "type": "string",
+          "choices": ["lenient", "moderate", "strict"],
+          "default": "moderate",
+          "description": "Validation strictness level"
+        },
+        "format": {
+          "type": "string",
+          "choices": ["json", "compact", "summary"],
+          "default": "json",
+          "description": "Output format"
+        },
+        "context": {
+          "type": "json",
+          "optional": true,
+          "description": "Additional context for evaluation"
+        }
+      },
+      "examples": [
+        {
+          "command": "python run_five_laws_validator.py --text \"Response to validate\"",
+          "description": "Basic validation from command line"
+        },
+        {
+          "command": "echo \"AI response\" | python run_five_laws_validator.py",
+          "description": "Validation from stdin (for piping)"
+        },
+        {
+          "command": "python run_five_laws_validator.py --file response.txt --strictness strict",
+          "description": "Strict validation from file"
+        }
+      ],
+      "composable": true,
+      "async": false
+    }
+  },
+
+  "protocol_tools": {
+    "REP": {
+      "name": "Reasoning and Explanation Protocol",
+      "wrapper": "run_rep_tool.py",
+      "category": "reasoning",
+      "priority": "high",
+      "description": "Advanced multi-modal reasoning including deductive, inductive, abductive, analogical, and causal inference",
+      "input": {
+        "type": "json",
+        "methods": ["--json", "--file", "stdin"],
+        "required_fields": ["reasoning_type"],
+        "optional_fields": ["facts", "rules", "observations", "hypotheses", "context"]
+      },
+      "output": {
+        "type": "json",
+        "structure": {
+          "reasoning_type": "string",
+          "conclusions": "array of strings",
+          "confidence_scores": "object",
+          "reasoning_chain": "array of reasoning steps",
+          "validation": "object",
+          "explanation": "string"
+        }
+      },
+      "reasoning_types": [
+        "deductive",
+        "inductive",
+        "abductive",
+        "analogical",
+        "causal"
+      ],
+      "use_cases": [
+        "Logical inference and deduction",
+        "Pattern recognition from observations",
+        "Best explanation hypothesis selection",
+        "Similarity-based reasoning",
+        "Causal relationship analysis"
+      ],
+      "composable": true,
+      "async": false
+    },
+
+    "ESL": {
+      "name": "Emotional State Layer Protocol",
+      "wrapper": "run_esl_tool.py",
+      "category": "emotional_intelligence",
+      "priority": "medium",
+      "description": "Sophisticated multi-dimensional emotion detection and analysis",
+      "input": {
+        "type": "text",
+        "methods": ["--text", "--file", "stdin"],
+        "required": true
+      },
+      "output": {
+        "type": "json",
+        "structure": {
+          "emotional_state": "string",
+          "valence": "string (positive|negative|neutral|mixed)",
+          "intensity": "float (0-1)",
+          "salience": "float (0-1)",
+          "confidence": "float (0-1)",
+          "detected_emotions": "array of emotion objects",
+          "contextual_factors": "object",
+          "explanation": "string"
+        }
+      },
+      "emotion_dimensions": [
+        "primary (joy, sadness, anger, fear, surprise, disgust)",
+        "social (gratitude, empathy, pride, guilt, envy)",
+        "cognitive (hope, curiosity, confusion, confidence, doubt)"
+      ],
+      "use_cases": [
+        "Sentiment analysis of user input",
+        "Emotional intelligence in AI responses",
+        "Empathy-aware communication",
+        "User state detection for adaptive responses"
+      ],
+      "composable": true,
+      "async": false
+    },
+
+    "VVP": {
+      "name": "Validation and Verification Protocol",
+      "wrapper": "run_vvp_tool.py",
+      "category": "validation",
+      "priority": "high",
+      "description": "Input validation and verification for logical structures",
+      "input": {
+        "type": "json",
+        "methods": ["--json", "--file", "stdin"],
+        "required_fields": ["rules"]
+      },
+      "output": {
+        "type": "json",
+        "structure": {
+          "validation_status": "string (success|failure)",
+          "reason": "string"
+        }
+      },
+      "use_cases": [
+        "Validate rule structures before reasoning",
+        "Verify input data format compliance",
+        "Logical consistency checking",
+        "Pre-execution validation"
+      ],
+      "composable": true,
+      "async": false
+    }
+  },
+
+  "orchestration_tools": {},
+
+  "workflow_tools": {},
+
+  "tool_discovery": {
+    "scan_directory": "code/tools/",
+    "entrypoint_marker": "MCP_TOOL_ENTRYPOINT",
+    "naming_pattern": "run_*_tool.py",
+    "documentation": "See code/tools/README.md"
+  },
+
+  "integration_guidelines": {
+    "for_paper2agent": {
+      "tool_discovery": "Parse this manifest to discover all available tools",
+      "execution_pattern": "python code/tools/{wrapper} [args]",
+      "input_methods": ["CLI arguments", "stdin piping", "file input"],
+      "output_format": "All tools return JSON by default",
+      "error_handling": "Non-zero exit codes indicate failures",
+      "composability": "Tools marked as 'composable' can be chained via pipes"
+    },
+    "five_laws_workflow": {
+      "description": "Use Five Laws validator to govern AI outputs",
+      "steps": [
+        "1. Generate response using any method",
+        "2. Validate with: echo \"$response\" | python run_five_laws_validator.py",
+        "3. Check pass_fail_status in output JSON",
+        "4. If FAIL, refine using recommendations array",
+        "5. Re-validate until PASS or CONDITIONAL"
+      ]
+    },
+    "protocol_composition": {
+      "description": "Chain multiple protocols for complex workflows",
+      "example": "python run_rep_tool.py --json '{...}' | python run_vvp_tool.py | python run_five_laws_validator.py"
+    }
+  },
+
+  "metadata": {
+    "total_tools": 4,
+    "governance_tools_count": 1,
+    "protocol_tools_count": 3,
+    "orchestration_tools_count": 0,
+    "workflow_tools_count": 0,
+    "all_tools_composable": true,
+    "requires_python": "3.8+",
+    "framework_version": "1.2",
+    "phase": "Phase 22 - Paper2Agent Integration"
+  },
+
+  "links": {
+    "documentation": "../PAPER2AGENT_INTEGRATION.md",
+    "tool_catalog": "README.md",
+    "migration_plan": "../../MIGRATION_PLAN.md",
+    "repository": "https://github.com/dansasser/SIM-ONE"
+  },
+
+  "future_tools": {
+    "planned": [
+      "run_ccp_tool.py - Cognitive Control Protocol",
+      "run_sep_tool.py - Semantic Encoding Protocol",
+      "run_mtp_tool.py - Memory Tagging Protocol",
+      "run_governed_response.py - Governed Response Generator",
+      "run_cognitive_workflow.py - Multi-step Orchestrator",
+      "run_writing_team_workflow.py - Multi-agent Writing"
+    ],
+    "timeline": "Phase 22 continuation"
+  }
+}

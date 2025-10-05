@@ -16,7 +16,8 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git push:*)",
-      "Bash(dir /b \"C:\\Users\\admin\\OneDrive\\Desktop\\SIM-ONE\\repo 10-05-2025 before update for paper2agent\\code\")"
+      "Bash(dir /b \"C:\\Users\\admin\\OneDrive\\Desktop\\SIM-ONE\\repo 10-05-2025 before update for paper2agent\\code\")",
+      "Bash(python run_five_laws_validator.py:*)"
     ],
     "deny": [],
     "ask": []

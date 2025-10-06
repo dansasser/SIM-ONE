@@ -102,15 +102,26 @@ from typing import Dict, Any, Optional
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-# Import the Five Laws evaluator
+# Import the FULL Five Laws protocols (not lightweight version)
+import asyncio
 try:
-    from tools.lib.five_laws_evaluator import FiveLawsEvaluator, evaluate_text
+    from mcp_server.protocols.governance.five_laws_validator.law1_architectural_intelligence import ArchitecturalIntelligenceProtocol
+    from mcp_server.protocols.governance.five_laws_validator.law2_cognitive_governance import CognitiveGovernanceProtocol
+    from mcp_server.protocols.governance.five_laws_validator.law3_truth_foundation import TruthFoundationProtocol
+    from mcp_server.protocols.governance.five_laws_validator.law4_energy_stewardship import EnergyStewardshipProtocol
+    from mcp_server.protocols.governance.five_laws_validator.law5_deterministic_reliability import DeterministicReliabilityProtocol
+    USE_FULL_PROTOCOLS = True
 except ImportError as e:
-    print(json.dumps({
-        "error": f"Failed to import Five Laws evaluator: {e}",
-        "status": "import_error"
-    }), file=sys.stderr)
-    sys.exit(1)
+    print(f"Warning: Could not import full protocols, falling back to lightweight evaluator: {e}", file=sys.stderr)
+    try:
+        from tools.lib.five_laws_evaluator import FiveLawsEvaluator, evaluate_text
+        USE_FULL_PROTOCOLS = False
+    except ImportError as e2:
+        print(json.dumps({
+            "error": f"Failed to import any Five Laws evaluator: {e2}",
+            "status": "import_error"
+        }), file=sys.stderr)
+        sys.exit(1)
 
 
 def setup_logging(verbose: bool = False):
@@ -150,6 +161,121 @@ def parse_context(context_str: Optional[str]) -> Optional[Dict[str, Any]]:
         raise ValueError(f"Invalid JSON in context: {e}")
 
 
+def _make_json_serializable(obj):
+    """Convert non-serializable objects to JSON-compatible format"""
+    if hasattr(obj, '__dict__'):
+        # Convert objects with __dict__ to dicts
+        return {k: _make_json_serializable(v) for k, v in obj.__dict__.items()}
+    elif hasattr(obj, 'name'):
+        # Convert Enums to their name
+        return obj.name
+    elif hasattr(obj, 'value'):
+        # Convert Enums to their value
+        return obj.value
+    elif isinstance(obj, dict):
+        return {k: _make_json_serializable(v) for k, v in obj.items()}
+    elif isinstance(obj, (list, tuple)):
+        return [_make_json_serializable(item) for item in obj]
+    else:
+        return obj
+
+
+def run_full_protocol_validation(text: str, context: Optional[Dict[str, Any]], strictness: str) -> Dict[str, Any]:
+    """
+    Run validation using the FULL Five Laws protocols (not lightweight version)
+
+    This executes the actual 30-68KB protocol implementations with sophisticated logic.
+    """
+    # Prepare data for protocol execution
+    protocol_data = {
+        "cognitive_outputs": {"text": text, "content": text},
+        "reasoning_chains": [],
+        "knowledge_base": context if context else {},
+        "validation_context": {"strictness": strictness}
+    }
+
+    # Initialize all Five Laws protocols
+    law1 = ArchitecturalIntelligenceProtocol()
+    law2 = CognitiveGovernanceProtocol()
+    law3 = TruthFoundationProtocol()
+    law4 = EnergyStewardshipProtocol()
+    law5 = DeterministicReliabilityProtocol()
+
+    # Run all protocols asynchronously
+    async def execute_all_protocols():
+        results = await asyncio.gather(
+            law1.execute(protocol_data),
+            law2.execute(protocol_data),
+            law3.execute(protocol_data),
+            law4.execute(protocol_data),
+            law5.execute(protocol_data)
+        )
+        return results
+
+    # Execute and gather results
+    law_results = asyncio.run(execute_all_protocols())
+
+    # Aggregate into expected output format (detailed_results excluded due to circular references)
+    scores = {
+        "law1_architectural_intelligence": law_results[0].get("compliance_score", 0) * 100,
+        "law2_cognitive_governance": law_results[1].get("compliance_score", 0) * 100,
+        "law3_truth_foundation": law_results[2].get("compliance_score", 0) * 100,
+        "law4_energy_stewardship": law_results[3].get("compliance_score", 0) * 100,
+        "law5_deterministic_reliability": law_results[4].get("compliance_score", 0) * 100,
+    }
+
+    # Weighted overall compliance
+    scores["overall_compliance"] = (
+        scores["law1_architectural_intelligence"] * 0.25 +
+        scores["law2_cognitive_governance"] * 0.25 +
+        scores["law3_truth_foundation"] * 0.25 +
+        scores["law4_energy_stewardship"] * 0.15 +
+        scores["law5_deterministic_reliability"] * 0.10
+    )
+
+    # Collect violations and recommendations from all protocols
+    violations = []
+    recommendations = []
+    strengths = []
+
+    for result in law_results:
+        violations.extend(result.get("violations", []))
+        recommendations.extend(result.get("recommendations", []))
+
+    # Identify strengths
+    law_names = ["Architectural Intelligence", "Cognitive Governance", "Truth Foundation",
+                 "Energy Stewardship", "Deterministic Reliability"]
+    law_scores = [scores[f"law{i+1}_{name.lower().replace(' ', '_')}"]
+                  for i, name in enumerate(law_names)]
+
+    for name, score in zip(law_names, law_scores):
+        if score > 80:
+            strengths.append(f"Strong {name} compliance")
+
+    # Determine pass/fail status
+    thresholds = {
+        "lenient": {"pass": 60.0, "conditional": 45.0},
+        "moderate": {"pass": 70.0, "conditional": 55.0},
+        "strict": {"pass": 85.0, "conditional": 70.0}
+    }
+    threshold = thresholds.get(strictness, thresholds["moderate"])
+
+    if scores["overall_compliance"] >= threshold["pass"]:
+        pass_fail_status = "PASS"
+    elif scores["overall_compliance"] >= threshold["conditional"]:
+        pass_fail_status = "CONDITIONAL"
+    else:
+        pass_fail_status = "FAIL"
+
+    return {
+        "scores": scores,
+        "violations": violations,
+        "recommendations": recommendations,
+        "strengths": strengths,
+        "pass_fail_status": pass_fail_status
+    }
+
+
 def format_output(result: Dict[str, Any], format_type: str = "json") -> str:
     """Format output in specified format"""
     if format_type == "json":
@@ -159,11 +285,13 @@ def format_output(result: Dict[str, Any], format_type: str = "json") -> str:
     elif format_type == "summary":
         # Human-readable summary
         scores = result["scores"]
+        protocol_mode = result.get('protocol_mode', 'UNKNOWN')
         output = []
         output.append("=" * 80)
         output.append("Five Laws Cognitive Governance Validation Report")
         output.append("=" * 80)
-        output.append(f"\nOverall Compliance: {scores['overall_compliance']:.1f}%")
+        output.append(f"\nProtocol Mode: {protocol_mode}")
+        output.append(f"Overall Compliance: {scores['overall_compliance']:.1f}%")
         output.append(f"Status: {result['pass_fail_status']}")
         output.append(f"\nIndividual Law Scores:")
         output.append(f"  1. Architectural Intelligence:    {scores['law1_architectural_intelligence']:.1f}%")
@@ -300,9 +428,16 @@ Examples:
         if context:
             logger.debug(f"Using context: {context}")
 
-        # Run evaluation
+        # Run evaluation using full protocols if available, otherwise use lightweight
         logger.info(f"Evaluating {len(text)} chars with strictness={args.strictness}")
-        result = evaluate_text(text, context, strictness=args.strictness)
+        if USE_FULL_PROTOCOLS:
+            logger.info("Using FULL Five Laws protocols (30-68KB implementations)")
+            result = run_full_protocol_validation(text, context, args.strictness)
+            result['protocol_mode'] = 'FULL_PROTOCOLS'
+        else:
+            logger.info("Using lightweight evaluator (fallback)")
+            result = evaluate_text(text, context, strictness=args.strictness)
+            result['protocol_mode'] = 'LIGHTWEIGHT_FALLBACK'
 
         # Format and output result
         output = format_output(result, args.format)

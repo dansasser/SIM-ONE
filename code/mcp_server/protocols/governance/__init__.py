@@ -3,16 +3,13 @@
 
 from .protocol_stack_composer import (
     ProtocolStackComposer,
-    GovernanceRequirement,
-    CoordinationStrategy,
-    StackCompositionMetrics
+    GovernanceRequirement
 )
 
 from .governance_orchestrator import (
     GovernanceOrchestrator,
     GovernancePhase,
-    GovernanceViolation,
-    GovernanceMetrics
+    GovernanceViolation
 )
 
 from .advanced_composition_engine import (
@@ -37,15 +34,12 @@ __all__ = [
     # Protocol Stack Composition
     'ProtocolStackComposer',
     'GovernanceRequirement',
-    'CoordinationStrategy',
-    'StackCompositionMetrics',
-    
+
     # Governance Orchestration
     'GovernanceOrchestrator',
     'GovernancePhase',
     'GovernanceViolation',
-    'GovernanceMetrics',
-    
+
     # Advanced Composition Engine
     'AdvancedGovernanceProtocolCompositionEngine',
     'CompositionStrategy',

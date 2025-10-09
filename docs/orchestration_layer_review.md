@@ -2,12 +2,12 @@
 
 ## Current Architecture Snapshot
 
-- **Workflow Execution Model:** `OrchestrationEngine.execute_workflow` recursively walks a template-defined list of steps, mutating a single `context` dictionary as shared state across protocols. Parallel steps are handled by spawning tasks for each protocol in the same list entry. 【F:code/mcp_server/orchestration_engine/orchestration_engine.py†L33-L161】
-- **Protocol Invocation:** `_execute_protocol` lazily loads protocol classes from manifests, then calls their `execute` method with a global timeout, optional retries, and light resource profiling. 【F:code/mcp_server/orchestration_engine/orchestration_engine.py†L164-L204】【F:code/mcp_server/protocol_manager/protocol_manager.py†L14-L68】
-- **Governance Hooks:** After each protocol completes, the governance orchestrator scores the output and may trigger a retry if coherence fails. 【F:code/mcp_server/orchestration_engine/orchestration_engine.py†L52-L109】
+- **Workflow Execution Model:** [`OrchestrationEngine.execute_workflow`](../code/mcp_server/orchestration_engine/orchestration_engine.py#L39-L162) recursively walks a template-defined list of steps, mutating a single `context` dictionary as shared state across protocols. Parallel steps are handled by spawning tasks for each protocol in the same list entry.
+- **Protocol Invocation:** [`_execute_protocol`](../code/mcp_server/orchestration_engine/orchestration_engine.py#L164-L207) lazily loads protocol classes from manifests, then calls their `execute` method with a global timeout, optional retries, and light resource profiling. It depends on the loader in [`ProtocolManager.get_protocol`](../code/mcp_server/protocol_manager/protocol_manager.py#L35-L69).
+- **Governance Hooks:** After each protocol completes, the governance orchestrator scores the output and may trigger a retry if coherence fails ([`evaluate_step`](../code/mcp_server/orchestration_engine/orchestration_engine.py#L64-L145)).
 - **Observations:**
-  - The resource profiling context currently wraps no statements because the body of the `with` block is empty due to a missing indentation, so metrics are never populated. 【F:code/mcp_server/orchestration_engine/orchestration_engine.py†L171-L185】
-  - Workflows are linear JSON templates without typed edges, shared state contracts, or conditional routing. 【F:code/mcp_server/workflow_templates.json†L1-L30】
+  - The resource profiling context currently wraps no statements because the body of the `with` block is empty due to a missing indentation, so metrics are never populated ([`resource_manager.profile`](../code/mcp_server/orchestration_engine/orchestration_engine.py#L172-L184)).
+  - Workflows are linear JSON templates without typed edges, shared state contracts, or conditional routing ([`workflow_templates.json`](../code/mcp_server/workflow_templates.json#L1-L33)).
 
 ## Gaps vs. LangGraph / AutoGen Capabilities
 
@@ -32,7 +32,7 @@
    - **Recommendation:** Add support for async iterators or callback hooks that stream intermediate protocol output (e.g., token streams from the neural engine). That will improve UX parity with LangGraph’s streaming UI integrations.
 
 6. **Memory Integration**
-   - Memory retrieval currently happens once per workflow at the beginning. There is no per-protocol retrieval augmentation or write-back policy. 【F:code/mcp_server/orchestration_engine/orchestration_engine.py†L37-L48】
+   - Memory retrieval currently happens once per workflow at the beginning. There is no per-protocol retrieval augmentation or write-back policy ([`execute_workflow`](../code/mcp_server/orchestration_engine/orchestration_engine.py#L43-L50)).
    - **Recommendation:** Allow protocols to declare memory requirements (read/write) so the orchestration layer can fetch embeddings on-demand, merge retrieved memories into the state slice, and schedule persistence after each step. This mirrors LangGraph’s memory nodes and AutoGen’s per-agent memory modules.
 
 7. **Concurrency Controls**

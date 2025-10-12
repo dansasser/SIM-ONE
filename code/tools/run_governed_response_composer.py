@@ -213,17 +213,8 @@ Generate a response that adheres to the SIM-ONE Framework's Five Laws of Cogniti
             error_msg = result.stderr.strip() if result.stderr else "Unknown error"
             raise RuntimeError(f"Claude CLI error: {error_msg}")
         
-        # Parse JSON output
-        try:
-            response_data = json.loads(result.stdout)
-            # Extract text from Claude API format
-            if "content" in response_data and len(response_data["content"]) > 0:
-                return response_data["content"][0]["text"]
-            else:
-                raise ValueError("Unexpected response format from Claude CLI")
-        except json.JSONDecodeError as e:
-            logging.error(f"Failed to parse Claude response: {result.stdout[:200]}")
-            raise RuntimeError(f"Invalid JSON response from Claude CLI: {e}")
+        # claude -p returns plain text, not JSON
+        return result.stdout.strip()
             
     except FileNotFoundError:
         raise FileNotFoundError(
@@ -264,16 +255,8 @@ def _generate_refined_response(refinement_prompt: str) -> str:
             error_msg = result.stderr.strip() if result.stderr else "Unknown error"
             raise RuntimeError(f"Claude CLI error: {error_msg}")
         
-        # Parse JSON output
-        try:
-            response_data = json.loads(result.stdout)
-            if "content" in response_data and len(response_data["content"]) > 0:
-                return response_data["content"][0]["text"]
-            else:
-                raise ValueError("Unexpected response format from Claude CLI")
-        except json.JSONDecodeError as e:
-            logging.error(f"Failed to parse Claude response: {result.stdout[:200]}")
-            raise RuntimeError(f"Invalid JSON response from Claude CLI: {e}")
+        # claude -p returns plain text, not JSON
+        return result.stdout.strip()
             
     except FileNotFoundError:
         raise FileNotFoundError(
@@ -442,8 +425,8 @@ def compose_governed_response(
     logging.info(f"Initial response score: {initial_validation['overall_score']:.1f}%")
     
     # 2. Check if already passed
-    if initial_validation["overall_score"] >= threshold:
-        logging.info("Initial response already meets threshold!")
+    if initial_validation["passed"]:
+        logging.info("Initial response already passes validation!")
         return {
             "initial_response": initial_response,
             "final_response": initial_response,
@@ -457,7 +440,7 @@ def compose_governed_response(
     current_validation = initial_validation
     iteration = 0
     
-    while iteration < max_iterations and current_validation["overall_score"] < threshold:
+    while iteration < max_iterations and not current_validation["passed"]:
         iteration += 1
         logging.info(f"Starting refinement iteration {iteration}/{max_iterations}...")
         
@@ -475,8 +458,8 @@ def compose_governed_response(
         logging.info(f"Iteration {iteration} score: {current_validation['overall_score']:.1f}%")
         
         # Check if passed
-        if current_validation["overall_score"] >= threshold:
-            logging.info(f"Threshold met after {iteration} iteration(s)!")
+        if current_validation["passed"]:
+            logging.info(f"Validation passed after {iteration} iteration(s)!")
             break
     
     # 4. Return comparison
@@ -486,7 +469,7 @@ def compose_governed_response(
     }
     
     improvement = current_validation["overall_score"] - initial_validation["overall_score"]
-    passed = current_validation["overall_score"] >= threshold
+    passed = current_validation["passed"]
     
     logging.info(f"Final score: {current_validation['overall_score']:.1f}% (improvement: {improvement:+.1f}%)")
     logging.info(f"Status: {'PASSED' if passed else 'FAILED'}")

@@ -16,7 +16,7 @@ Daniel T. Sasser II
 Independent AI Researcher & Cognition Architect   
 Sasser Development, LLC   
   
-Email: [contact@dansasser.me](mailto:contact@dansasse.me)   
+Email: [contact@gorombo.com](mailto:contact@gorombo.com)   
 Website: [dansasser.me](https://dansasser.me)   
 LinkedIn: [linkedin.com/in/dansasser/](https://www.linkedin.com/in/dansasser/)   
 
